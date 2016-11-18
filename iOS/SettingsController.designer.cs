@@ -14,8 +14,16 @@ namespace IndoorNavigation.iOS
     [Register ("SettingsController")]
     partial class SettingsController
     {
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel HomeLocationLabel { get; set; }
+
         void ReleaseDesignerOutlets ()
         {
+            if (HomeLocationLabel != null) {
+                HomeLocationLabel.Dispose ();
+                HomeLocationLabel = null;
+            }
         }
     }
 }

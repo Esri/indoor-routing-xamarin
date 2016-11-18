@@ -53,15 +53,33 @@ namespace IndoorNavigation
 		/// Moves to location user has set as Home
 		/// </summary>
 		/// <param name="map">Map.</param>
-		public void MoveToHomeLocation(Map map)
+		public async void MoveToHomeLocation(Map map)
 		{
+			//Run query to get all the polygons in the visible area
+			await map.OperationalLayers[1].LoadAsync();
+			var roomsLayer = map.OperationalLayers[1] as FeatureLayer;
+			var roomsTable = roomsLayer.FeatureTable;
 
+			// Set query parameters
+			QueryParameters queryParams = new QueryParameters()
+			{
+				ReturnGeometry = true,
+				WhereClause = string.Format("LONGNAME = '{0}'", GlobalSettings.currentSettings.HomeLocation)
+			};
+
+			// Query the feature table 
+			FeatureQueryResult queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+			var homeLocation = queryResult.FirstOrDefault();
+	
+
+
+			map.InitialViewpoint = new Viewpoint(homeLocation.Geometry);
 		}
 
 		public async Task<string[]> GetFloorsInVisibleArea(MapView mapView)
 		{
 			//Run query to get all the polygons in the visible area
-			var roomsLayer = mapView.Map.OperationalLayers[1] as FeatureLayer;
+			var roomsLayer = mapView.Map.OperationalLayers[GlobalSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
 
 			// Set query parameters
@@ -99,7 +117,7 @@ namespace IndoorNavigation
 				if (selectedFloor == "")
 				{
 					// select first floor by default
-					featureLayer.DefinitionExpression = string.Format("FLOOR = '{0}'", "1");
+					featureLayer.DefinitionExpression = "FLOOR = '1'";
 				}
 				else
 				{

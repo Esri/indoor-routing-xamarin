@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using CoreGraphics;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.UI.Controls;
 using Foundation;
@@ -26,8 +27,6 @@ namespace IndoorNavigation.iOS
 		public async override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-
-
 
 			// Get Mobile Map Package from the location on device
 			var mmpk = await MobileMapPackage.OpenAsync(Path.Combine(DownloadController.targetPath, DownloadController.targetFilename));
@@ -63,7 +62,11 @@ namespace IndoorNavigation.iOS
 					FloorsTableView.Hidden = false;
 					FloorsTableView.Source = new FloorsTableSource(tableItems, this);
 					InvokeOnMainThread(() => FloorsTableView.ReloadData());
-					FloorsTableView.SizeToFit();
+
+					// Auto extend ot shrink the tableview based on the content inside
+					CGRect frame = FloorsTableView.Frame;
+					frame.Height = FloorsTableView.ContentSize.Height;
+					FloorsTableView.Frame = frame;
 
 				}
 				else
