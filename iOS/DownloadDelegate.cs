@@ -58,6 +58,7 @@ namespace IndoorNavigation.iOS
 			}
 
 			this.InvokeOnMainThread(() => this.controller.LoadMapView());
+
 		}
 
 		/// <summary>

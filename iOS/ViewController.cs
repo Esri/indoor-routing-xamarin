@@ -29,12 +29,13 @@ namespace IndoorNavigation.iOS
 			base.ViewDidLoad();
 
 			// Get Mobile Map Package from the location on device
-			var mmpk = await MobileMapPackage.OpenAsync(Path.Combine(DownloadController.targetPath, DownloadController.targetFilename));
+			var mmpk = await MobileMapPackage.OpenAsync(DownloadController.targetFilename);
 
 			LocationHelper.mmpk = mmpk;
 
 			// Display map from the mmpk. Assumption is made that the mmpk has only one map
 			Map map = mmpk.Maps[0];
+			await map.LoadAsync();
 
 			// Set initial viewpoint of the map depending on user's settings
 			var mapHelper = new MapHelper();
@@ -42,6 +43,9 @@ namespace IndoorNavigation.iOS
 
 			// Add the map to the MapView to be displayed
 			MapView.Map = map;
+
+			// Remove the "Powered by Esri" logo at the bottom
+			MapView.IsAttributionTextVisible = false;
 
 			// Handle the user moving the map 
 			MapView.NavigationCompleted += MapView_NavigationCompleted;
@@ -75,14 +79,15 @@ namespace IndoorNavigation.iOS
 					selectedFloor = "";
 				}
 				// Turn layers on. If there is no floor selected, first floor will be displayed by default
-				mapHelper.TurnLayersOnOff(true, MapView, selectedFloor);
+				mapHelper.TurnLayersOnOff(true, MapView.Map, selectedFloor);
 			}
 			// If user is zoomed out, only show the base layer
 			else
 			{
 				FloorsTableView.Hidden = true;
-				mapHelper.TurnLayersOnOff(false, MapView, selectedFloor);
+				mapHelper.TurnLayersOnOff(false, MapView.Map, selectedFloor);
 			}
+
 
 		}
 
@@ -91,7 +96,7 @@ namespace IndoorNavigation.iOS
 		{
 			this.selectedFloor = _selectedFloor;
 			MapHelper mapHelper = new MapHelper();
-			mapHelper.TurnLayersOnOff(true, MapView, selectedFloor);;
+			mapHelper.TurnLayersOnOff(true, MapView.Map, selectedFloor);;
 		}
 	}
 

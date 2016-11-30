@@ -81,7 +81,7 @@ namespace IndoorNavigation.iOS
 	/// </summary>
 	public class AutosuggestionsTableSource : UITableViewSource
 	{
-		SuggestResult [] TableItems;
+		SuggestResult[] TableItems;
 		string CellIdentifier = "cell_id";
 
 		public AutosuggestionsTableSource(IReadOnlyList<SuggestResult> items)
@@ -118,7 +118,21 @@ namespace IndoorNavigation.iOS
 		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
 			var selectedLocation = this.TableItems[indexPath.Row];
+
 			GlobalSettings.currentSettings.HomeLocation = selectedLocation.Label;
+			var homeLocation = await LocationHelper.GetSearchedLocation(selectedLocation.Label);
+
+
+			// Save extent of home location to Settings file
+			CoordinatesKeyValuePair<string, double>[] homeCoordinates = 
+			{ 
+				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X), 
+				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+			};
+
+			GlobalSettings.currentSettings.HomeCoordinates = homeCoordinates;
+
 			// Save user settings
 			string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));

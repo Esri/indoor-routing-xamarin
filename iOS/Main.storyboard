@@ -17,32 +17,62 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleAspectFill" id="49" customClass="MapView" translatesAutoresizingMaskIntoConstraints="NO">
-                                <rect key="frame" x="0.0" y="65" width="600" height="535"/>
+                                <rect key="frame" x="0.0" y="109" width="600" height="491"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <subviews>
-                                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="65" translatesAutoresizingMaskIntoConstraints="NO">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
-                                        <items>
-                                            <barButtonItem style="plain" systemItem="flexibleSpace" id="306"/>
-                                            <barButtonItem title="Item" id="66" image="Maps"/>
-                                            <barButtonItem style="plain" systemItem="flexibleSpace" id="305"/>
-                                            <barButtonItem style="plain" systemItem="flexibleSpace" id="308"/>
-                                            <barButtonItem title="Item" id="303" image="Settings">
+                                    <stackView contentMode="scaleToFill" axis="vertical" id="1599" translatesAutoresizingMaskIntoConstraints="NO" spacing="2" fixedFrame="YES">
+                                        <rect key="frame" x="20" y="359" width="30" height="94"/>
+                                        <subviews>
+                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1600" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
+                                                <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
+                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <state key="normal" image="Settings">
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
                                                 <connections>
-                                                    <segue id="1271" destination="544" kind="show"/>
+                                                    <segue id="1732" destination="544" kind="show"/>
                                                 </connections>
-                                            </barButtonItem>
-                                            <barButtonItem style="plain" systemItem="flexibleSpace" id="307"/>
-                                        </items>
-                                    </toolbar>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                        <real key="value" value="5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                            </button>
+                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1601" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
+                                                <rect key="frame" x="0.0" y="32" width="30" height="30"/>
+                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <state key="normal" image="Home">
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                        <real key="value" value="5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1808" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
+                                                <rect key="frame" x="0.0" y="64" width="30" height="30"/>
+                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <state key="normal" image="CurrentLocation">
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                        <real key="value" value="5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                    </stackView>
                                 </subviews>
-                                <constraints>
-                                    <constraint id="1513" firstItem="65" firstAttribute="top" secondItem="49" secondAttribute="top"/>
-                                    <constraint id="1514" firstItem="65" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
-                                    <constraint id="1515" firstItem="65" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
-                                </constraints>
                             </view>
-                            <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="58" translatesAutoresizingMaskIntoConstraints="NO" separatorStyle="none" opaque="NO" autoresizesSubviews="NO" hidden="YES">
+                            <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="58" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" autoresizesSubviews="NO" hidden="YES" separatorStyle="none">
                                 <rect key="frame" x="546" y="254" width="34" height="227"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -67,26 +97,48 @@
                                                 <constraint id="1546" firstItem="172" firstAttribute="leading" secondItem="98" secondAttribute="leading" constant="10"/>
                                                 <constraint id="1547" firstItem="98" firstAttribute="bottom" secondItem="172" secondAttribute="bottom" constant="1"/>
                                             </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                    <real key="value" value="5"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
                                         </tableViewCellContentView>
                                         <connections/>
                                         <edgeInsets key="layoutMargins" top="0" left="0" bottom="0" right="0"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                                <real key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                     </tableViewCell>
                                 </prototypes>
                                 <edgeInsets key="layoutMargins" top="0" left="0" bottom="0" right="0"/>
                                 <constraints>
-                                    <constraint id="1533" firstItem="58" firstAttribute="width" constant="34"/>
+                                    <constraint id="1770" firstItem="58" firstAttribute="width" constant="34"/>
                                 </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                        <real key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </tableView>
+                            <searchBar contentMode="redraw" id="1555" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Search rooms or people">
+                                <rect key="frame" x="0.0" y="65" width="600" height="44"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint id="277" firstItem="49" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="1"/>
-                            <constraint id="278" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
-                            <constraint id="279" firstItem="wfy-db-euE" firstAttribute="top" secondItem="49" secondAttribute="bottom"/>
-                            <constraint id="280" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
-                            <constraint id="1530" firstItem="58" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="190"/>
-                            <constraint id="1531" firstItem="wfy-db-euE" firstAttribute="top" secondItem="58" secondAttribute="bottom" constant="119"/>
-                            <constraint id="1532" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
+                            <constraint id="1734" firstItem="1555" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="1"/>
+                            <constraint id="1735" firstItem="1555" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
+                            <constraint id="1736" firstItem="1555" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
+                            <constraint id="1750" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
+                            <constraint id="1751" firstItem="49" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom"/>
+                            <constraint id="1752" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
+                            <constraint id="1753" firstItem="49" firstAttribute="top" secondItem="1555" secondAttribute="bottom"/>
+                            <constraint id="1767" firstItem="58" firstAttribute="top" secondItem="1555" secondAttribute="bottom" constant="145"/>
+                            <constraint id="1768" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
+                            <constraint id="1769" firstItem="49" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="119"/>
                         </constraints>
                     </view>
                     <connections>
@@ -319,5 +371,7 @@
     <resources>
         <image name="Settings" width="30" height="30"/>
         <image name="Maps" width="30" height="30"/>
+        <image name="Home" width="30" height="30"/>
+        <image name="CurrentLocation" width="30" height="30"/>
     </resources>
 </document>

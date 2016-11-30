@@ -104,12 +104,22 @@
     <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer30.png" />
     <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer60.png" />
     <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer90.png" />
+    <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home30.png" />
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home60.png" />
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home90.png" />
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation30.png" />
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation60.png" />
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation90.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="Assets.xcassets\Settings.imageset\" />
     <Folder Include="Assets.xcassets\Settings.imageset\" />
     <Folder Include="Assets.xcassets\Maps.imageset\" />
+    <Folder Include="Assets.xcassets\Home.imageset\" />
+    <Folder Include="Assets.xcassets\CurrentLocation.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />

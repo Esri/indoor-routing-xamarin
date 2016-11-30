@@ -100,21 +100,24 @@ namespace IndoorNavigation
 		[XmlElement]
 		public int RoomsLayerIndex
 		{
-			get;set;
+			get; set;
 		}
 
 		[XmlElement]
 		public int FloorplanLinesLayerIndex
 		{
-			get;set;
+			get; set;
+		}
+
+		[XmlArray("HomeCoordinates")]
+		//[XmlArrayItem("Coordinate", typeof(double))]
+		public CoordinatesKeyValuePair<string, double>[] HomeCoordinates
+		{
+			get; set;
 		}
 
 
-
-		public AppSettings()
-		{ }
-
-		public static async Task<AppSettings> LoadAppSettings(string filePath)
+		public static AppSettings LoadAppSettings(string filePath)
 		{
 			// Get all the files in the device directory
 			List<string> files = Directory.EnumerateFiles(Path.GetDirectoryName(filePath)).ToList();
@@ -133,19 +136,27 @@ namespace IndoorNavigation
 				appSettings.FloorplanLinesLayerIndex = 2;
 
 				var serializer = new XmlSerializer(appSettings.GetType());
-				await Task.Factory.StartNew(delegate
+
+				// Create settings file on a separate thread
+				// this does not need to be awaited since the return is already set
+			    Task.Factory.StartNew(delegate
 				{
 					using (var fileStream = new FileStream(filePath, FileMode.Create))
 					{
 						serializer.Serialize(fileStream, appSettings);
 					}
 				});
+				return appSettings;
 			}
-			using (var fileStream = new FileStream(filePath, FileMode.Open))
+			// Otherwise load the settings from the settings file
+			else
 			{
-				var appSettings = new AppSettings();
-				var serializer = new XmlSerializer(appSettings.GetType());
-				return serializer.Deserialize(fileStream) as AppSettings;
+				using (var fileStream = new FileStream(filePath, FileMode.Open))
+				{
+					var appSettings = new AppSettings();
+					var serializer = new XmlSerializer(appSettings.GetType());
+					return serializer.Deserialize(fileStream) as AppSettings;
+				}
 			}
 		}
 
@@ -164,5 +175,18 @@ namespace IndoorNavigation
 	public static class GlobalSettings
 	{
 		public static AppSettings currentSettings { get; set; }
+	}
+
+	[Serializable]
+	public struct CoordinatesKeyValuePair<K, V>
+	{
+		public K Key { get; set; }
+		public V Value { get; set; }
+
+		public CoordinatesKeyValuePair(K k, V v)
+		{
+			Key = k;
+			Value = v;
+		}
 	}
 }

@@ -35,9 +35,9 @@ namespace IndoorNavigation
 			else
 			{
 				map.InitialViewpoint = new Viewpoint(new MapPoint(-13046209, 4036456, SpatialReferences.WebMercator), 1600);
-				map.MaxScale = 100;
-				map.MinScale = 13000;
 			}
+			map.MaxScale = 100;
+			map.MinScale = 13000;
 
 		}
 
@@ -55,8 +55,31 @@ namespace IndoorNavigation
 		/// <param name="map">Map.</param>
 		public async void MoveToHomeLocation(Map map)
 		{
-			//Run query to get all the polygons in the visible area
-			await map.OperationalLayers[1].LoadAsync();
+			double X = 0, Y = 0, WKID = 0;
+
+			for (int i = 0; i < GlobalSettings.currentSettings.HomeCoordinates.Length; i++)
+			{
+				switch (GlobalSettings.currentSettings.HomeCoordinates[i].Key)
+				{
+					case "X":
+						X = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						break;
+					case "Y":
+						Y = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						break;
+					case "WKID":
+						WKID = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						break;
+					default:
+						break;
+				}
+			}
+
+			map.InitialViewpoint = new Viewpoint(new MapPoint(X, Y, new SpatialReference((int)WKID)), 150);
+
+
+			//Run query to get the floor of the selected room
+			//await map.OperationalLayers[1].LoadAsync();
 			var roomsLayer = map.OperationalLayers[1] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
 
@@ -64,16 +87,15 @@ namespace IndoorNavigation
 			QueryParameters queryParams = new QueryParameters()
 			{
 				ReturnGeometry = true,
-				WhereClause = string.Format("LONGNAME = '{0}'", GlobalSettings.currentSettings.HomeLocation)
+				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", GlobalSettings.currentSettings.HomeLocation)
 			};
 
 			// Query the feature table 
 			FeatureQueryResult queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 			var homeLocation = queryResult.FirstOrDefault();
-	
 
 
-			map.InitialViewpoint = new Viewpoint(homeLocation.Geometry);
+			TurnLayersOnOff(true, map, homeLocation.Attributes["FLOOR"].ToString());
 		}
 
 		public async Task<string[]> GetFloorsInVisibleArea(MapView mapView)
@@ -109,11 +131,11 @@ namespace IndoorNavigation
 			return tableItems.ToArray();
 		}
 
-		public void TurnLayersOnOff(bool areLayersOn, MapView mapView, string selectedFloor)
+		public void TurnLayersOnOff(bool areLayersOn, Map map, string selectedFloor)
 		{
-			for (int i = 1; i < mapView.Map.OperationalLayers.Count; i++)
+			for (int i = 1; i < map.OperationalLayers.Count; i++)
 			{
-				var featureLayer = mapView.Map.OperationalLayers[i] as FeatureLayer;
+				var featureLayer = map.OperationalLayers[i] as FeatureLayer;
 				if (selectedFloor == "")
 				{
 					// select first floor by default
@@ -124,7 +146,7 @@ namespace IndoorNavigation
 					// select chosen floor
 					featureLayer.DefinitionExpression = string.Format("FLOOR = '{0}'", selectedFloor);
 				}
-				mapView.Map.OperationalLayers[i].IsVisible = areLayersOn;
+				map.OperationalLayers[i].IsVisible = areLayersOn;
 			}
 		}
 	}

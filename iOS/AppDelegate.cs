@@ -29,7 +29,7 @@ namespace IndoorNavigation.iOS
 
 			// When the application has finished loading, bring in the settings
 
-			GlobalSettings.currentSettings = AppSettings.LoadAppSettings(Path.Combine(settingsPath, "AppSettings.xml")).Result;
+			GlobalSettings.currentSettings = AppSettings.LoadAppSettings(Path.Combine(settingsPath, "AppSettings.xml"));
 
 			return true;
 		}

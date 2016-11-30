@@ -54,7 +54,6 @@ namespace IndoorNavigation.iOS
 		}
 
 
-
 		public override async void ViewDidLoad()
 		{
 			base.ViewDidLoad();
@@ -76,7 +75,7 @@ namespace IndoorNavigation.iOS
 
 
 				if (!files.Contains(targetFilename) ||
-					item.Modified.DateTime > GlobalSettings.currentSettings.MmpkDate)
+					item.Modified.LocalDateTime > GlobalSettings.currentSettings.MmpkDate)
 				{
 					// Otherwise, download the new mmpk
 					InvokeOnMainThread(() => UpdateLabel("Downloading Mobile Map Package ..."));
@@ -85,7 +84,10 @@ namespace IndoorNavigation.iOS
 
 					GlobalSettings.currentSettings.MmpkDate = DateTime.Now;
 				}
-				InvokeOnMainThread(() => LoadMapView());
+				else
+				{
+					InvokeOnMainThread(() => LoadMapView());
+				}
 			}
 			catch (Exception ex)
 			{
