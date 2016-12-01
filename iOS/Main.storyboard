@@ -17,50 +17,73 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleAspectFill" id="49" customClass="MapView" translatesAutoresizingMaskIntoConstraints="NO">
-                                <rect key="frame" x="0.0" y="109" width="600" height="491"/>
+                                <rect key="frame" x="0.0" y="65" width="600" height="535"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <subviews>
-                                    <stackView contentMode="scaleToFill" axis="vertical" id="1599" translatesAutoresizingMaskIntoConstraints="NO" spacing="2" fixedFrame="YES">
-                                        <rect key="frame" x="20" y="359" width="30" height="94"/>
+                                    <stackView contentMode="scaleToFill" axis="vertical" id="1599" translatesAutoresizingMaskIntoConstraints="NO" spacing="5">
+                                        <rect key="frame" x="20" y="296" width="42" height="175"/>
                                         <subviews>
-                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1600" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
-                                                <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
+                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1600" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" clipsSubviews="YES" opaque="NO" buttonType="roundedRect">
+                                                <rect key="frame" x="0.0" y="0.0" width="42" height="42"/>
                                                 <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <color key="tintColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="35"/>
                                                 <state key="normal" image="Settings">
-                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="titleColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
+                                                    <color key="titleShadowColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
                                                 </state>
                                                 <connections>
                                                     <segue id="1732" destination="544" kind="show"/>
                                                 </connections>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
-                                                        <real key="value" value="5"/>
+                                                        <real key="value" value="21"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                             </button>
-                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1601" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
-                                                <rect key="frame" x="0.0" y="32" width="30" height="30"/>
-                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                            <button contentMode="center" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1601" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" clipsSubviews="YES" buttonType="roundedRect" opaque="NO">
+                                                <rect key="frame" x="0.0" y="47" width="42" height="42"/>
+                                                <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="35" weight="semibold"/>
                                                 <state key="normal" image="Home">
                                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
-                                                        <real key="value" value="5"/>
+                                                        <real key="value" value="21"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1808" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES">
-                                                <rect key="frame" x="0.0" y="64" width="30" height="30"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1808" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" clipsSubviews="YES">
+                                                <rect key="frame" x="0.0" y="94" width="42" height="43"/>
                                                 <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                                <color key="tintColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="36"/>
                                                 <state key="normal" image="CurrentLocation">
                                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
-                                                        <real key="value" value="5"/>
+                                                        <real key="value" value="21"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
+                                            </button>
+                                            <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1828" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" clipsSubviews="YES" hidden="YES">
+                                                <rect key="frame" x="0.0" y="142" width="42" height="33"/>
+                                                <color key="backgroundColor" colorSpace="calibratedWhite" white="0" alpha="0"/>
+                                                <color key="tintColor" colorSpace="calibratedWhite" white="0" alpha="0"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17" weight="heavy"/>
+                                                <state key="normal" title="           ">
+                                                    <color key="titleColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
+                                                    <color key="titleShadowColor" colorSpace="calibratedWhite" white="0.333333333333333" alpha="1"/>
+                                                </state>
+                                                <connections>
+                                                    <segue id="1829" destination="1830" kind="show"/>
+                                                </connections>
+                                                <accessibility key="accessibilityConfiguration">
+                                                    <bool key="isElement" value="NO"/>
+                                                </accessibility>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
@@ -70,9 +93,21 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </stackView>
+                                    <searchBar contentMode="redraw" id="1555" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Search rooms or people" opaque="NO">
+                                        <rect key="frame" x="0.0" y="10" width="600" height="44"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="search"/>
+                                    </searchBar>
                                 </subviews>
+                                <constraints>
+                                    <constraint id="1856" firstItem="49" firstAttribute="bottom" secondItem="1599" secondAttribute="bottom" constant="64"/>
+                                    <constraint id="1857" firstItem="1599" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="20"/>
+                                    <constraint id="1858" firstItem="1555" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
+                                    <constraint id="1859" firstItem="1555" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
+                                    <constraint id="1860" firstItem="1555" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
+                                    <constraint id="1861" firstItem="1555" firstAttribute="top" secondItem="49" secondAttribute="top" constant="10"/>
+                                </constraints>
                             </view>
-                            <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="58" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" autoresizesSubviews="NO" hidden="YES" separatorStyle="none">
+                            <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="34" sectionHeaderHeight="28" sectionFooterHeight="28" id="58" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" autoresizesSubviews="NO" hidden="YES" separatorStyle="none">
                                 <rect key="frame" x="546" y="254" width="34" height="227"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -105,45 +140,37 @@
                                         </tableViewCellContentView>
                                         <connections/>
                                         <edgeInsets key="layoutMargins" top="0" left="0" bottom="0" right="0"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
-                                                <real key="value" value="5"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
                                     </tableViewCell>
                                 </prototypes>
                                 <edgeInsets key="layoutMargins" top="0" left="0" bottom="0" right="0"/>
-                                <constraints>
-                                    <constraint id="1770" firstItem="58" firstAttribute="width" constant="34"/>
-                                </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
                                         <real key="value" value="5"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <constraints>
+                                    <constraint id="1855" firstItem="58" firstAttribute="width" constant="34"/>
+                                </constraints>
                             </tableView>
-                            <searchBar contentMode="redraw" id="1555" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Search rooms or people">
-                                <rect key="frame" x="0.0" y="65" width="600" height="44"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </searchBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint id="1734" firstItem="1555" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="1"/>
-                            <constraint id="1735" firstItem="1555" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
-                            <constraint id="1736" firstItem="1555" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
-                            <constraint id="1750" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
-                            <constraint id="1751" firstItem="49" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom"/>
-                            <constraint id="1752" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
-                            <constraint id="1753" firstItem="49" firstAttribute="top" secondItem="1555" secondAttribute="bottom"/>
-                            <constraint id="1767" firstItem="58" firstAttribute="top" secondItem="1555" secondAttribute="bottom" constant="145"/>
-                            <constraint id="1768" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
-                            <constraint id="1769" firstItem="49" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="119"/>
+                            <constraint id="1848" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
+                            <constraint id="1849" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
+                            <constraint id="1850" firstItem="49" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom"/>
+                            <constraint id="1851" firstItem="49" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="1"/>
+                            <constraint id="1852" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
+                            <constraint id="1853" firstItem="49" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="119"/>
+                            <constraint id="1854" firstItem="58" firstAttribute="top" secondItem="49" secondAttribute="top" constant="189"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="MapView" destination="49" id="name-outlet-49"/>
                         <outlet property="FloorsTableView" destination="58" id="name-outlet-58"/>
+                        <outlet property="InvisibleButton" destination="1828" id="name-outlet-1828"/>
+                        <outlet property="CurrentLocation" destination="1808" id="name-outlet-1808"/>
+                        <outlet property="Home" destination="1601" id="name-outlet-1601"/>
+                        <outlet property="Settings" destination="1600" id="name-outlet-1600"/>
                     </connections>
                     <navigationItem id="1194" key="navigationItem"/>
                 </viewController>
