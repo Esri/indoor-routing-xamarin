@@ -115,20 +115,36 @@ namespace IndoorNavigation.iOS
 			return cell;
 		}
 
+		/// <summary>
+		/// When user selects home location from list of autosuggestions, set home location to selected value
+		/// </summary>
+		/// <param name="tableView">Table view.</param>
+		/// <param name="indexPath">Index path.</param>
 		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
 			var selectedLocation = this.TableItems[indexPath.Row];
+
+			// Set the value of the textbox to the selected autosuggestion and dismiss keyboard
+			var parentView = tableView.Superview;
+			// Access the textbox by setting it's Tag value to 3 in the Main.Storyboard
+			var homeTextField = parentView.Subviews[0] as UITextField;
+			if (homeTextField != null)
+			{
+				homeTextField.Text = selectedLocation.Label;
+				homeTextField.ResignFirstResponder();
+			}
 
 			GlobalSettings.currentSettings.HomeLocation = selectedLocation.Label;
 			var homeLocation = await LocationHelper.GetSearchedLocation(selectedLocation.Label);
 
 
-			// Save extent of home location to Settings file
+			// Save extent of home location and floor level to Settings file
 			CoordinatesKeyValuePair<string, double>[] homeCoordinates = 
 			{ 
 				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X), 
 				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
+				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
 			};
 
 			GlobalSettings.currentSettings.HomeCoordinates = homeCoordinates;

@@ -27,7 +27,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton Home { get; set; }
+        UIKit.UIButton HomeButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -41,6 +41,10 @@ namespace IndoorNavigation.iOS
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIButton Settings { get; set; }
 
+        [Action ("Home_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void Home_TouchUpInside (UIKit.UIButton sender);
+
         void ReleaseDesignerOutlets ()
         {
             if (CurrentLocation != null) {
@@ -53,9 +57,9 @@ namespace IndoorNavigation.iOS
                 FloorsTableView = null;
             }
 
-            if (Home != null) {
-                Home.Dispose ();
-                Home = null;
+            if (HomeButton != null) {
+                HomeButton.Dispose ();
+                HomeButton = null;
             }
 
             if (InvisibleButton != null) {

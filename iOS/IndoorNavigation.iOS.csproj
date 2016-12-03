@@ -112,6 +112,26 @@
     <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation30.png" />
     <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation60.png" />
     <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation90.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK80.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK120.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK29.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK58.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK87.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK57.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK114.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK40.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK50.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK100.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK180.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK144.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK72.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK76.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK167.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\SDK152.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen640x960.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen640x1136.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen320x480.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
