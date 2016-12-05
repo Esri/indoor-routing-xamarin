@@ -20,13 +20,26 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton RetryButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel statusLabel { get; set; }
+
+        [Action ("RetryButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void RetryButton_TouchUpInside (UIKit.UIButton sender);
 
         void ReleaseDesignerOutlets ()
         {
             if (progressView != null) {
                 progressView.Dispose ();
                 progressView = null;
+            }
+
+            if (RetryButton != null) {
+                RetryButton.Dispose ();
+                RetryButton = null;
             }
 
             if (statusLabel != null) {

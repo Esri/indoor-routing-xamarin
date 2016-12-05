@@ -44,13 +44,25 @@ namespace IndoorNavigation.iOS
 			statusLabel.Text = text;
 		}
 
+		public override void ViewWillAppear(bool animated)
+		{
+			base.ViewWillAppear(animated);
+		}
+
 		/// <summary>
 		/// Gets called by the delegate and tells the controller to load the map controller
 		/// </summary>
 		public void LoadMapView()
 		{
 			var navController = Storyboard.InstantiateViewController("NavController");
-			UIApplication.SharedApplication.KeyWindow.RootViewController = navController;
+			try
+			{
+				UIApplication.SharedApplication.KeyWindow.RootViewController = navController;
+			}
+			catch (NullReferenceException)
+			{
+				UIApplication.SharedApplication.Windows[0].RootViewController = navController;
+			}
 		}
 
 
@@ -58,55 +70,82 @@ namespace IndoorNavigation.iOS
 		{
 			base.ViewDidLoad();
 
-			// Setup the NSUrlSession.
-			InitializeSession();
-
 			List<string> files = Directory.EnumerateFiles(targetPath).ToList();
 
-			// Get item from Portal
-			try
+			// Test network connection. If it's available, check for new version of mmpk, then load map vieww
+			if (Reachability.IsNetworkAvailable() == true)
 			{
-				var portal = await ArcGISPortal.CreateAsync().ConfigureAwait(false);
-				var item = await PortalItem.CreateAsync(portal, GlobalSettings.currentSettings.ItemID).ConfigureAwait(false);
+				statusLabel.Text = "Checking for Map Package Updates ...";
+				progressView.Hidden = false;
+				RetryButton.Hidden = true;
+				// Setup the NSUrlSession.
+				InitializeSession();
 
-
-				// Check to see if the item has been updated since the last download
-				// If so, just return the existing mmpk
-
-
-				if (!files.Contains(targetFilename) ||
-					item.Modified.LocalDateTime > GlobalSettings.currentSettings.MmpkDate)
+				// Get item from Portal
+				try
 				{
-					// Otherwise, download the new mmpk
-					InvokeOnMainThread(() => UpdateLabel("Downloading Mobile Map Package ..."));
-					string downloadUrl = item.Url.AbsoluteUri.ToString() + "/data";
-					EnqueueDownload(downloadUrl);
+					var portal = await ArcGISPortal.CreateAsync().ConfigureAwait(false);
+					var item = await PortalItem.CreateAsync(portal, GlobalSettings.currentSettings.ItemID).ConfigureAwait(false);
 
-					GlobalSettings.currentSettings.MmpkDate = DateTime.Now;
+
+					// Check to see if the item has been updated since the last download
+					// If so, just return the existing mmpk
+
+
+					if (!files.Contains(targetFilename) ||
+						item.Modified.LocalDateTime > GlobalSettings.currentSettings.MmpkDate)
+					{
+						// Otherwise, download the new mmpk
+						InvokeOnMainThread(() => UpdateLabel("Downloading Mobile Map Package ..."));
+						string downloadUrl = item.Url.AbsoluteUri.ToString() + "/data";
+						EnqueueDownload(downloadUrl);
+
+						GlobalSettings.currentSettings.MmpkDate = DateTime.Now;
+					}
+					else
+					{
+						InvokeOnMainThread(() => LoadMapView());
+					}
 				}
-				else
+				catch (Exception ex)
 				{
-					InvokeOnMainThread(() => LoadMapView());
+					// If unable to get item from Portal, use already existing map package, unless this is the initial application download. 
+					if (!files.Contains(targetFilename))
+					{
+						BeginInvokeOnMainThread(() =>
+						{
+							LoadOfflineMessage();
+						});
+					}
+					else
+						InvokeOnMainThread(() => LoadMapView());
+
 				}
 			}
-			catch (Exception ex)
+			// If no network, check if mmpk has been donloaded and open itt
+			else if (files.Contains(targetFilename))
 			{
-				// If unable to get item from Portal, use already existing map package, unless this is the initial application download. 
-				if (!files.Contains(targetFilename))
-				{
-					BeginInvokeOnMainThread(() =>
-					{
-					var okAlertController = UIAlertController.Create("Failed to connect to Portal", ex.Message, UIAlertControllerStyle.Alert);
-						okAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-						UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(okAlertController, true, null);
-					});
-				}
-				else
-					InvokeOnMainThread(() => LoadMapView());
-
+				LoadMapView();
+			}
+			// If no connection and no mmpk downloaded, alert the user that they need to relaunch the app when in network
+			else
+			{
+				LoadOfflineMessage();
 			}
 		}
 
+		void LoadOfflineMessage()
+		{
+			statusLabel.Text = "Device does not seem to be connected to the network and the necessary data has not been downloaded. Please retry when in network range";
+			progressView.Hidden = true;
+			RetryButton.Hidden = false;
+		}
+
+		// Reload the view 
+		partial void RetryButton_TouchUpInside(UIButton sender)
+		{
+			ViewDidLoad();
+		}
 
 		/// <summary>
 		/// Initializes the session.
