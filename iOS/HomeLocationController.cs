@@ -10,49 +10,51 @@ using System.IO;
 
 namespace IndoorNavigation.iOS
 {
-    public partial class HomeLocationController : UIViewController
+	/// <summary>
+	/// Controller handles the ui and logic of the user choosing a home location
+	/// </summary>
+    partial class HomeLocationController : UIViewController
     {
 
-        public HomeLocationController (IntPtr handle) : base (handle)
-        {
-			
-        }
+		HomeLocationController(IntPtr handle) : base(handle)
+		{
+		}
 
+		/// <summary>
+		/// Overrides the controller behavior before view is about to appear
+		/// </summary>
+		/// <param name="animated">If set to <c>true</c> animated.</param>
 		public override void ViewWillAppear(bool animated)
 		{
-			this.NavigationController.NavigationBarHidden = false;
+			// Show the navigation bar
+			NavigationController.NavigationBarHidden = false;
 			base.ViewWillAppear(animated);
 
 		}
 
+		/// <summary>
+		/// Overrides the behavior of the controller once the view has loaded
+		/// </summary>
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-			HomeLocationTextField.BecomeFirstResponder();
-			// Set observer when text changes to call the TextChangedEvent
-			NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextChangedEvent);
-		}
+			//TODO: Decide if the search field should be first responder or not. Remove this line if not needed
+			//HomeLocationTextField.BecomeFirstResponder();
 
-		/// <summary>
-		/// Called when the text in the textbox changes. Triggers autosuggestions if available
-		/// </summary>
-		/// <param name="notification">Notification.</param>
-		private void TextChangedEvent(NSNotification notification)
-		{
-			UITextField field = (UITextField)notification.Object;
-
-			if (notification.Object == HomeLocationTextField)
+			// Set text changed event on the search bar
+			HomeLocationSearchBar.TextChanged += async (sender, e) =>
 			{
-				RetrieveSuggestionsFromLocator();
-			}
+				//this is the method that is called when the user searchess
+				await RetrieveSuggestionsFromLocator();
+			};
 		}
 
 		/// <summary>
 		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
 		/// </summary>
-	    public async void RetrieveSuggestionsFromLocator()
+	    async Task RetrieveSuggestionsFromLocator()
 		{
-			var suggestions = await LocationHelper.GetLocationSuggestions(HomeLocationTextField.Text);
+			var suggestions = await LocationViewModel.GetLocationSuggestions(HomeLocationSearchBar.Text);
 			if (suggestions == null || suggestions.Count == 0)
 			{
 				AutosuggestionsTableView.Hidden = true;
@@ -66,93 +68,11 @@ namespace IndoorNavigation.iOS
 
 				AutosuggestionsTableView.ReloadData();
 
-				// Auto extend ot shrink the tableview based on the content inside
-        		CGRect frame = AutosuggestionsTableView.Frame;
+				// Auto extend or shrink the tableview based on the content inside
+        		var frame = AutosuggestionsTableView.Frame;
 				frame.Height = AutosuggestionsTableView.ContentSize.Height;
         		AutosuggestionsTableView.Frame = frame;
-
-
 			}
-		}
-	}
-
-	/// <summary>>
-	/// Class handling the source data for the autosuggestions TableView 
-	/// </summary>
-	public class AutosuggestionsTableSource : UITableViewSource
-	{
-		SuggestResult[] TableItems;
-		string CellIdentifier = "cell_id";
-
-		public AutosuggestionsTableSource(IReadOnlyList<SuggestResult> items)
-		{
-			TableItems = items.ToArray();
-		}
-
-		/// <summary>
-		/// Called by the TableView to determine how many cells to create for that particular section.
-		/// </summary>
-		public override nint RowsInSection(UITableView tableview, nint section)
-		{
-			return TableItems.Length;
-		}
-
-		/// <summary>
-		/// Called by the TableView to get the actual UITableViewCell to render for the particular row
-		/// </summary>
-		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
-		{
-			UITableViewCell cell = tableView.DequeueReusableCell(CellIdentifier);
-			var item = TableItems[indexPath.Row];
-
-			//---- if there are no cells to reuse, create a new one
-			if (cell == null)
-			{ cell = new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier); }
-
-
-			cell.TextLabel.Text = item.Label;
-
-			return cell;
-		}
-
-		/// <summary>
-		/// When user selects home location from list of autosuggestions, set home location to selected value
-		/// </summary>
-		/// <param name="tableView">Table view.</param>
-		/// <param name="indexPath">Index path.</param>
-		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
-		{
-			var selectedLocation = this.TableItems[indexPath.Row];
-
-			// Set the value of the textbox to the selected autosuggestion and dismiss keyboard
-			var parentView = tableView.Superview;
-			// Access the textbox by setting it's Tag value to 3 in the Main.Storyboard
-			var homeTextField = parentView.Subviews[0] as UITextField;
-			if (homeTextField != null)
-			{
-				homeTextField.Text = selectedLocation.Label;
-				homeTextField.ResignFirstResponder();
-			}
-
-			GlobalSettings.currentSettings.HomeLocation = selectedLocation.Label;
-			var homeLocation = await LocationHelper.GetSearchedLocation(selectedLocation.Label);
-
-
-			// Save extent of home location and floor level to Settings file
-			CoordinatesKeyValuePair<string, double>[] homeCoordinates = 
-			{ 
-				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X), 
-				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
-				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
-			};
-
-			GlobalSettings.currentSettings.HomeCoordinates = homeCoordinates;
-
-			// Save user settings
-			string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
-
 		}
 	}
 }

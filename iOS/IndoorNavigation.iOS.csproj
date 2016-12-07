@@ -171,6 +171,12 @@
       <DependentUpon>HomeLocationController.cs</DependentUpon>
     </Compile>
     <Compile Include="NetworkReachability.cs" />
+    <Compile Include="AutosuggestionsTableSource.cs" />
+    <Compile Include="FloorsTableSource.cs" />
+    <Compile Include="MainViewController.cs" />
+    <Compile Include="MainViewController_.designer.cs">
+      <DependentUpon>MainViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

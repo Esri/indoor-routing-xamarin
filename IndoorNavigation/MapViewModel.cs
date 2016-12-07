@@ -9,21 +9,24 @@ using Esri.ArcGISRuntime.UI.Controls;
 
 namespace IndoorNavigation
 {
-	public static class MapHelper
+	/// <summary>
+	/// Map view model handles all business logic to do with the map navigation and layers
+	/// </summary>
+	static class MapViewModel
 	{
 		/// <summary>
 		/// Sets the initial view point based on user settings. 
 		/// </summary>
 		/// <param name="map">Map.</param>
-		public async static void SetInitialViewPoint(Map map)
+		internal async static void SetInitialViewPoint(Map map)
 		{
 			// Location based, location services are on
-			if (GlobalSettings.currentSettings.IsLocationServicesEnabled == true)
+			if (AppSettings.currentSettings.IsLocationServicesEnabled)
 			{
 				MoveToCurrentLocation(map);
 			}
 			// Home settings, location services are off but user has a home set
-			else if (GlobalSettings.currentSettings.HomeLocation != "Set home location")
+			else if (AppSettings.currentSettings.HomeLocation != "Set home location")
 			{
 				// move first to the extent of the map, then to the extent of the home location
 				map.InitialViewpoint = new Viewpoint(new MapPoint(-13046209, 4036456, SpatialReferences.WebMercator), 1600);
@@ -42,31 +45,32 @@ namespace IndoorNavigation
 		/// <summary>
 		/// Moves to current location of the user .
 		/// </summary>
-		public static void MoveToCurrentLocation(Map map)
+		static void MoveToCurrentLocation(Map map)
 		{
-
+			//TODO: Implement when current location is available
 		}
 
 		/// <summary>
-		/// Moves to location user has set as Home
+		/// Moves map to home location.
 		/// </summary>
+		/// <returns>The viewpoint with coordinates for the home location.</returns>
 		/// <param name="map">Map.</param>
-		public static async Task<Viewpoint> MoveToHomeLocation(Map map)
+		internal static async Task<Viewpoint> MoveToHomeLocation(Map map)
 		{
 			double X = 0, Y = 0, WKID = 0;
 
-			for (int i = 0; i < GlobalSettings.currentSettings.HomeCoordinates.Length; i++)
+			for (int i = 0; i < AppSettings.currentSettings.HomeCoordinates.Length; i++)
 			{
-				switch (GlobalSettings.currentSettings.HomeCoordinates[i].Key)
+				switch (AppSettings.currentSettings.HomeCoordinates[i].Key)
 				{
 					case "X":
-						X = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						X = AppSettings.currentSettings.HomeCoordinates[i].Value;
 						break;
 					case "Y":
-						Y = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						Y = AppSettings.currentSettings.HomeCoordinates[i].Value;
 						break;
 					case "WKID":
-						WKID = GlobalSettings.currentSettings.HomeCoordinates[i].Value;
+						WKID = AppSettings.currentSettings.HomeCoordinates[i].Value;
 						break;
 					default:
 						break;
@@ -78,19 +82,18 @@ namespace IndoorNavigation
 
 
 			//Run query to get the floor of the selected room
-			//await map.OperationalLayers[1].LoadAsync();
-			var roomsLayer = map.OperationalLayers[1] as FeatureLayer;
+			var roomsLayer = map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
 
 			// Set query parametersin 
-			QueryParameters queryParams = new QueryParameters()
+			var queryParams = new QueryParameters()
 			{
 				ReturnGeometry = true,
-				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", GlobalSettings.currentSettings.HomeLocation)
+				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", AppSettings.currentSettings.HomeLocation)
 			};
 
 			// Query the feature table 
-			FeatureQueryResult queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+			var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 			var homeLocation = queryResult.FirstOrDefault();
 
 
@@ -99,21 +102,26 @@ namespace IndoorNavigation
 			return viewpoint;
 		}
 
-		public static async Task<string[]> GetFloorsInVisibleArea(MapView mapView)
+		/// <summary>
+		/// Gets the floors in visible area.
+		/// </summary>
+		/// <returns>The floors in visible area.</returns>
+		/// <param name="mapView">Map view.</param>
+		internal static async Task<string[]> GetFloorsInVisibleArea(MapView mapView)
 		{
 			//Run query to get all the polygons in the visible area
-			var roomsLayer = mapView.Map.OperationalLayers[GlobalSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
+			var roomsLayer = mapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
 
 			// Set query parameters
-			QueryParameters queryParams = new QueryParameters()
+			var queryParams = new QueryParameters()
 			{
 				ReturnGeometry = false,
 				Geometry = mapView.VisibleArea
 			};
 
 			// Query the feature table 
-			FeatureQueryResult queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+			var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 
 			// Group by floors to get the distinct list of floors in the table selection
 			var distinctFloors = queryResult.GroupBy(g => g.Attributes["FLOOR"]).Select(gr => gr.First().Attributes["FLOOR"]);
@@ -132,7 +140,13 @@ namespace IndoorNavigation
 			return tableItems.ToArray();
 		}
 
-		public static void TurnLayersOnOff(bool areLayersOn, Map map, string selectedFloor)
+		/// <summary>
+		/// Turns the layers on off.
+		/// </summary>
+		/// <param name="areLayersOn">If set to <c>true</c> operational layers are turned on</param>
+		/// <param name="map">Map.</param>
+		/// <param name="selectedFloor">Selected floor.</param>
+		internal static void TurnLayersOnOff(bool areLayersOn, Map map, string selectedFloor)
 		{
 			for (int i = 1; i < map.OperationalLayers.Count; i++)
 			{

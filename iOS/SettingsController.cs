@@ -1,19 +1,26 @@
-using Foundation;
 using System;
 using UIKit;
 
 namespace IndoorNavigation.iOS
 {
-    public partial class SettingsController : UITableViewController
+	/// <summary>
+	/// Controller handles the UI and logic for the Settings screen
+	/// </summary>
+    partial class SettingsController : UITableViewController
     {
-        public SettingsController (IntPtr handle) : base (handle)
-        {
-        }
-
+		SettingsController(IntPtr handle) : base(handle)
+		{
+		}
+		/// <summary>
+		/// Overrides the controller behavior before view is about to appear
+		/// </summary>
+		/// <param name="animated">If set to <c>true</c> animated.</param>
 		public override void ViewWillAppear(bool animated)
 		{
-			this.NavigationController.NavigationBarHidden = false;
-			HomeLocationLabel.Text = GlobalSettings.currentSettings.HomeLocation;
+			// Show the navigation bar
+			NavigationController.NavigationBarHidden = false;
+			// Set the label for the home location from settings
+			HomeLocationLabel.Text = AppSettings.currentSettings.HomeLocation;
 
 			base.ViewWillAppear(animated);
 		} 

@@ -6,19 +6,25 @@ using System.Linq;
 
 namespace IndoorNavigation
 {
-	public static class LocationHelper
+	/// <summary>
+	/// Location view model handles all shared logic to do with locator and geocoding
+	/// </summary>
+	static class LocationViewModel
 	{
-		public static MobileMapPackage mmpk;
+		/// <summary>
+		/// Static reference to the mmpk.
+		/// </summary>
+		internal static MobileMapPackage mmpk;
 
 		/// <summary>
 		/// Gets the location suggestions from the mmpk.
 		/// </summary>
 		/// <returns>List of location suggestions.</returns>
 		/// <param name="userInput">User input.</param>
-		public static async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestions(string userInput)
+		internal static async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestions(string userInput)
 		{
 			// Load the locator from the mobile map package
-			LocatorTask locator = mmpk.LocatorTask;
+			var locator = mmpk.LocatorTask;
 			await locator.LoadAsync();
 			var locatorInfo = locator.LocatorInfo;
 
@@ -45,10 +51,10 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <returns>The searched location.</returns>
 		/// <param name="searchString">User input.</param>
-		public static async Task<GeocodeResult> GetSearchedLocation(string searchString)
+		internal static async Task<GeocodeResult> GetSearchedLocation(string searchString)
 		{
 			// Load the locator from the mobile map package
-			LocatorTask locator = mmpk.LocatorTask;
+			var locator = mmpk.LocatorTask;
 			await locator.LoadAsync();
 			var locatorInfo = locator.LocatorInfo;
 

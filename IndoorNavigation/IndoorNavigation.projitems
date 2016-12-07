@@ -10,8 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MapHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FloorSelector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LocationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MapViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LocationViewModel.cs" />
   </ItemGroup>
 </Project>

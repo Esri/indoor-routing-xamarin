@@ -11,12 +11,9 @@ using UIKit;
 
 namespace IndoorNavigation.iOS
 {
-    [Register ("ViewController")]
-    partial class ViewController
+    [Register ("MainViewController")]
+    partial class MainViewController
     {
-        [Outlet]
-        UIKit.UIButton Button { get; set; }
-
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView AutosuggestionsTableView { get; set; }

@@ -20,7 +20,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UITextField HomeLocationTextField { get; set; }
+        UIKit.UISearchBar HomeLocationSearchBar { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -33,9 +33,9 @@ namespace IndoorNavigation.iOS
                 AutosuggestionsTableView = null;
             }
 
-            if (HomeLocationTextField != null) {
-                HomeLocationTextField.Dispose ();
-                HomeLocationTextField = null;
+            if (HomeLocationSearchBar != null) {
+                HomeLocationSearchBar.Dispose ();
+                HomeLocationSearchBar = null;
             }
 
             if (HomeLocationView != null) {
