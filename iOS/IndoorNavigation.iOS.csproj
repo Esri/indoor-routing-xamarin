@@ -92,6 +92,7 @@
     <Reference Include="Esri.ArcGISRuntime">
       <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK-1.0" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -140,6 +141,10 @@
     <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start108.png" />
     <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start36.png" />
     <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start72.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections30.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections60.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections90.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -150,6 +155,7 @@
     <Folder Include="Assets.xcassets\CurrentLocation.imageset\" />
     <Folder Include="Assets.xcassets\EndPin.imageset\" />
     <Folder Include="Assets.xcassets\StartPin.imageset\" />
+    <Folder Include="Assets.xcassets\Navigation.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -182,6 +188,11 @@
     <Compile Include="MainViewController.cs" />
     <Compile Include="MainViewController_.designer.cs">
       <DependentUpon>MainViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="p.cs" />
+    <Compile Include="RouteController.cs" />
+    <Compile Include="RouteController.designer.cs">
+      <DependentUpon>RouteController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />

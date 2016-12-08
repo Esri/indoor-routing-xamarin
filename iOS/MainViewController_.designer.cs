@@ -20,7 +20,15 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIView ContactCardView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIButton CurrentLocationButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton DirectionsButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -44,6 +52,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel NameLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIButton Settings { get; set; }
 
         [Action ("Home_TouchUpInside:")]
@@ -57,9 +69,19 @@ namespace IndoorNavigation.iOS
                 AutosuggestionsTableView = null;
             }
 
+            if (ContactCardView != null) {
+                ContactCardView.Dispose ();
+                ContactCardView = null;
+            }
+
             if (CurrentLocationButton != null) {
                 CurrentLocationButton.Dispose ();
                 CurrentLocationButton = null;
+            }
+
+            if (DirectionsButton != null) {
+                DirectionsButton.Dispose ();
+                DirectionsButton = null;
             }
 
             if (FloorsTableView != null) {
@@ -85,6 +107,11 @@ namespace IndoorNavigation.iOS
             if (MapView != null) {
                 MapView.Dispose ();
                 MapView = null;
+            }
+
+            if (NameLabel != null) {
+                NameLabel.Dispose ();
+                NameLabel = null;
             }
 
             if (Settings != null) {

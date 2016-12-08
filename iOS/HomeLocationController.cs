@@ -97,7 +97,7 @@ namespace IndoorNavigation.iOS
 				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
 				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
 				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
-				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
+				new CoordinatesKeyValuePair<string, double>("Floor", 1),
 			};
 
 			AppSettings.currentSettings.HomeCoordinates = homeCoordinates;

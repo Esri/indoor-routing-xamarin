@@ -9,16 +9,69 @@ using Esri.ArcGISRuntime.UI.Controls;
 using Foundation;
 using UIKit;
 using System.IO;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
 
 namespace IndoorNavigation.iOS
 {
     public partial class MainViewController : UIViewController
     {
+
         MainViewController(IntPtr handle) : base(handle)
 		{
+			
 		}
 
 		string _selectedFloor = "";
+		RouteResult _route;
+		public RouteResult Route
+		{
+			get { return _route; }
+			set
+			{
+				if (_route != value && value != null)
+				{
+					_route = value;
+					OnRouteChanged();
+				}
+			}
+		}
+
+		public async Task OnRouteChanged()
+		{
+			if (Route != null)
+			{
+				// get the route from the results
+				var route = Route.Routes[0];
+
+				// create a picture marker symbol for start pin
+				var startPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
+				var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
+
+				// create a picture marker symbol for end pin
+				var endPin = ImageToByteArray(UIImage.FromBundle("EndPin"));
+				var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
+
+				// Create graphics
+				var startGraphic = new Graphic(route.RouteGeometry.Parts.First().Points.First(), startMarker);
+				var endGraphic = new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), endMarker);
+
+				// create a graphic (with a dashed line symbol) to represent the routee
+				var routeSymbol = new SimpleLineSymbol();
+				routeSymbol.Width = 5;
+				routeSymbol.Style = SimpleLineSymbolStyle.Dash;
+				routeSymbol.Color = System.Drawing.Color.DarkRed;
+
+
+				var routeGraphic = new Graphic(route.RouteGeometry, routeSymbol);
+
+				MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
+				MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
+				MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
+				await MapView.SetViewpointGeometryAsync(route.RouteGeometry, 30);
+			}
+		}
 
 		/// <summary>
 		/// Overrides the controller behavior before view is about to appear
@@ -70,7 +123,7 @@ namespace IndoorNavigation.iOS
 			// Add the map to the MapView to be displayed
 			MapView.Map = map;
 
-			// Add a graphics overlay to hold the pins and route graphics
+			//// Add a graphics overlay to hold the pins and route graphics
 			MapView.GraphicsOverlays.Add(new GraphicsOverlay());
 
 			// Remove the "Powered by Esri" logo at the bottom
@@ -99,6 +152,60 @@ namespace IndoorNavigation.iOS
 				// Dismiss autosuggestions table
 				AutosuggestionsTableView.Hidden = true;
 				await RetrieveSearchedFeature(searchText);
+			};
+
+
+			// handle the tap event on the map view (or scene view)
+			MapView.GeoViewTapped += async (s, e) =>
+			{
+				if (LocationSearchBar.IsFirstResponder == true)
+				{
+					LocationSearchBar.ResignFirstResponder();
+				}
+				else
+				{
+					// get the tap location in screen units
+					var tapScreenPoint = e.Position;
+
+					var layer = MapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex];
+					var pixelTolerance = 20;
+					var returnPopupsOnly = false;
+					var maxResults = 1;
+
+					try
+					{
+						// identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max results
+						IdentifyLayerResult idResults = await MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+						// get the layer identified and cast it to FeatureLayer
+						FeatureLayer idLayer = idResults.LayerContent as FeatureLayer;
+						var floorNumber = idResults.GeoElements.First().Attributes["FLOOR"];
+						var roomNumber = idResults.GeoElements.First().Attributes["LONGNAME"];
+
+
+						// create a picture marker symbol
+						var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
+						var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+
+						// Create graphic
+						var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+
+						// Add pin to map
+						var graphicsOverlay = MapView.GraphicsOverlays[0];
+						graphicsOverlay.Graphics.Clear();
+						graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+
+						await MapView.SetViewpointAsync(new Viewpoint(idResults.GeoElements.First().Geometry));
+
+						NameLabel.Text = roomNumber.ToString();
+						ContactCardView.Hidden = false;
+					}
+					catch
+					{
+						MapView.GraphicsOverlays[0].Graphics.Clear();
+					}
+				}
 			};
 		}
 
@@ -131,7 +238,7 @@ namespace IndoorNavigation.iOS
 		{
 			var geocodeResult = await LocationViewModel.GetSearchedLocation(searchText);
 
-			// Query to select the featuree
+			// Query to select the feature
 			//var queryResult = await MapViewModel.GetFeaturesFromQuery(MapView.Map, searchText);
 			//var searchedLocation = queryResult.FirstOrDefault();
 			//var roomsFeatureLayer = (FeatureLayer)MapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex];
@@ -146,12 +253,29 @@ namespace IndoorNavigation.iOS
 			// Create graphic
 			var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
 
-			// Add pin to mapp
-			MapView.GraphicsOverlays[0].Graphics.Add(mapPinGraphic);
-			//var viewpoint = new Viewpoint(
-				//new Viewpoint(new MapPoint(X, Y, new SpatialReference((int)WKID)), 150)
+			// Add pin to map
+			var graphicsOverlay = MapView.GraphicsOverlays[0];
+			graphicsOverlay.Graphics.Clear();
+			graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+
 			await MapView.SetViewpointAsync(new Viewpoint(geocodeResult.DisplayLocation, 150));
 
+			NameLabel.Text = searchText;
+			ContactCardView.Hidden = false;
+
+
+		}
+
+		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+		{
+			base.PrepareForSegue(segue, sender);
+
+			if (segue.Identifier == "RouteSegue")
+			{
+				var routeController = segue.DestinationViewController as RouteController;
+				routeController.EndLocation = NameLabel.Text;
+			}
 
 		}
 
@@ -237,5 +361,7 @@ namespace IndoorNavigation.iOS
 			var viewPoint = await MapViewModel.MoveToHomeLocation(MapView.Map);
 			await MapView.SetViewpointAsync(viewPoint);
 		}
+
+
 	}
 }

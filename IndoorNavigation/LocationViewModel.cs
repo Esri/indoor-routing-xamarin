@@ -81,6 +81,8 @@ namespace IndoorNavigation
 		/// <param name="toLocation">To location.</param>
 		internal static async Task<RouteResult> GetRequestedRoute(MapPoint fromLocation, MapPoint toLocation)
 		{
+			if (mmpk.Maps[0].LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+				await mmpk.Maps[0].LoadAsync();
 			var routeTask = await RouteTask.CreateAsync(mmpk.Maps[0].TransportationNetworks[0]);
 
 			// Get the default route parameters
