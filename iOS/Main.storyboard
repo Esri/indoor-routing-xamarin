@@ -437,5 +437,7 @@
         <image name="Maps" width="30" height="30"/>
         <image name="Home" width="30" height="30"/>
         <image name="CurrentLocation" width="30" height="30"/>
+        <image name="EndPin" width="57" height="108"/>
+        <image name="StartPin" width="57" height="108"/>
     </resources>
 </document>

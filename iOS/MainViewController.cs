@@ -3,9 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.Symbology;
+using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Foundation;
 using UIKit;
+using System.IO;
 
 namespace IndoorNavigation.iOS
 {
@@ -67,6 +70,9 @@ namespace IndoorNavigation.iOS
 			// Add the map to the MapView to be displayed
 			MapView.Map = map;
 
+			// Add a graphics overlay to hold the pins and route graphics
+			MapView.GraphicsOverlays.Add(new GraphicsOverlay());
+
 			// Remove the "Powered by Esri" logo at the bottom
 			MapView.IsAttributionTextVisible = false;
 
@@ -82,6 +88,17 @@ namespace IndoorNavigation.iOS
 			{
 				// Call to populate autosuggestions 
 				await RetrieveSuggestionsFromLocator();
+			};
+
+			LocationSearchBar.SearchButtonClicked += async (sender, e) =>
+			{
+				var searchText = ((UISearchBar)sender).Text;
+				// Dismiss keyboard
+				((UISearchBar)sender).EndEditing(true);
+
+				// Dismiss autosuggestions table
+				AutosuggestionsTableView.Hidden = true;
+				await RetrieveSearchedFeature(searchText);
 			};
 		}
 
@@ -109,6 +126,46 @@ namespace IndoorNavigation.iOS
 				AutosuggestionsTableView.Frame = frame;
 			}
 		}
+
+		async Task RetrieveSearchedFeature(string searchText)
+		{
+			var geocodeResult = await LocationViewModel.GetSearchedLocation(searchText);
+
+			// Query to select the featuree
+			//var queryResult = await MapViewModel.GetFeaturesFromQuery(MapView.Map, searchText);
+			//var searchedLocation = queryResult.FirstOrDefault();
+			//var roomsFeatureLayer = (FeatureLayer)MapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex];
+
+			// Select and zoom to searched room
+			//roomsFeatureLayer.SelectFeature(searchedLocation);
+
+			// create a picture marker symbol
+			var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
+			var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+
+			// Create graphic
+			var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
+
+			// Add pin to mapp
+			MapView.GraphicsOverlays[0].Graphics.Add(mapPinGraphic);
+			//var viewpoint = new Viewpoint(
+				//new Viewpoint(new MapPoint(X, Y, new SpatialReference((int)WKID)), 150)
+			await MapView.SetViewpointAsync(new Viewpoint(geocodeResult.DisplayLocation, 150));
+
+
+		}
+
+		byte[] ImageToByteArray(UIImage image)
+		{
+			using (NSData imageData = image.AsPNG())
+			{
+				var imageByteArray = new byte[imageData.Length];
+				System.Runtime.InteropServices.Marshal.Copy(imageData.Bytes, imageByteArray, 0, Convert.ToInt32(imageData.Length));
+				return imageByteArray;
+			};
+		}
+
+
 
 		/// <summary>
 		/// Handle user navigating around the map
@@ -178,7 +235,7 @@ namespace IndoorNavigation.iOS
 		async partial void Home_TouchUpInside(UIButton sender)
 		{
 			var viewPoint = await MapViewModel.MoveToHomeLocation(MapView.Map);
-			MapView.SetViewpoint(viewPoint);
+			await MapView.SetViewpointAsync(viewPoint);
 		}
 	}
 }

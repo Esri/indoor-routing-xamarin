@@ -70,33 +70,10 @@ namespace IndoorNavigation.iOS
 					if (searchBar != null)
 					{
 						searchBar.Text = selectedLocation.Label;
-
 					}
 				}
 
 			}
-
-
-			// TODO: if the search was for a home location, assign home location
-			AppSettings.currentSettings.HomeLocation = selectedLocation.Label;
-			var homeLocation = await LocationViewModel.GetSearchedLocation(selectedLocation.Label);
-
-
-			// Save extent of home location and floor level to Settings file
-			CoordinatesKeyValuePair<string, double>[] homeCoordinates =
-			{
-				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
-				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
-				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
-			};
-
-			AppSettings.currentSettings.HomeCoordinates = homeCoordinates;
-
-			// Save user settings
-			var settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
-
 		}
 	}
 }

@@ -38,14 +38,20 @@ namespace IndoorNavigation.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-			//TODO: Decide if the search field should be first responder or not. Remove this line if not needed
-			//HomeLocationTextField.BecomeFirstResponder();
+			HomeLocationSearchBar.BecomeFirstResponder();
 
 			// Set text changed event on the search bar
 			HomeLocationSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searchess
 				await RetrieveSuggestionsFromLocator();
+			};
+
+			HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
+			{
+				var locationText = ((UISearchBar)sender).Text;
+				await SetHomeLocation(locationText);
+				this.NavigationController.PopViewController(true);
 			};
 		}
 
@@ -73,6 +79,32 @@ namespace IndoorNavigation.iOS
 				frame.Height = AutosuggestionsTableView.ContentSize.Height;
         		AutosuggestionsTableView.Frame = frame;
 			}
+		}
+
+		/// <summary>
+		/// Sets the home location for the user and saves it into settings.
+		/// </summary>
+		/// <param name="locationText">Location text.</param>
+		async Task SetHomeLocation(string locationText)
+		{
+			AppSettings.currentSettings.HomeLocation = locationText;
+			var homeLocation = await LocationViewModel.GetSearchedLocation(locationText);
+
+
+			// Save extent of home location and floor level to Settings file
+			CoordinatesKeyValuePair<string, double>[] homeCoordinates =
+			{
+				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
+				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
+			};
+
+			AppSettings.currentSettings.HomeCoordinates = homeCoordinates;
+
+			// Save user settings
+			var settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
 		}
 	}
 }

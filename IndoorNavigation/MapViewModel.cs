@@ -81,6 +81,31 @@ namespace IndoorNavigation
 			map.InitialViewpoint = viewpoint;
 
 
+			////Run query to get the floor of the selected room
+			//var roomsLayer = map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
+			//var roomsTable = roomsLayer.FeatureTable;
+
+			//// Set query parametersin 
+			//var queryParams = new QueryParameters()
+			//{
+			//	ReturnGeometry = true,
+			//	WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", AppSettings.currentSettings.HomeLocation)
+			//};
+
+			//// Query the feature table 
+			//var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+			//var homeLocation = queryResult.FirstOrDefault();
+
+			var queryResult = await GetFeaturesFromQuery(map, AppSettings.currentSettings.HomeLocation);
+
+			var homeLocation = queryResult.FirstOrDefault();
+			TurnLayersOnOff(true, map, homeLocation.Attributes["FLOOR"].ToString());
+
+			return viewpoint;
+		}
+
+		internal static async Task<FeatureQueryResult> GetFeaturesFromQuery(Map map, string searchString)
+		{
 			//Run query to get the floor of the selected room
 			var roomsLayer = map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
@@ -89,17 +114,12 @@ namespace IndoorNavigation
 			var queryParams = new QueryParameters()
 			{
 				ReturnGeometry = true,
-				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", AppSettings.currentSettings.HomeLocation)
+				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", searchString)
 			};
 
 			// Query the feature table 
 			var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
-			var homeLocation = queryResult.FirstOrDefault();
-
-
-			TurnLayersOnOff(true, map, homeLocation.Attributes["FLOOR"].ToString());
-
-			return viewpoint;
+			return queryResult;
 		}
 
 		/// <summary>

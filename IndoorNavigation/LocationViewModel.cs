@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
 using System.Linq;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.Geometry;
 
 namespace IndoorNavigation
 {
@@ -69,6 +71,35 @@ namespace IndoorNavigation
 			{
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Gets the requested route based on start and end location points.
+		/// </summary>
+		/// <returns>The requested route.</returns>
+		/// <param name="fromLocation">From location.</param>
+		/// <param name="toLocation">To location.</param>
+		internal static async Task<RouteResult> GetRequestedRoute(MapPoint fromLocation, MapPoint toLocation)
+		{
+			var routeTask = await RouteTask.CreateAsync(mmpk.Maps[0].TransportationNetworks[0]);
+
+			// Get the default route parameters
+			var routeParams = await routeTask.CreateDefaultParametersAsync();
+			// Explicitly set values for some params
+			routeParams.ReturnDirections = false; // Indoor networks do not support turn by turn navigation
+			routeParams.ReturnRoutes = true;
+
+			// Create stops
+			var startPoint = new Stop(fromLocation);
+			var endPoint = new Stop(toLocation);
+
+			// assign the stops to the route parameters
+			routeParams.SetStops(new List<Stop> {startPoint, endPoint});
+
+			// Execute routing
+			var routeResult = await routeTask.SolveRouteAsync(routeParams);
+
+			return routeResult;
 		}
 	}
 }
