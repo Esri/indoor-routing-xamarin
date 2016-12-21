@@ -170,6 +170,7 @@
     <Compile Include="HomeLocationController.designer.cs">
       <DependentUpon>HomeLocationController.cs</DependentUpon>
     </Compile>
+    <Compile Include="NetworkReachability.cs" />
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
