@@ -4,6 +4,9 @@ using UIKit;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
 using System.Collections.Generic;
 using System.Linq;
+using CoreGraphics;
+using System.Threading.Tasks;
+using System.IO;
 
 namespace IndoorNavigation.iOS
 {
@@ -19,37 +22,55 @@ namespace IndoorNavigation.iOS
 		{
 			this.NavigationController.NavigationBarHidden = false;
 			base.ViewWillAppear(animated);
+
 		}
 
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
 			HomeLocationTextField.BecomeFirstResponder();
+			// Set observer when text changes to call the TextChangedEvent
 			NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextChangedEvent);
 		}
 
-		 private void TextChangedEvent(NSNotification notification)
+		/// <summary>
+		/// Called when the text in the textbox changes. Triggers autosuggestions if available
+		/// </summary>
+		/// <param name="notification">Notification.</param>
+		private void TextChangedEvent(NSNotification notification)
 		{
 			UITextField field = (UITextField)notification.Object;
 
 			if (notification.Object == HomeLocationTextField)
 			{
 				RetrieveSuggestionsFromLocator();
-
 			}
 		}
 
+		/// <summary>
+		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
+		/// </summary>
 	    public async void RetrieveSuggestionsFromLocator()
 		{
 			var suggestions = await LocationHelper.GetLocationSuggestions(HomeLocationTextField.Text);
+			if (suggestions == null || suggestions.Count == 0)
+			{
+				AutosuggestionsTableView.Hidden = true;
+			}
 			// Only show the floors tableview if the buildings in view have more than one floor
-			if (suggestions.Count > 1)
+			if (suggestions.Count > 0)
 			{
 				// Show the tableview with autosuggestions and populate it
 				AutosuggestionsTableView.Hidden = false;
 				AutosuggestionsTableView.Source = new AutosuggestionsTableSource(suggestions);
-				InvokeOnMainThread(() => AutosuggestionsTableView.ReloadData());
-				AutosuggestionsTableView.SizeToFit();
+
+				AutosuggestionsTableView.ReloadData();
+
+				// Auto extend ot shrink the tableview based on the content inside
+        		CGRect frame = AutosuggestionsTableView.Frame;
+				frame.Height = AutosuggestionsTableView.ContentSize.Height;
+        		AutosuggestionsTableView.Frame = frame;
+
 
 			}
 		}
@@ -60,7 +81,7 @@ namespace IndoorNavigation.iOS
 	/// </summary>
 	public class AutosuggestionsTableSource : UITableViewSource
 	{
-		SuggestResult [] TableItems;
+		SuggestResult[] TableItems;
 		string CellIdentifier = "cell_id";
 
 		public AutosuggestionsTableSource(IReadOnlyList<SuggestResult> items)
@@ -94,9 +115,44 @@ namespace IndoorNavigation.iOS
 			return cell;
 		}
 
-		public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
+		/// <summary>
+		/// When user selects home location from list of autosuggestions, set home location to selected value
+		/// </summary>
+		/// <param name="tableView">Table view.</param>
+		/// <param name="indexPath">Index path.</param>
+		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
 			var selectedLocation = this.TableItems[indexPath.Row];
+
+			// Set the value of the textbox to the selected autosuggestion and dismiss keyboard
+			var parentView = tableView.Superview;
+			// Access the textbox by setting it's Tag value to 3 in the Main.Storyboard
+			var homeTextField = parentView.Subviews[0] as UITextField;
+			if (homeTextField != null)
+			{
+				homeTextField.Text = selectedLocation.Label;
+				homeTextField.ResignFirstResponder();
+			}
+
+			GlobalSettings.currentSettings.HomeLocation = selectedLocation.Label;
+			var homeLocation = await LocationHelper.GetSearchedLocation(selectedLocation.Label);
+
+
+			// Save extent of home location and floor level to Settings file
+			CoordinatesKeyValuePair<string, double>[] homeCoordinates = 
+			{ 
+				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X), 
+				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
+				new CoordinatesKeyValuePair<string, double>("Floor", homeLocation.DisplayLocation.X),
+			};
+
+			GlobalSettings.currentSettings.HomeCoordinates = homeCoordinates;
+
+			// Save user settings
+			string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
+
 		}
 	}
 }

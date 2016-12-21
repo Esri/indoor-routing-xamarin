@@ -1,7 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using CoreGraphics;
+using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.Mapping.Popups;
 using Esri.ArcGISRuntime.UI.Controls;
 using Foundation;
 using UIKit;
@@ -17,44 +21,70 @@ namespace IndoorNavigation.iOS
 
 		public override void ViewWillAppear(bool animated)
 		{
+			// Hide the navigation bar on the main screen 
 			this.NavigationController.NavigationBarHidden = true;
 			base.ViewWillAppear(animated);
-			// Hide the navigation bar on the main screen 
 
+			// Hide Home button if user doesn't have home location set
+			if (GlobalSettings.currentSettings.HomeLocation != "Set home location")
+				HomeButton.Enabled = true;
+		}
+
+		public async override void ViewDidLayoutSubviews()
+		{
+			if (MapView.Map != null && MapView.MapScale <= 500)
+				await DisplayFloorLevels();
 		}
 
 		public async override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
 
-
-
 			// Get Mobile Map Package from the location on device
-			var mmpk = await MobileMapPackage.OpenAsync(Path.Combine(DownloadController.targetPath, DownloadController.targetFilename));
+			var mmpk = await MobileMapPackage.OpenAsync(DownloadController.targetFilename);
 
 			LocationHelper.mmpk = mmpk;
 
 			// Display map from the mmpk. Assumption is made that the mmpk has only one map
 			Map map = mmpk.Maps[0];
+			await map.LoadAsync();
 
-			// Set initial viewpoint of the map depending on user's settings
-			var mapHelper = new MapHelper();
-			mapHelper.SetInitialViewPoint(map);
+			// Set viewpoint of the map depending on user's settings
+			MapHelper.SetInitialViewPoint(map);
 
 			// Add the map to the MapView to be displayed
 			MapView.Map = map;
 
+			// Remove the "Powered by Esri" logo at the bottom
+			MapView.IsAttributionTextVisible = false;
+
 			// Handle the user moving the map 
 			MapView.NavigationCompleted += MapView_NavigationCompleted;
+
+			// Show the floor picker if the map is zoomed to user's home location
+			if (MapView.Map != null && GlobalSettings.currentSettings.HomeLocation != "Set home location")
+				await DisplayFloorLevels();
 		}
+
 
 		async void MapView_NavigationCompleted(object sender, EventArgs e)
 		{
-			MapHelper mapHelper = new MapHelper();
-
+			// Display floors and level if user is zoomed in 
 			if (MapView.MapScale <= 500)
+				await DisplayFloorLevels();
+			// If user is zoomed out, only show the base layer
+			else
 			{
-				string [] tableItems = await mapHelper.GetFloorsInVisibleArea(MapView);
+				FloorsTableView.Hidden = true;
+				MapHelper.TurnLayersOnOff(false, MapView.Map, selectedFloor);
+			}
+		}
+
+		public async Task DisplayFloorLevels()
+		{
+			if (MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded )
+			{
+				string[] tableItems = await MapHelper.GetFloorsInVisibleArea(MapView);
 
 				// Only show the floors tableview if the buildings in view have more than one floor
 				if (tableItems.Count() > 1)
@@ -63,8 +93,11 @@ namespace IndoorNavigation.iOS
 					FloorsTableView.Hidden = false;
 					FloorsTableView.Source = new FloorsTableSource(tableItems, this);
 					InvokeOnMainThread(() => FloorsTableView.ReloadData());
-					FloorsTableView.SizeToFit();
 
+					// Auto extend ot shrink the tableview based on the content inside
+					CGRect frame = FloorsTableView.Frame;
+					frame.Height = FloorsTableView.ContentSize.Height;
+					FloorsTableView.Frame = frame;
 				}
 				else
 				{
@@ -72,23 +105,25 @@ namespace IndoorNavigation.iOS
 					selectedFloor = "";
 				}
 				// Turn layers on. If there is no floor selected, first floor will be displayed by default
-				mapHelper.TurnLayersOnOff(true, MapView, selectedFloor);
+				MapHelper.TurnLayersOnOff(true, MapView.Map, selectedFloor);
 			}
-			// If user is zoomed out, only show the base layer
-			else
-			{
-				FloorsTableView.Hidden = true;
-				mapHelper.TurnLayersOnOff(false, MapView, selectedFloor);
-			}
-
 		}
 
 		// When a floor is selected by the user, set global variable to the selected floor and set definition query on the feature layers
 		public void HandleSelectedFloor(string _selectedFloor)
 		{
 			this.selectedFloor = _selectedFloor;
-			MapHelper mapHelper = new MapHelper();
-			mapHelper.TurnLayersOnOff(true, MapView, selectedFloor);;
+			MapHelper.TurnLayersOnOff(true, MapView.Map, selectedFloor);;
+		}
+
+		/// <summary>
+		/// When user taps on the home button, zoom them to the home location
+		/// </summary>
+		/// <param name="sender">Home button</param>
+		async partial void Home_TouchUpInside(UIButton sender)
+		{
+			var viewPoint = await MapHelper.MoveToHomeLocation(MapView.Map);
+			MapView.SetViewpoint(viewPoint);
 		}
 	}
 
@@ -142,7 +177,5 @@ namespace IndoorNavigation.iOS
 			var selectedFloor = this.TableItems[indexPath.Row];
 			owner.HandleSelectedFloor(selectedFloor);
 		}
-
-
 	}
 }
