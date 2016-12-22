@@ -11,8 +11,8 @@ using UIKit;
 
 namespace IndoorNavigation.iOS
 {
-    [Register ("MainViewController")]
-    partial class MainViewController
+    [Register ("MapViewController")]
+    partial class MapViewController
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]

@@ -21,7 +21,7 @@ namespace IndoorNavigation.iOS
 		/// This is where the MMPK will be saved
 		/// </summary>
 		static string targetPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-		internal static string targetFilename = Path.Combine(targetPath, "EsriCampus.mmpk");
+		internal static string targetFilename = Path.Combine(targetPath, AppSettings.CurrentSettings.ItemName);
 
 		/// <summary>
 		/// Unique identifier for the download session.
@@ -69,10 +69,23 @@ namespace IndoorNavigation.iOS
 			}
 		}
 
+		//TODO: Implement below changes suggested by Rich
+		//so this is basically getting to making your architecture more MVVM-ish 
+		//for status messages, your view model(shared business logic) classes provide those]
+		//your view consumes them]
+		//practically speaking, you could have a Status string property]
+		//and then have the class that's surfaced in implement INotifyPropertyChanged
+		//all binding is is subscribing to PropertyChanged under the covers, detecting which property changed, and directing the new property value to properties on the view accordingly]
+		//so let's say you have a UI component for showing status in your view layer (view controller or whatever)
+		//your view layer will be listening to the PropertyChanged event on your view model class
+		//in the PropertyChanged handler, check if the property name is "Status" (or whatever it happens to be named)
+		//if it is, push the new value to the status UI element]
+		//all binding is doing is taking out the boiler plate wire-up in code]
+		//or if you like, you can surface events more explicitly on the view model, such as having a StatusChanged event
 
-		/// <summary>
-		/// Overrides the behavior of the controller when view has finished loading. 
-		/// </summary>
+		///// <summary>
+		///// Overrides the behavior of the controller when view has finished loading. 
+		///// </summary>
 		public override async void ViewDidLoad()
 		{
 			base.ViewDidLoad();
@@ -94,20 +107,20 @@ namespace IndoorNavigation.iOS
 				try
 				{
 					var portal = await ArcGISPortal.CreateAsync().ConfigureAwait(false);
-					var item = await PortalItem.CreateAsync(portal, AppSettings.currentSettings.ItemID).ConfigureAwait(false);
+					var item = await PortalItem.CreateAsync(portal, AppSettings.CurrentSettings.ItemID).ConfigureAwait(false);
 
 
 					// Check to see if the item has been updated since the last download
 					// If so, just return the existing mmpk
 					if (!files.Contains(targetFilename) ||
-						item.Modified.LocalDateTime > AppSettings.currentSettings.MmpkDate)
+						item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDate)
 					{
 						// Otherwise, download the new mmpk
 						InvokeOnMainThread(() => UpdateLabel("Downloading Mobile Map Package ..."));
 						var downloadUrl = item.Url.AbsoluteUri.ToString() + "/data";
 						EnqueueDownload(downloadUrl);
 
-						AppSettings.currentSettings.MmpkDate = DateTime.Now;
+						AppSettings.CurrentSettings.MmpkDate = DateTime.Now;
 					}
 					// If no updates, just load the MapView
 					else
@@ -141,6 +154,8 @@ namespace IndoorNavigation.iOS
 				LoadOfflineMessage();
 			}
 		}
+
+
 
 		/// <summary>
 		/// Displays message and turns proper controls on/off when device is offline and data has not been downloaded
@@ -191,9 +206,9 @@ namespace IndoorNavigation.iOS
 		/// <summary>
 		/// Adds the download to the session.
 		/// </summary>
-		/// <param name="downloadUrl">Download URL.</param>
 		void EnqueueDownload(string downloadUrl)
 		{
+			InvokeOnMainThread(() => UpdateLabel("Downloading Mobile Map Package ..."));
 			// Create a new download task.
 			var downloadTask = session.CreateDownloadTask(NSUrl.FromString(downloadUrl));
 

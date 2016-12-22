@@ -12,13 +12,14 @@ using System.IO;
 using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
 
 namespace IndoorNavigation.iOS
 {
-    public partial class MainViewController : UIViewController
+    public partial class MapViewController: UIViewController
     {
 
-        MainViewController(IntPtr handle) : base(handle)
+        MapViewController(IntPtr handle) : base(handle)
 		{
 			
 		}
@@ -84,11 +85,11 @@ namespace IndoorNavigation.iOS
 			base.ViewWillAppear(animated);
 
 			// Hide Home button if user doesn't have home location set
-			if (AppSettings.currentSettings.HomeLocation != "Set home location")
+			if (AppSettings.CurrentSettings.HomeLocation != "Set home location")
 				HomeButton.Enabled = true;
 
 			// Hide Current Location button if location services is disabled
-			if (!AppSettings.currentSettings.IsLocationServicesEnabled)
+			if (!AppSettings.CurrentSettings.IsLocationServicesEnabled)
 				CurrentLocationButton.Enabled = false;
 		}
 
@@ -98,7 +99,7 @@ namespace IndoorNavigation.iOS
 		public async override void ViewDidLayoutSubviews()
 		{
 			// If map is zoomed in past threshold, call to display the floors data
-			if (MapView.Map != null && MapView.MapScale <= AppSettings.currentSettings.ZoomLevelToDisplayRoomLayers)
+			if (MapView.Map != null && MapView.MapScale <= AppSettings.CurrentSettings.ZoomLevelToDisplayRoomLayers)
 				await DisplayFloorLevels();
 		}
 
@@ -133,7 +134,7 @@ namespace IndoorNavigation.iOS
 			MapView.NavigationCompleted += MapView_NavigationCompleted;
 
 			// Show the floor picker if the map is zoomed to user's home location
-			if (MapView.Map != null && AppSettings.currentSettings.HomeLocation != "Set home location")
+			if (MapView.Map != null && AppSettings.CurrentSettings.HomeLocation != "Set home location")
 				await DisplayFloorLevels();
 
 			// Handle text changing in the search bar
@@ -156,18 +157,22 @@ namespace IndoorNavigation.iOS
 
 
 			// handle the tap event on the map view (or scene view)
+			//TODO: Move this outside of the DidLoad event
+			//TODO: Handle user tapping not on a room
+			//TODO: Handle double taps
 			MapView.GeoViewTapped += async (s, e) =>
 			{
 				if (LocationSearchBar.IsFirstResponder == true)
 				{
 					LocationSearchBar.ResignFirstResponder();
+					ContactCardView.Hidden = true;
 				}
 				else
 				{
 					// get the tap location in screen units
 					var tapScreenPoint = e.Position;
 
-					var layer = MapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex];
+					var layer = MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
 					var pixelTolerance = 20;
 					var returnPopupsOnly = false;
 					var maxResults = 1;
@@ -178,10 +183,7 @@ namespace IndoorNavigation.iOS
 						IdentifyLayerResult idResults = await MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
 						// get the layer identified and cast it to FeatureLayer
-						FeatureLayer idLayer = idResults.LayerContent as FeatureLayer;
-						var floorNumber = idResults.GeoElements.First().Attributes["FLOOR"];
-						var roomNumber = idResults.GeoElements.First().Attributes["LONGNAME"];
-
+						var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.FloorColumnInRoomsTable];
 
 						// create a picture marker symbol
 						var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -198,12 +200,18 @@ namespace IndoorNavigation.iOS
 
 						await MapView.SetViewpointAsync(new Viewpoint(idResults.GeoElements.First().Geometry));
 
+						// Get room attribute from the settings. First attribute should be set as the searcheable onee
+						var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+						var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
 						NameLabel.Text = roomNumber.ToString();
+
+						//TODO: Add additional fields to the contact card from the ContactCardDisplayFields
 						ContactCardView.Hidden = false;
 					}
 					catch
 					{
 						MapView.GraphicsOverlays[0].Graphics.Clear();
+						ContactCardView.Hidden = true;
 					}
 				}
 			};
@@ -223,7 +231,9 @@ namespace IndoorNavigation.iOS
 			{
 				// Show the tableview with autosuggestions and populate it
 				AutosuggestionsTableView.Hidden = false;
-				AutosuggestionsTableView.Source = new AutosuggestionsTableSource(suggestions);
+				var tableSource = new AutosuggestionsTableSource(suggestions);
+				tableSource.TableRowSelected += AutosuggestionsTableSource_TableRowSelected;
+				AutosuggestionsTableView.Source = tableSource;
 
 				AutosuggestionsTableView.ReloadData();
 
@@ -234,17 +244,23 @@ namespace IndoorNavigation.iOS
 			}
 		}
 
+		/// <summary>
+		/// Get the value selected in the Autosuggestions Table
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
+		async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+		{
+			var selectedItem = e.SelectedItem;
+			LocationSearchBar.Text = selectedItem.Label;
+			LocationSearchBar.ResignFirstResponder();
+			AutosuggestionsTableView.Hidden = true;
+			await RetrieveSearchedFeature(selectedItem.Label);
+		}
+
 		async Task RetrieveSearchedFeature(string searchText)
 		{
 			var geocodeResult = await LocationViewModel.GetSearchedLocation(searchText);
-
-			// Query to select the feature
-			//var queryResult = await MapViewModel.GetFeaturesFromQuery(MapView.Map, searchText);
-			//var searchedLocation = queryResult.FirstOrDefault();
-			//var roomsFeatureLayer = (FeatureLayer)MapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex];
-
-			// Select and zoom to searched room
-			//roomsFeatureLayer.SelectFeature(searchedLocation);
 
 			// create a picture marker symbol
 			var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -299,7 +315,7 @@ namespace IndoorNavigation.iOS
 		async void MapView_NavigationCompleted(object sender, EventArgs e)
 		{
 			// Display floors and level if user is zoomed in 
-			if (MapView.MapScale <= AppSettings.currentSettings.ZoomLevelToDisplayRoomLayers)
+			if (MapView.MapScale <= AppSettings.CurrentSettings.ZoomLevelToDisplayRoomLayers)
 				await DisplayFloorLevels();
 			// If user is zoomed out, only show the base layer
 			else
@@ -317,22 +333,32 @@ namespace IndoorNavigation.iOS
 		{
 			if (MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
 			{
-				string[] tableItems = await MapViewModel.GetFloorsInVisibleArea(MapView);
-
-				// Only show the floors tableview if the buildings in view have more than one floor
-				if (tableItems.Count() > 1)
+				try
 				{
-					// Show the tableview and populate it
-					FloorsTableView.Hidden = false;
-					FloorsTableView.Source = new FloorsTableSource(tableItems, this);
-					InvokeOnMainThread(() => FloorsTableView.ReloadData());
+					string[] tableItems = await MapViewModel.GetFloorsInVisibleArea(MapView);
 
-					// Auto extend ot shrink the tableview based on the content inside
-					var frame = FloorsTableView.Frame;
-					frame.Height = FloorsTableView.ContentSize.Height;
-					FloorsTableView.Frame = frame;
+					// Only show the floors tableview if the buildings in view have more than one floor
+					if (tableItems.Count() > 1)
+					{
+						// Show the tableview and populate it
+						FloorsTableView.Hidden = false;
+						var tableSource = new FloorsTableSource(tableItems);
+						tableSource.TableRowSelected += FloorsTableSource_TableRowSelected;
+						FloorsTableView.Source = tableSource;
+						FloorsTableView.ReloadData();
+
+						// Auto extend ot shrink the tableview based on the content inside
+						var frame = FloorsTableView.Frame;
+						frame.Height = FloorsTableView.ContentSize.Height;
+						FloorsTableView.Frame = frame;
+					}
+					else
+					{
+						FloorsTableView.Hidden = true;
+						_selectedFloor = "";
+					}
 				}
-				else
+				catch
 				{
 					FloorsTableView.Hidden = true;
 					_selectedFloor = "";
@@ -342,14 +368,13 @@ namespace IndoorNavigation.iOS
 			}
 		}
 
-		/// <summary>
-		/// When a floor is selected by the user, set global variable to the selected floor and set definition query on the feature layers
-		/// </summary>
-		/// <param name="_selectedFloor">Selected floor.</param>
-		internal void HandleSelectedFloor(string selectedFloor)
+		///// <summary>
+		///// When a floor is selected by the user, set global variable to the selected floor and set definition query on the feature layers
+		///// </summary>
+		void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
 		{
-			_selectedFloor = selectedFloor;
-			MapViewModel.TurnLayersOnOff(true, MapView.Map, _selectedFloor); ;
+			_selectedFloor = e.SelectedItem;
+			MapViewModel.TurnLayersOnOff(true, MapView.Map, _selectedFloor); 
 		}
 
 		/// <summary>

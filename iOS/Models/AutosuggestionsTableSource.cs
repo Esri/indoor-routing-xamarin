@@ -14,12 +14,13 @@ namespace IndoorNavigation.iOS
 	/// </summary>
 	class AutosuggestionsTableSource : UITableViewSource
 	{
-		SuggestResult[] TableItems;
-		string CellIdentifier = "cell_id";
+		readonly IEnumerable<SuggestResult> _items;
+		readonly string _cellIdentifier;
 
-		internal AutosuggestionsTableSource(IReadOnlyList<SuggestResult> items)
+		internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items)
 		{
-			TableItems = items.ToArray();
+			_items = items;
+			_cellIdentifier = "cell_id";
 		}
 
 		/// <summary>
@@ -27,7 +28,7 @@ namespace IndoorNavigation.iOS
 		/// </summary>
 		public override nint RowsInSection(UITableView tableview, nint section)
 		{
-			return TableItems.Length;
+			return _items.Count();
 		}
 
 		/// <summary>
@@ -35,13 +36,13 @@ namespace IndoorNavigation.iOS
 		/// </summary>
 		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
 		{
-			var cell = tableView.DequeueReusableCell(CellIdentifier);
-			var item = TableItems[indexPath.Row];
+			var cell = tableView.DequeueReusableCell(_cellIdentifier);
 
 			//---- if there are no cells to reuse, create a new one
 			if (cell == null)
-			{ cell = new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier); }
+				{ cell = new UITableViewCell(UITableViewCellStyle.Default, _cellIdentifier); }
 
+			var item = _items.ElementAt(indexPath.Row);
 
 			cell.TextLabel.Text = item.Label;
 
@@ -55,25 +56,17 @@ namespace IndoorNavigation.iOS
 		/// <param name="indexPath">Index path.</param>
 		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
-			var selectedLocation = this.TableItems[indexPath.Row];
 
-			// Set the value of the textbox to the selected autosuggestion and dismiss keyboard
-			var parentView = tableView.Superview;
-			// Access the textbox by setting it's Tag value to "2" in the Main.Storyboard
-			foreach (var subView in parentView.Subviews)
-			{
-				// Handle the autosuggest for the search bar
-				if (subView.Tag == 2)
-				{
-					var searchBar = subView as UISearchBar;
+			OnTableRowSelected(indexPath);
+		}
 
-					if (searchBar != null)
-					{
-						searchBar.Text = selectedLocation.Label;
-					}
-				}
+		public event EventHandler<TableRowSelectedEventArgs<SuggestResult>> TableRowSelected;
 
-			}
+
+		void OnTableRowSelected(NSIndexPath itemIndexPath)
+		{
+			var item = _items.ElementAt(itemIndexPath.Row);
+			TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
 		}
 	}
 }

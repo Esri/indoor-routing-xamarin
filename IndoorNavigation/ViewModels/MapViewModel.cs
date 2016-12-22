@@ -20,25 +20,51 @@ namespace IndoorNavigation
 		/// <param name="map">Map.</param>
 		internal async static void SetInitialViewPoint(Map map)
 		{
+			// Get initial viewpoint from settings
+			double X = 0, Y = 0, WKID = 0, ZoomLevel = 0;
+
+			for (int i = 0; i < AppSettings.CurrentSettings.InitialViewpointCoordinates.Length; i++)
+			{
+				switch (AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Key)
+				{
+					case "X":
+						X = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+						break;
+					case "Y":
+						Y = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+						break;
+					case "WKID":
+						WKID = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+						break;
+					case "ZoomLevel":
+						ZoomLevel = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+						break;
+					default:
+						break;
+				}
+			}
+
 			// Location based, location services are on
-			if (AppSettings.currentSettings.IsLocationServicesEnabled)
+			if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
 			{
 				MoveToCurrentLocation(map);
 			}
 			// Home settings, location services are off but user has a home set
-			else if (AppSettings.currentSettings.HomeLocation != "Set home location")
+			else if (AppSettings.CurrentSettings.HomeLocation != "Set home location")
 			{
 				// move first to the extent of the map, then to the extent of the home location
-				map.InitialViewpoint = new Viewpoint(new MapPoint(-13046209, 4036456, SpatialReferences.WebMercator), 1600);
+				map.InitialViewpoint = new Viewpoint(new MapPoint(X, Y, new SpatialReference(Convert.ToInt32(WKID))), ZoomLevel);
 				await MoveToHomeLocation(map);
 			}
 			// Default setting, Location services are off and user has no home set
 			else
 			{
-				map.InitialViewpoint = new Viewpoint(new MapPoint(-13046209, 4036456, SpatialReferences.WebMercator), 1600);
+				map.InitialViewpoint = new Viewpoint(new MapPoint(X, Y, new SpatialReference(Convert.ToInt32(WKID))), ZoomLevel);
 			}
-			map.MaxScale = 100;
-			map.MinScale = 13000;
+
+			// Set minimum and maximum scale for the map
+			map.MaxScale = AppSettings.CurrentSettings.MinScale;
+			map.MinScale = AppSettings.CurrentSettings.MaxScale;
 
 		}
 
@@ -59,18 +85,18 @@ namespace IndoorNavigation
 		{
 			double X = 0, Y = 0, WKID = 0;
 
-			for (int i = 0; i < AppSettings.currentSettings.HomeCoordinates.Length; i++)
+			for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
 			{
-				switch (AppSettings.currentSettings.HomeCoordinates[i].Key)
+				switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
 				{
 					case "X":
-						X = AppSettings.currentSettings.HomeCoordinates[i].Value;
+						X = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
 						break;
 					case "Y":
-						Y = AppSettings.currentSettings.HomeCoordinates[i].Value;
+						Y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
 						break;
 					case "WKID":
-						WKID = AppSettings.currentSettings.HomeCoordinates[i].Value;
+						WKID = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
 						break;
 					default:
 						break;
@@ -80,7 +106,7 @@ namespace IndoorNavigation
 			var viewpoint = new Viewpoint(new MapPoint(X, Y, new SpatialReference((int)WKID)), 150);
 			map.InitialViewpoint = viewpoint;
 
-
+			//TODO: Remove this when no longer needed
 			////Run query to get the floor of the selected room
 			//var roomsLayer = map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
 			//var roomsTable = roomsLayer.FeatureTable;
@@ -96,10 +122,10 @@ namespace IndoorNavigation
 			//var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 			//var homeLocation = queryResult.FirstOrDefault();
 
-			var queryResult = await GetFeaturesFromQuery(map, AppSettings.currentSettings.HomeLocation);
+			var queryResult = await GetFeaturesFromQuery(map, AppSettings.CurrentSettings.HomeLocation);
 
 			var homeLocation = queryResult.FirstOrDefault();
-			TurnLayersOnOff(true, map, homeLocation.Attributes["FLOOR"].ToString());
+			TurnLayersOnOff(true, map, homeLocation.Attributes[AppSettings.CurrentSettings.FloorColumnInRoomsTable].ToString());
 
 			return viewpoint;
 		}
@@ -107,14 +133,16 @@ namespace IndoorNavigation
 		internal static async Task<FeatureQueryResult> GetFeaturesFromQuery(Map map, string searchString)
 		{
 			//Run query to get the floor of the selected room
-			var roomsLayer = map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
+			var roomsLayer = map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
+
+
 
 			// Set query parametersin 
 			var queryParams = new QueryParameters()
 			{
 				ReturnGeometry = true,
-				WhereClause = string.Format("LONGNAME = '{0}' OR KNOWN_AS_N = '{0}'", searchString)
+				WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", searchString)
 			};
 
 			// Query the feature table 
@@ -130,7 +158,7 @@ namespace IndoorNavigation
 		internal static async Task<string[]> GetFloorsInVisibleArea(MapView mapView)
 		{
 			//Run query to get all the polygons in the visible area
-			var roomsLayer = mapView.Map.OperationalLayers[AppSettings.currentSettings.RoomsLayerIndex] as FeatureLayer;
+			var roomsLayer = mapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
 			var roomsTable = roomsLayer.FeatureTable;
 
 			// Set query parameters
@@ -144,7 +172,8 @@ namespace IndoorNavigation
 			var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 
 			// Group by floors to get the distinct list of floors in the table selection
-			var distinctFloors = queryResult.GroupBy(g => g.Attributes["FLOOR"]).Select(gr => gr.First().Attributes["FLOOR"]);
+			var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.FloorColumnInRoomsTable])
+			                                .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.FloorColumnInRoomsTable]);
 
 			List<string> tableItems = new List<string>();
 
@@ -174,12 +203,14 @@ namespace IndoorNavigation
 				if (selectedFloor == "")
 				{
 					// select first floor by default
-					featureLayer.DefinitionExpression = "FLOOR = '1'";
+					featureLayer.DefinitionExpression = string.Format("{0} = '1'", AppSettings.CurrentSettings.FloorColumnInRoomsTable);
 				}
 				else
 				{
 					// select chosen floor
-					featureLayer.DefinitionExpression = string.Format("FLOOR = '{0}'", selectedFloor);
+					featureLayer.DefinitionExpression = string.Format("{0} = '{1}'", 
+					                                                  AppSettings.CurrentSettings.FloorColumnInRoomsTable, 
+					                                                  selectedFloor);
 				}
 				map.OperationalLayers[i].IsVisible = areLayersOn;
 			}

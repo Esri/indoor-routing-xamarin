@@ -156,6 +156,9 @@
     <Folder Include="Assets.xcassets\EndPin.imageset\" />
     <Folder Include="Assets.xcassets\StartPin.imageset\" />
     <Folder Include="Assets.xcassets\Navigation.imageset\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -169,31 +172,31 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="DownloadController.cs" />
-    <Compile Include="DownloadController.designer.cs">
+    <Compile Include="Controllers\DownloadController.cs" />
+    <Compile Include="Controllers\DownloadController.designer.cs">
       <DependentUpon>DownloadController.cs</DependentUpon>
     </Compile>
-    <Compile Include="DownloadDelegate.cs" />
-    <Compile Include="SettingsController.cs" />
-    <Compile Include="SettingsController.designer.cs">
+    <Compile Include="Controllers\SettingsController.cs" />
+    <Compile Include="Controllers\SettingsController.designer.cs">
       <DependentUpon>SettingsController.cs</DependentUpon>
     </Compile>
-    <Compile Include="HomeLocationController.cs" />
-    <Compile Include="HomeLocationController.designer.cs">
-      <DependentUpon>HomeLocationController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="NetworkReachability.cs" />
-    <Compile Include="AutosuggestionsTableSource.cs" />
-    <Compile Include="FloorsTableSource.cs" />
-    <Compile Include="MainViewController.cs" />
-    <Compile Include="MainViewController_.designer.cs">
-      <DependentUpon>MainViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="p.cs" />
-    <Compile Include="RouteController.cs" />
-    <Compile Include="RouteController.designer.cs">
+    <Compile Include="Controllers\RouteController.cs" />
+    <Compile Include="Controllers\RouteController.designer.cs">
       <DependentUpon>RouteController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\MapViewController.cs" />
+    <Compile Include="Controllers\MapViewController_.designer.cs">
+      <DependentUpon>MapViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\HomeLocationController.cs" />
+    <Compile Include="Controllers\HomeLocationController.designer.cs">
+      <DependentUpon>HomeLocationController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\NetworkReachability.cs" />
+    <Compile Include="Helpers\DownloadDelegate.cs" />
+    <Compile Include="Models\AutosuggestionsTableSource.cs" />
+    <Compile Include="Models\FloorsTableSource.cs" />
+    <Compile Include="Models\TableRowSelectedEventArgs.cs" />
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Foundation;
 using UIKit;
+using System.Linq;
 
 namespace IndoorNavigation.iOS
 {
@@ -10,15 +12,14 @@ namespace IndoorNavigation.iOS
 	class FloorsTableSource : UITableViewSource
 	{
 
-		string[] TableItems;
-		string CellIdentifier = "cell_id";
+		readonly IEnumerable<string> _items;
+		readonly string _cellIdentifier;
 
-		MainViewController _owner;
 
-		internal FloorsTableSource(string[] items, MainViewController owner)
+		internal FloorsTableSource(IEnumerable<string> items)
 		{
-			TableItems = items;
-			this._owner = owner;
+			_items = items;
+			_cellIdentifier = "cell_id";
 		}
 
 		/// <summary>
@@ -26,7 +27,7 @@ namespace IndoorNavigation.iOS
 		/// </summary>
 		public override nint RowsInSection(UITableView tableview, nint section)
 		{
-			return TableItems.Length;
+			return _items.Count();
 		}
 
 		/// <summary>
@@ -34,27 +35,40 @@ namespace IndoorNavigation.iOS
 		/// </summary>
 		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
 		{
-			var cell = tableView.DequeueReusableCell(CellIdentifier);
-			var item = TableItems[indexPath.Row];
-
+			var cell = tableView.DequeueReusableCell(_cellIdentifier);
 			//---- if there are no cells to reuse, create a new one
+			if (cell == null)
+				cell = new UITableViewCell(UITableViewCellStyle.Default, _cellIdentifier);
+
+			var item = _items.ElementAt(indexPath.Row);
+
 			var label = (UILabel)cell.ContentView.ViewWithTag(10);
 			label.Text = item;
-
 
 
 			return cell;
 		}
 
 		/// <summary>
-		/// Handle user selecting a floor level
+		/// Event for user selecting a floor level
 		/// </summary>
 		/// <param name="tableView">Table view.</param>
 		/// <param name="indexPath">Index path.</param>
 		public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
-			var selectedFloor = this.TableItems[indexPath.Row];
-			_owner.HandleSelectedFloor(selectedFloor);
+			OnTableRowSelected(indexPath);
+		}
+
+		public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
+
+		/// <summary>
+		/// Get the tableview item the user selected and call event handler
+		/// </summary>
+		/// <param name="itemIndexPath">Item index path.</param>
+		void OnTableRowSelected(NSIndexPath itemIndexPath)
+		{
+			var item = _items.ElementAt(itemIndexPath.Row);
+			TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item, itemIndexPath));
 		}
 	}
 }

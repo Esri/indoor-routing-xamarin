@@ -20,7 +20,7 @@ namespace IndoorNavigation.iOS
 			// Show the navigation bar
 			NavigationController.NavigationBarHidden = false;
 			// Set the label for the home location from settings
-			HomeLocationLabel.Text = AppSettings.currentSettings.HomeLocation;
+			HomeLocationLabel.Text = AppSettings.CurrentSettings.HomeLocation;
 
 			base.ViewWillAppear(animated);
 		} 

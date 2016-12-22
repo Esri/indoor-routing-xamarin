@@ -2,6 +2,7 @@ using Foundation;
 using System;
 using UIKit;
 using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
 
 namespace IndoorNavigation.iOS
 {
@@ -35,18 +36,20 @@ namespace IndoorNavigation.iOS
 		{
 			base.ViewDidLoad();
 			EndSearchBar.Text = EndLocation;
-			if (AppSettings.currentSettings.HomeLocation != "Set home location")
+
+			// Set start location as home location if available
+			if (AppSettings.CurrentSettings.HomeLocation != "Set home location")
 			{
-				StartLocation = AppSettings.currentSettings.HomeLocation;
+				StartLocation = AppSettings.CurrentSettings.HomeLocation;
 				StartSearchBar.Text = StartLocation;
 			}
 
 
-			// Set text changed event on the start search barr
+			// Set text changed event on the start search bar
 			StartSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searchess
-				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text);
+				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text, true);
 			};
 
 			StartSearchBar.SearchButtonClicked += (sender, e) =>
@@ -59,7 +62,7 @@ namespace IndoorNavigation.iOS
 			EndSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searches
-				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text);
+				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text, false);
 			};
 
 			EndSearchBar.SearchButtonClicked += (sender, e) =>
@@ -69,11 +72,13 @@ namespace IndoorNavigation.iOS
 			};
 		}
 
+		bool _startSearchBarFlag;
 		/// <summary>
 		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
 		/// </summary>
-		async Task RetrieveSuggestionsFromLocator(string searchText)
+		async Task RetrieveSuggestionsFromLocator(string searchText, bool startSearchBarFlag)
 		{
+			_startSearchBarFlag = startSearchBarFlag;
 			var suggestions = await LocationViewModel.GetLocationSuggestions(searchText);
 			if (suggestions == null || suggestions.Count == 0)
 			{
@@ -84,7 +89,9 @@ namespace IndoorNavigation.iOS
 			{
 				// Show the tableview with autosuggestions and populate it
 				AutosuggestionsTableView.Hidden = false;
-				AutosuggestionsTableView.Source = new AutosuggestionsTableSource(suggestions);
+				var tableSource = new AutosuggestionsTableSource(suggestions);
+				tableSource.TableRowSelected += TableSource_TableRowSelected;
+				AutosuggestionsTableView.Source = tableSource;
 
 				AutosuggestionsTableView.ReloadData();
 
@@ -95,18 +102,44 @@ namespace IndoorNavigation.iOS
 			}
 		}
 
-		//async partial void RouteButton_TouchUpInside(UIButton sender)
-		//{
+		/// <summary>
+		/// Get the value selected in the Autosuggestions Table
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
+		async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+		{
+			var selectedItem = e.SelectedItem;
 
-		//}
+			// Test which search box the initial request came from
+			if (_startSearchBarFlag == true)
+			{
+				StartSearchBar.Text = selectedItem.Label;
+				StartSearchBar.ResignFirstResponder();
+			}
+			else
+			{
+				EndSearchBar.Text = selectedItem.Label;
+				EndSearchBar.ResignFirstResponder();
+			}
 
+			// Dismiss autosuggest table and keyboard
+			AutosuggestionsTableView.Hidden = true;
+
+		}
+
+		/// <summary>
+		/// Prepares for segueto go back to the Main View Controller. This segue is initiated by the Route button
+		/// </summary>
+		/// <param name="segue">Segue.</param>
+		/// <param name="sender">Sender.</param>
 		public async override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
 		{
 			base.PrepareForSegue(segue, sender);
 
 			if (segue.Identifier == "BackFromRouteSegue")
 			{
-				var mainViewController = segue.DestinationViewController as MainViewController;
+				var mapViewController = segue.DestinationViewController as MapViewController;
 				// Geocode the locations selected by the use
 				try
 				{
@@ -114,9 +147,9 @@ namespace IndoorNavigation.iOS
 					var toLocation = await LocationViewModel.GetSearchedLocation(EndLocation);
 
 					var route = await LocationViewModel.GetRequestedRoute(fromLocation.DisplayLocation, toLocation.DisplayLocation);
-					mainViewController.Route = route;
+					mapViewController.Route = route;
 				}
-				catch { mainViewController.Route = null; }
+				catch { mapViewController.Route = null; }
 
 			}
 

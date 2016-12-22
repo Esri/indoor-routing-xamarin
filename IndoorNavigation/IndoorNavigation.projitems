@@ -10,7 +10,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MapViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LocationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structures\CoordinatesKeyValuePair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\LocationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Structures\" />
+    <Folder Include="$(MSBuildThisFileDirectory)ViewModels\" />
   </ItemGroup>
 </Project>

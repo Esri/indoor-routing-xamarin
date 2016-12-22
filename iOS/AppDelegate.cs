@@ -25,15 +25,11 @@ namespace IndoorNavigation.iOS
 		/// <summary>
 		/// Overrides the behavior of the application when it has finished launching
 		/// </summary>
-		/// <returns><c>true</c>, if launching was finisheded, <c>false</c> otherwise.</returns>
 		/// <param name="application">Application.</param>
-		/// <param name="launchOptions">Launch options.</param>
-		public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
+		public override async void FinishedLaunching(UIApplication application)
 		{
 			// When the application has finished loading, bring in the settings
-			AppSettings.currentSettings = AppSettings.LoadAppSettings(Path.Combine(settingsPath, "AppSettings.xml"));
-
-			return true;
+			AppSettings.CurrentSettings = AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).Result;
 		}
 
 		/// <summary>

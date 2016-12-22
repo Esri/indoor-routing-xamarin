@@ -100,6 +100,15 @@ namespace IndoorNavigation
 		}
 
 		/// <summary>
+		/// Gets or sets the name of the floor column in rooms tabel.
+		/// </summary>
+		/// <value>The floor column in rooms tabel.</value>
+		public string FloorColumnInRoomsTable
+		{
+			get; set;
+		}
+
+		/// <summary>
 		/// Gets or sets the home coordinates.
 		/// </summary>
 		/// <value>The coordinates and floor level for the home location. This also includes the WKID</value>
@@ -110,17 +119,68 @@ namespace IndoorNavigation
 		}
 
 		/// <summary>
+		/// Gets or sets the initial viewpoint coordinates.
+		/// </summary>
+		/// <value>The initial viewpoint coordinates used for the map.</value>
+		[XmlArray("InitialViewpointCoordinates")]
+		public CoordinatesKeyValuePair<string, double>[] InitialViewpointCoordinates
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the locator fields. If there is only one locator, make a list with one value 
+		/// </summary>
+		/// <value>The locator fields.</value>
+		[XmlArray("LocatorFields")]
+		public List<string> LocatorFields
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the contact card display fields. These are what is displayed on the Contact card when user searches or taps an office
+		/// </summary>
+		/// <value>The contact card display fields.</value>
+		[XmlArray("ContactCardDisplayFields")]
+		public List<string> ContactCardDisplayFields
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the minimum scale of the map.
+		/// </summary>
+		/// <value>The minimum scale.</value>
+		[XmlElement]
+		public int MinScale
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the maximum scale of the map.
+		/// </summary>
+		/// <value>The max scale.</value>
+		[XmlElement]
+		public int MaxScale
+		{
+			get; set;
+		}
+
+
+		/// <summary>
 		/// Gets or sets the current settings.
 		/// </summary>
 		/// <value>Static instance of the settings for the application</value>
-		public static AppSettings currentSettings { get; set; }
+		public static AppSettings CurrentSettings { get; set; }
 
 		/// <summary>
 		/// Loads the app settings if the file exists, otherwise it creates default settings. 
 		/// </summary>
 		/// <returns>The app settings.</returns>
 		/// <param name="filePath">File path.</param>
-		internal static AppSettings LoadAppSettings(string filePath)
+		internal static async Task<AppSettings> CreateAsync(string filePath)
 		{
 			// Get all the files in the device directory
 			List<string> files = Directory.EnumerateFiles(Path.GetDirectoryName(filePath)).ToList();
@@ -138,12 +198,29 @@ namespace IndoorNavigation
 				appSettings.RoomsLayerIndex = 1;
 				appSettings.FloorplanLinesLayerIndex = 2;
 				appSettings.ZoomLevelToDisplayRoomLayers = 500;
+				appSettings.FloorColumnInRoomsTable = "FLOOR";
+				appSettings.MinScale = 100;
+				appSettings.MaxScale = 13000;
+				CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
+				{
+				new CoordinatesKeyValuePair<string, double>("X", -13046209),
+				new CoordinatesKeyValuePair<string, double>("Y", 4036456),
+				new CoordinatesKeyValuePair<string, double>("WKID", 3857),
+				new CoordinatesKeyValuePair<string, double>("ZoomLevel", 1600),
+				};
+				appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
+
+				appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
+
+				// Information in these fields gets displayed in the contact card
+				// List the Item you want searcheable and in bold to be first
+				appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
 
 				var serializer = new XmlSerializer(appSettings.GetType());
 
 				// Create settings file on a separate thread
 				// this does not need to be awaited since the return is already set
-			    Task.Factory.StartNew(delegate
+			    await Task.Factory.StartNew(delegate
 				{
 					using (var fileStream = new FileStream(filePath, FileMode.Create))
 					{
@@ -170,29 +247,15 @@ namespace IndoorNavigation
 		/// <param name="filePath">File path.</param>
 		internal static void SaveSettings(string filePath)
 		{
-			var serializer = new XmlSerializer(currentSettings.GetType());
+			var serializer = new XmlSerializer(CurrentSettings.GetType());
 
 			using (var fileStream = new FileStream(filePath, FileMode.Open))
 			{
-				serializer.Serialize(fileStream, currentSettings);
+				serializer.Serialize(fileStream, CurrentSettings);
 			}
 		}
 
 	}
 
-	/// <summary>
-	/// Coordinates key value pair.
-	/// </summary>
-	[Serializable]
-	public struct CoordinatesKeyValuePair<K, V>
-	{
-		public K Key { get; set; }
-		public V Value { get; set; }
 
-		public CoordinatesKeyValuePair(K k, V v)
-		{
-			Key = k;
-			Value = v;
-		}
-	}
 }

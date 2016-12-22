@@ -1,12 +1,8 @@
-using Foundation;
 using System;
 using UIKit;
-using Esri.ArcGISRuntime.Tasks.Geocoding;
-using System.Collections.Generic;
-using System.Linq;
-using CoreGraphics;
 using System.Threading.Tasks;
 using System.IO;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
 
 namespace IndoorNavigation.iOS
 {
@@ -51,7 +47,6 @@ namespace IndoorNavigation.iOS
 			{
 				var locationText = ((UISearchBar)sender).Text;
 				await SetHomeLocation(locationText);
-				this.NavigationController.PopViewController(true);
 			};
 		}
 
@@ -70,7 +65,9 @@ namespace IndoorNavigation.iOS
 			{
 				// Show the tableview with autosuggestions and populate it
 				AutosuggestionsTableView.Hidden = false;
-				AutosuggestionsTableView.Source = new AutosuggestionsTableSource(suggestions);
+				var tableSource = new AutosuggestionsTableSource(suggestions);
+				tableSource.TableRowSelected += TableSource_TableRowSelected;
+				AutosuggestionsTableView.Source = tableSource; 
 
 				AutosuggestionsTableView.ReloadData();
 
@@ -82,29 +79,45 @@ namespace IndoorNavigation.iOS
 		}
 
 		/// <summary>
+		/// Get the value selected in the Autosuggestions Table
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
+		async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+		{
+			var selectedItem = e.SelectedItem;
+			HomeLocationSearchBar.Text = selectedItem.Label;
+			await SetHomeLocation(selectedItem.Label);;
+		}
+
+		/// <summary>
 		/// Sets the home location for the user and saves it into settings.
 		/// </summary>
 		/// <param name="locationText">Location text.</param>
 		async Task SetHomeLocation(string locationText)
 		{
-			AppSettings.currentSettings.HomeLocation = locationText;
+			AppSettings.CurrentSettings.HomeLocation = locationText;
 			var homeLocation = await LocationViewModel.GetSearchedLocation(locationText);
 
-
-			// Save extent of home location and floor level to Settings file
-			CoordinatesKeyValuePair<string, double>[] homeCoordinates =
+			if (homeLocation != null)
 			{
-				new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
-				new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-				new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
-				new CoordinatesKeyValuePair<string, double>("Floor", 1),
-			};
+				// Save extent of home location and floor level to Settings file
+				CoordinatesKeyValuePair<string, double>[] homeCoordinates =
+				{
+					new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+					new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+					new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
+					new CoordinatesKeyValuePair<string, double>("Floor", 1),
+				};
 
-			AppSettings.currentSettings.HomeCoordinates = homeCoordinates;
+				AppSettings.CurrentSettings.HomeCoordinates = homeCoordinates;
 
-			// Save user settings
-			var settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-			await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
+				// Save user settings
+				var settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+				await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
+			}
+
+			NavigationController.PopViewController(true);
 		}
 	}
 }
