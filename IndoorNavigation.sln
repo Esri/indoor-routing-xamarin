@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IndoorNavigation", "IndoorNavigation\IndoorNavigation.shproj", "{C74E25B9-776D-4522-891F-660D1A128785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndoorNavigation.Droid", "Droid\IndoorNavigation.Droid.csproj", "{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndoorNavigation.iOS", "iOS\IndoorNavigation.iOS.csproj", "{7955C133-DC15-4F9C-BC27-60E14C6A6509}"
 EndProject
 Global
@@ -17,18 +15,6 @@ Global
 		Debug|iPhone = Debug|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|iPhone.Build.0 = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{BBEBAAFD-1FC5-4948-A57A-404DA46A6870}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Debug|Any CPU.ActiveCfg = Debug|iPhoneSimulator
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Debug|Any CPU.Build.0 = Debug|iPhoneSimulator
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|Any CPU.ActiveCfg = Release|iPhone

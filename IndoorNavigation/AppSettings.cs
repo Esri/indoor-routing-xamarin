@@ -103,6 +103,7 @@ namespace IndoorNavigation
 		/// Gets or sets the name of the floor column in rooms tabel.
 		/// </summary>
 		/// <value>The floor column in rooms tabel.</value>
+		[XmlElement]
 		public string FloorColumnInRoomsTable
 		{
 			get; set;
