@@ -1,68 +1,69 @@
 ﻿using System;
-using System.IO;
 using Foundation;
 using UIKit;
 
 namespace IndoorNavigation.iOS
 {
-	public class DownloadDelegate : NSUrlSessionDownloadDelegate
+	/// <summary>
+	/// Download delegate handles logic of the background download.
+	/// </summary>
+	class DownloadDelegate : NSUrlSessionDownloadDelegate
 	{
-		public DownloadDelegate(DownloadController controller) : base()
+		internal DownloadDelegate(DownloadController controller) : base()
 		{
 			this.controller = controller;
 		}
 
+		/// <summary>
+		/// Reference to the download controller 
+		/// </summary>
 		readonly DownloadController controller;
 
 		/// <summary>
-		/// Gets called as we receive data.
+		/// Gets called as data is being received
 		/// </summary>
 		/// <param name="session">Session.</param>
 		/// <param name="downloadTask">Download task.</param>
-		/// <param name = "bytesWritten"></param>
+		/// <param name="bytesWritten">Bytes written.</param>
 		/// <param name="totalBytesWritten">Total bytes written.</param>
-		/// <param name = "totalBytesExpectedToWrite"></param>
+		/// <param name="totalBytesExpectedToWrite">Total bytes expected to write.</param>
 		public override void DidWriteData(NSUrlSession session, NSUrlSessionDownloadTask downloadTask, long bytesWritten, long totalBytesWritten, long totalBytesExpectedToWrite)
 		{
-			nuint localIdentifier = downloadTask.TaskIdentifier;
-			float percentage = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;
+			var localIdentifier = downloadTask.TaskIdentifier;
+			var percentage = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;
 
 			InvokeOnMainThread(() => controller.UpdateProgress(percentage));
 		}
 
 		/// <summary>
-		/// Gets called if the download has been completed.
+		/// Gets called when the download has been completed.
 		/// </summary>
+		/// <param name="session">Session.</param>
+		/// <param name="downloadTask">Download task.</param>
+		/// <param name="location">Location.</param>
 		public override void DidFinishDownloading(NSUrlSession session, NSUrlSessionDownloadTask downloadTask, NSUrl location)
 		{
-			// The download location will be a file location.
+			// The download location is the location of the file
 			var sourceFile = location.Path;
 
-			// Construct a destination file name.
-			//var destFile = downloadTask.OriginalRequest.Url.AbsoluteString.Substring(downloadTask.OriginalRequest.Url.AbsoluteString.LastIndexOf("/") + 1);
-
 			// Copy over to documents folder. Note that we must use NSFileManager here! File.Copy() will not be able to access the source location.
-			NSFileManager fileManager = NSFileManager.DefaultManager;
+			var fileManager = NSFileManager.DefaultManager;
 
-			// Create the filename
-			//var documentsFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-			//NSUrl destinationURL = NSUrl.FromFilename(Path.Combine(documentsFolderPath, destFile));
-
-			// Remove any existing file in our destination
+			// Remove any existing files in our destination
 			NSError error;
 			fileManager.Remove(DownloadController.targetFilename, out error);
-			bool success = fileManager.Copy(sourceFile, DownloadController.targetFilename, out error);
+			var success = fileManager.Copy(sourceFile, DownloadController.targetFilename, out error);
 			if (!success)
 			{
 				Console.WriteLine("Error during the copy: {0}", error.LocalizedDescription);
 			}
 
-			this.InvokeOnMainThread(() => this.controller.LoadMapView());
+			InvokeOnMainThread(() => this.controller.LoadMapView());
 
 		}
 
 		/// <summary>
-		/// Very misleading method name. Gets called if a download is done. Does not necessarily indicate an error
+		/// Gets called when a download is done. Does not necessarily indicate an error
 		/// unless the NSError parameter is not null.
 		/// </summary>
 		public override void DidCompleteWithError(NSUrlSession session, NSUrlSessionTask task, NSError error)
@@ -86,12 +87,8 @@ namespace IndoorNavigation.iOS
 			AppDelegate.BackgroundSessionCompletionHandler = null;
 			if (handler != null)
 			{
-				Console.WriteLine("Calling completion handler.");
 				controller.BeginInvokeOnMainThread(() =>
 				{
-					//var alert = UIAlertController.Create(string.Empty, "Mobile Map Package has been downloaded successfully.",UIAlertControllerStyle.Alert);
-					
-
 					// Bring up a local notification to take the user back to our app.
 					var notif = new UILocalNotification
 					{

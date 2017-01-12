@@ -9,115 +9,178 @@ namespace IndoorNavigation
 {
 	public class AppSettings
 	{
-		string itemID;
-		string itemName;
-		DateTime mmpkDate;
-		string homeLocation;
-		bool isLocationServicesEnabled;
-		bool isPreferElevatorsEnabled;
-
+		/// <summary>
+		/// Gets or sets the item identifier.
+		/// </summary>
+		/// <value>Portal Item ID</value>
 		[XmlElement]
 		public string ItemID
 		{
-			get
-			{
-				return itemID;
-			}
-
-			set
-			{
-				itemID = value;
-			}
+			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the name of the item.
+		/// </summary>
+		/// <value>The name of the Portal item</value>
 		[XmlElement]
 		public string ItemName
 		{
-			get
-			{
-				return itemName;
-			}
-
-			set
-			{
-				itemName = value;
-			}
+			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the mmpk date.
+		/// </summary>
+		/// <value>The date the mobile map package was downloaded</value>
 		[XmlElement]
 		public DateTime MmpkDate
 		{
-			get
-			{
-				return mmpkDate;
-			}
-
-			set
-			{
-				mmpkDate = value;
-			}
+			get; set;
 		}
+
+		/// <summary>
+		/// Gets or sets the home location.
+		/// </summary>
+		/// <value>The home location set by the user. By default this is set to "Set home location"</value>
 		[XmlElement]
 		public string HomeLocation
 		{
-			get
-			{
-				return homeLocation;
-			}
-
-			set
-			{
-				homeLocation = value;
-			}
+			get; set;
 		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="T:IndoorNavigation.AppSettings"/> is location services enabled.
+		/// </summary>
+		/// <value><c>true</c> if is location services switch enabled; otherwise, <c>false</c>.</value>
 		[XmlElement]
 		public bool IsLocationServicesEnabled
 		{
-			get
-			{
-				return isLocationServicesEnabled;
-			}
-
-			set
-			{
-				isLocationServicesEnabled = value;
-			}
+			get; set;
 		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="T:IndoorNavigation.AppSettings"/> is prefer elevators enabled.
+		/// </summary>
+		/// <value><c>true</c> if is prefer elevators switch is enabled; otherwise, <c>false</c>.</value>
 		[XmlElement]
 		public bool IsPreferElevatorsEnabled
 		{
-			get
-			{
-				return isPreferElevatorsEnabled;
-			}
-
-			set
-			{
-				isPreferElevatorsEnabled = value;
-			}
+			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the index of the rooms layer.
+		/// </summary>
+		/// <value>The index of the rooms layer.</value>
 		[XmlElement]
 		public int RoomsLayerIndex
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the index of the floorplan lines layer.
+		/// </summary>
+		/// <value>The index of the floorplan lines layer.</value>
 		[XmlElement]
 		public int FloorplanLinesLayerIndex
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the zoom level to display room layers.
+		/// </summary>
+		/// <value>The zoom level to display room layers.</value>
+		[XmlElement]
+		public float ZoomLevelToDisplayRoomLayers
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the name of the floor column in rooms tabel.
+		/// </summary>
+		/// <value>The floor column in rooms tabel.</value>
+		public string FloorColumnInRoomsTable
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the home coordinates.
+		/// </summary>
+		/// <value>The coordinates and floor level for the home location. This also includes the WKID</value>
 		[XmlArray("HomeCoordinates")]
-		//[XmlArrayItem("Coordinate", typeof(double))]
 		public CoordinatesKeyValuePair<string, double>[] HomeCoordinates
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the initial viewpoint coordinates.
+		/// </summary>
+		/// <value>The initial viewpoint coordinates used for the map.</value>
+		[XmlArray("InitialViewpointCoordinates")]
+		public CoordinatesKeyValuePair<string, double>[] InitialViewpointCoordinates
+		{
+			get; set;
+		}
 
-		public static AppSettings LoadAppSettings(string filePath)
+		/// <summary>
+		/// Gets or sets the locator fields. If there is only one locator, make a list with one value 
+		/// </summary>
+		/// <value>The locator fields.</value>
+		[XmlArray("LocatorFields")]
+		public List<string> LocatorFields
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the contact card display fields. These are what is displayed on the Contact card when user searches or taps an office
+		/// </summary>
+		/// <value>The contact card display fields.</value>
+		[XmlArray("ContactCardDisplayFields")]
+		public List<string> ContactCardDisplayFields
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the minimum scale of the map.
+		/// </summary>
+		/// <value>The minimum scale.</value>
+		[XmlElement]
+		public int MinScale
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Gets or sets the maximum scale of the map.
+		/// </summary>
+		/// <value>The max scale.</value>
+		[XmlElement]
+		public int MaxScale
+		{
+			get; set;
+		}
+
+
+		/// <summary>
+		/// Gets or sets the current settings.
+		/// </summary>
+		/// <value>Static instance of the settings for the application</value>
+		public static AppSettings CurrentSettings { get; set; }
+
+		/// <summary>
+		/// Loads the app settings if the file exists, otherwise it creates default settings. 
+		/// </summary>
+		/// <returns>The app settings.</returns>
+		/// <param name="filePath">File path.</param>
+		internal static async Task<AppSettings> CreateAsync(string filePath)
 		{
 			// Get all the files in the device directory
 			List<string> files = Directory.EnumerateFiles(Path.GetDirectoryName(filePath)).ToList();
@@ -134,12 +197,30 @@ namespace IndoorNavigation
 				appSettings.IsPreferElevatorsEnabled = false;
 				appSettings.RoomsLayerIndex = 1;
 				appSettings.FloorplanLinesLayerIndex = 2;
+				appSettings.ZoomLevelToDisplayRoomLayers = 500;
+				appSettings.FloorColumnInRoomsTable = "FLOOR";
+				appSettings.MinScale = 100;
+				appSettings.MaxScale = 13000;
+				CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
+				{
+				new CoordinatesKeyValuePair<string, double>("X", -13046209),
+				new CoordinatesKeyValuePair<string, double>("Y", 4036456),
+				new CoordinatesKeyValuePair<string, double>("WKID", 3857),
+				new CoordinatesKeyValuePair<string, double>("ZoomLevel", 1600),
+				};
+				appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
+
+				appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
+
+				// Information in these fields gets displayed in the contact card
+				// List the Item you want searcheable and in bold to be first
+				appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
 
 				var serializer = new XmlSerializer(appSettings.GetType());
 
 				// Create settings file on a separate thread
 				// this does not need to be awaited since the return is already set
-			    Task.Factory.StartNew(delegate
+			    await Task.Factory.StartNew(delegate
 				{
 					using (var fileStream = new FileStream(filePath, FileMode.Create))
 					{
@@ -160,33 +241,21 @@ namespace IndoorNavigation
 			}
 		}
 
-		public static void SaveSettings(string filePath)
+		/// <summary>
+		/// Saves the settings.
+		/// </summary>
+		/// <param name="filePath">File path.</param>
+		internal static void SaveSettings(string filePath)
 		{
-			var serializer = new XmlSerializer(GlobalSettings.currentSettings.GetType());
+			var serializer = new XmlSerializer(CurrentSettings.GetType());
 
 			using (var fileStream = new FileStream(filePath, FileMode.Open))
 			{
-				serializer.Serialize(fileStream, GlobalSettings.currentSettings);
+				serializer.Serialize(fileStream, CurrentSettings);
 			}
 		}
 
 	}
 
-	public static class GlobalSettings
-	{
-		public static AppSettings currentSettings { get; set; }
-	}
 
-	[Serializable]
-	public struct CoordinatesKeyValuePair<K, V>
-	{
-		public K Key { get; set; }
-		public V Value { get; set; }
-
-		public CoordinatesKeyValuePair(K k, V v)
-		{
-			Key = k;
-			Value = v;
-		}
-	}
 }

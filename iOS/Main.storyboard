@@ -7,7 +7,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController" storyboardIdentifier="ViewController" useStoryboardIdentifierAsRestorationIdentifier="YES">
+                <viewController id="BYZ-38-t0r" customClass="MapViewController" sceneMemberID="viewController" storyboardIdentifier="MainViewController" useStoryboardIdentifierAsRestorationIdentifier="YES">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleAspectFill" id="49" customClass="MapView" translatesAutoresizingMaskIntoConstraints="NO">
-                                <rect key="frame" x="0.0" y="65" width="600" height="535"/>
+                                <rect key="frame" x="0.0" y="106" width="600" height="494"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <subviews>
                                     <stackView contentMode="scaleToFill" axis="vertical" id="1599" translatesAutoresizingMaskIntoConstraints="NO" spacing="5">
@@ -81,9 +81,7 @@
                                                     <color key="titleColor" colorSpace="calibratedWhite" white="0" alpha="1"/>
                                                     <color key="titleShadowColor" colorSpace="calibratedWhite" white="0.333333333333333" alpha="1"/>
                                                 </state>
-                                                <connections>
-                                                    <segue id="1829" destination="1830" kind="show"/>
-                                                </connections>
+                                                <connections/>
                                                 <accessibility key="accessibilityConfiguration">
                                                     <bool key="isElement" value="NO"/>
                                                 </accessibility>
@@ -96,18 +94,10 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </stackView>
-                                    <searchBar contentMode="redraw" id="1555" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Search rooms or people" opaque="NO">
-                                        <rect key="frame" x="0.0" y="10" width="600" height="44"/>
-                                        <textInputTraits key="textInputTraits" returnKeyType="search"/>
-                                    </searchBar>
                                 </subviews>
                                 <constraints>
-                                    <constraint id="1856" firstItem="49" firstAttribute="bottom" secondItem="1599" secondAttribute="bottom" constant="64"/>
-                                    <constraint id="1857" firstItem="1599" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="20"/>
-                                    <constraint id="1858" firstItem="1555" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
-                                    <constraint id="1859" firstItem="1555" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
-                                    <constraint id="1860" firstItem="1555" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
-                                    <constraint id="1861" firstItem="1555" firstAttribute="top" secondItem="49" secondAttribute="top" constant="10"/>
+                                    <constraint id="2000" firstItem="1599" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="20"/>
+                                    <constraint id="2001" firstItem="49" firstAttribute="bottom" secondItem="1599" secondAttribute="bottom" constant="23"/>
                                 </constraints>
                             </view>
                             <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="34" sectionHeaderHeight="28" sectionFooterHeight="28" id="58" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" autoresizesSubviews="NO" hidden="YES" separatorStyle="none">
@@ -152,28 +142,96 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <constraints>
-                                    <constraint id="1855" firstItem="58" firstAttribute="width" constant="34"/>
+                                    <constraint id="1995" firstItem="58" firstAttribute="width" constant="34"/>
                                 </constraints>
                             </tableView>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="1955" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" hidden="YES" alwaysBounceVertical="YES">
+                                <rect key="frame" x="16" y="106" width="564" height="494"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="1956" rowHeight="44" reuseIdentifier="cell_id">
+                                        <rect key="frame" x="0.0" y="28" width="564" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" tableViewCell="1956" id="1957">
+                                            <rect key="frame" x="0.0" y="0.0" width="564" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <searchBar contentMode="redraw" id="1981" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Search rooms or people" tag="2">
+                                <rect key="frame" x="0.0" y="64" width="600" height="44"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <color key="barTintColor" colorSpace="calibratedRGB" red="0.72941176470588232" green="0.72941176470588232" blue="0.75294117647058822" alpha="1"/>
+                            </searchBar>
+                            <view contentMode="scaleToFill" id="2033" key="tableFooterView" hidden="YES">
+                                <rect key="frame" x="0.0" y="489" width="600" height="111"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="2062" translatesAutoresizingMaskIntoConstraints="NO" text="Office Name">
+                                        <rect key="frame" x="11" y="5" width="520" height="24"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="20" weight="semibold"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="2079" translatesAutoresizingMaskIntoConstraints="NO">
+                                        <rect key="frame" x="539" y="20" width="41" height="43"/>
+                                        <color key="tintColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <state key="normal" image="Navigation">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        </state>
+                                        <constraints>
+                                            <constraint id="2082" firstItem="2079" firstAttribute="height" constant="43"/>
+                                            <constraint id="2083" firstItem="2079" firstAttribute="width" constant="41"/>
+                                        </constraints>
+                                        <connections>
+                                            <segue id="3166" destination="2089" kind="show" identifier="RouteSegue"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint id="2080" firstItem="2079" firstAttribute="top" secondItem="2033" secondAttribute="top" constant="20"/>
+                                    <constraint id="2081" firstItem="2033" firstAttribute="trailing" secondItem="2079" secondAttribute="trailing" constant="20"/>
+                                    <constraint id="3444" firstItem="2079" firstAttribute="leading" secondItem="2062" secondAttribute="trailing" constant="8"/>
+                                    <constraint id="3445" firstItem="2062" firstAttribute="leading" secondItem="2033" secondAttribute="leading" constant="11"/>
+                                    <constraint id="3446" firstItem="2062" firstAttribute="top" secondItem="2033" secondAttribute="top" constant="5"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint id="1848" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
-                            <constraint id="1849" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
-                            <constraint id="1850" firstItem="49" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom"/>
-                            <constraint id="1851" firstItem="49" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="1"/>
-                            <constraint id="1852" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
-                            <constraint id="1853" firstItem="49" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="119"/>
-                            <constraint id="1854" firstItem="58" firstAttribute="top" secondItem="49" secondAttribute="top" constant="189"/>
+                            <constraint id="1985" firstItem="1981" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
+                            <constraint id="1986" firstItem="1981" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom"/>
+                            <constraint id="1987" firstItem="1981" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
+                            <constraint id="1988" firstItem="1981" firstAttribute="bottom" secondItem="49" secondAttribute="top" constant="2"/>
+                            <constraint id="1989" firstItem="49" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top"/>
+                            <constraint id="1990" firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading"/>
+                            <constraint id="1991" firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing"/>
+                            <constraint id="1992" firstItem="58" firstAttribute="top" secondItem="1981" secondAttribute="bottom" constant="146"/>
+                            <constraint id="1993" firstItem="49" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="20"/>
+                            <constraint id="1994" firstItem="49" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="119"/>
+                            <constraint id="1996" firstItem="1981" firstAttribute="bottom" secondItem="1955" secondAttribute="top" constant="2"/>
+                            <constraint id="1997" firstItem="1955" firstAttribute="bottom" secondItem="49" secondAttribute="bottom"/>
+                            <constraint id="1998" firstItem="49" firstAttribute="trailing" secondItem="1955" secondAttribute="trailing" constant="20"/>
+                            <constraint id="1999" firstItem="1955" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="16"/>
+                            <constraint id="2037" firstItem="2033" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
+                            <constraint id="2038" firstItem="2033" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
+                            <constraint id="2039" firstItem="2033" firstAttribute="trailing" secondItem="49" secondAttribute="trailing"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="MapView" destination="49" id="name-outlet-49"/>
                         <outlet property="FloorsTableView" destination="58" id="name-outlet-58"/>
                         <outlet property="InvisibleButton" destination="1828" id="name-outlet-1828"/>
-                        <outlet property="CurrentLocation" destination="1808" id="name-outlet-1808"/>
+                        <outlet property="CurrentLocationButton" destination="1808" id="name-outlet-1808"/>
                         <outlet property="HomeButton" destination="1601" id="name-outlet-1601"/>
                         <outlet property="Settings" destination="1600" id="name-outlet-1600"/>
+                        <outlet property="AutosuggestionsTableView" destination="1955" id="name-outlet-1955"/>
+                        <outlet property="LocationSearchBar" destination="1981" id="name-outlet-1981"/>
+                        <outlet property="ContactCardView" destination="2033" id="name-outlet-2033"/>
+                        <outlet property="NameLabel" destination="2062" id="name-outlet-2062"/>
+                        <outlet property="DirectionsButton" destination="2079" id="name-outlet-2079"/>
                     </connections>
                     <navigationItem id="1194" key="navigationItem"/>
                 </viewController>
@@ -374,12 +432,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" id="1426" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Enter home location" tag="3">
-                                <rect key="frame" x="14" y="80" width="572" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                                <connections/>
-                            </textField>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="1476" translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" hidden="YES" alwaysBounceVertical="YES">
                                 <rect key="frame" x="15" y="110" width="568" height="490"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -394,27 +446,142 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <searchBar contentMode="redraw" id="2018" translatesAutoresizingMaskIntoConstraints="NO" tag="2">
+                                <rect key="frame" x="0.0" y="65" width="600" height="44"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
                         </subviews>
                         <color key="backgroundColor" colorSpace="calibratedRGB" red="0.90588235294117647" green="0.90588235294117647" blue="0.90588235294117647" alpha="1"/>
                         <constraints>
-                            <constraint id="1473" firstItem="1343" firstAttribute="trailing" secondItem="1426" secondAttribute="trailing" constant="14"/>
-                            <constraint id="1474" firstItem="1426" firstAttribute="top" secondItem="1339" secondAttribute="bottom" constant="16"/>
-                            <constraint id="1475" firstItem="1426" firstAttribute="leading" secondItem="1343" secondAttribute="leading" constant="14"/>
-                            <constraint id="1897" firstItem="1476" firstAttribute="leading" secondItem="1343" secondAttribute="leading" constant="15"/>
-                            <constraint id="1898" firstItem="1476" firstAttribute="top" secondItem="1426" secondAttribute="bottom"/>
-                            <constraint id="1899" firstItem="1343" firstAttribute="trailing" secondItem="1476" secondAttribute="trailing" constant="17"/>
-                            <constraint id="1900" firstItem="1476" firstAttribute="bottom" secondItem="1343" secondAttribute="bottom"/>
+                            <constraint id="2019" firstItem="2018" firstAttribute="top" secondItem="1339" secondAttribute="bottom" constant="1"/>
+                            <constraint id="2020" firstItem="2018" firstAttribute="leading" secondItem="1343" secondAttribute="leading"/>
+                            <constraint id="2021" firstItem="2018" firstAttribute="trailing" secondItem="1343" secondAttribute="trailing"/>
+                            <constraint id="2022" firstItem="1476" firstAttribute="top" secondItem="2018" secondAttribute="bottom" constant="1"/>
+                            <constraint id="2023" firstItem="1476" firstAttribute="leading" secondItem="1343" secondAttribute="leading" constant="15"/>
+                            <constraint id="2024" firstItem="1343" firstAttribute="trailing" secondItem="1476" secondAttribute="trailing" constant="17"/>
+                            <constraint id="2025" firstItem="1476" firstAttribute="bottom" secondItem="1343" secondAttribute="bottom"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="HomeLocationTextField" destination="1426" id="name-outlet-1426"/>
                         <outlet property="AutosuggestionsTableView" destination="1476" id="name-outlet-1476"/>
                         <outlet property="HomeLocationView" destination="1343" id="name-outlet-1343"/>
+                        <outlet property="HomeLocationSearchBar" destination="2018" id="name-outlet-2018"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1344" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="47" y="682"/>
+        </scene>
+        <scene sceneID="2088">
+            <objects>
+                <viewController id="2089" sceneMemberID="viewController" customClass="RouteController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="2086"/>
+                        <viewControllerLayoutGuide type="bottom" id="2087"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="2090">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" id="3224" translatesAutoresizingMaskIntoConstraints="NO">
+                                <rect key="frame" x="0.0" y="65" width="600" height="137"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Start" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="3173" translatesAutoresizingMaskIntoConstraints="NO">
+                                        <rect key="frame" x="11" y="12" width="38" height="20"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="highlightedColor"/>
+                                        <color key="textColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="End" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="3174" translatesAutoresizingMaskIntoConstraints="NO">
+                                        <rect key="frame" x="11" y="54" width="30" height="20"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="highlightedColor"/>
+                                        <color key="textColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                    </label>
+                                    <searchBar contentMode="redraw" id="3172" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Enter start location">
+                                        <rect key="frame" x="57" y="0.0" width="533" height="44"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                        <items>
+                                            <searchBar contentMode="redraw" id="3175" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" placeholder="Enter start location">
+                                                <rect key="frame" x="96" y="94" width="465" height="44"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </searchBar>
+                                        </items>
+                                        <rect key="contentStretch" x="0.0" y="0.0" width="1" height="1"/>
+                                        <color key="barTintColor" colorSpace="calibratedWhite" white="0.666666666666667" alpha="1"/>
+                                    </searchBar>
+                                    <searchBar contentMode="redraw" id="3214" translatesAutoresizingMaskIntoConstraints="NO" placeholder="Enter end location">
+                                        <rect key="frame" x="57" y="43" width="533" height="44"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                        <color key="barTintColor" colorSpace="calibratedWhite" white="0.666666666666667" alpha="1"/>
+                                    </searchBar>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="3229" translatesAutoresizingMaskIntoConstraints="NO">
+                                        <rect key="frame" x="483" y="95" width="75" height="30"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17" weight="medium"/>
+                                        <state key="normal" title="Route Me">
+                                            <color key="titleShadowColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                            <color key="titleColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                        </state>
+                                        <constraints>
+                                            <constraint id="3332" firstItem="3229" firstAttribute="width" constant="75"/>
+                                            <constraint id="3333" firstItem="3229" firstAttribute="height" constant="30"/>
+                                        </constraints>
+                                        <connections>
+                                            <segue id="3420" destination="BYZ-38-t0r" kind="show" identifier="BackFromRouteSegue"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" colorSpace="calibratedWhite" white="0.666666666666667" alpha="1"/>
+                                <color key="tintColor" colorSpace="calibratedWhite" white="0.333333333333333" alpha="1"/>
+                                <constraints>
+                                    <constraint id="3317" firstItem="3224" firstAttribute="height" constant="137"/>
+                                    <constraint id="3318" firstItem="3173" firstAttribute="top" secondItem="3224" secondAttribute="top" constant="12"/>
+                                    <constraint id="3319" firstItem="3173" firstAttribute="leading" secondItem="3224" secondAttribute="leading" constant="11"/>
+                                    <constraint id="3320" firstItem="3172" firstAttribute="top" secondItem="3224" secondAttribute="top"/>
+                                    <constraint id="3321" firstItem="3224" firstAttribute="trailing" secondItem="3172" secondAttribute="trailing" constant="10"/>
+                                    <constraint id="3322" firstItem="3172" firstAttribute="leading" secondItem="3173" secondAttribute="trailing" constant="8"/>
+                                    <constraint id="3323" firstItem="3174" firstAttribute="top" secondItem="3173" secondAttribute="bottom" constant="22"/>
+                                    <constraint id="3324" firstItem="3174" firstAttribute="leading" secondItem="3224" secondAttribute="leading" constant="11"/>
+                                    <constraint id="3326" firstItem="3172" firstAttribute="bottom" secondItem="3214" secondAttribute="top" constant="1"/>
+                                    <constraint id="3327" firstItem="3214" firstAttribute="leading" secondItem="3174" secondAttribute="trailing" constant="16"/>
+                                    <constraint id="3328" firstItem="3224" firstAttribute="trailing" secondItem="3214" secondAttribute="trailing" constant="10"/>
+                                    <constraint id="3329" firstItem="3229" firstAttribute="top" secondItem="3214" secondAttribute="bottom" constant="8"/>
+                                    <constraint id="3330" firstItem="3224" firstAttribute="trailing" secondItem="3229" secondAttribute="trailing" constant="42"/>
+                                    <constraint id="3331" firstItem="3224" firstAttribute="bottom" secondItem="3229" secondAttribute="bottom" constant="12"/>
+                                </constraints>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="3336" translatesAutoresizingMaskIntoConstraints="NO" fixedFrame="YES" hidden="YES">
+                                <rect key="frame" x="20" y="203" width="560" height="397"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="3337" rowHeight="44" reuseIdentifier="cell_id">
+                                        <rect key="frame" x="0.0" y="28" width="560" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3337" id="3338">
+                                            <rect key="frame" x="0.0" y="0.0" width="560" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <constraints>
+                            <constraint id="3314" firstItem="3224" firstAttribute="top" secondItem="2086" secondAttribute="bottom" constant="1"/>
+                            <constraint id="3315" firstItem="3224" firstAttribute="leading" secondItem="2090" secondAttribute="leading"/>
+                            <constraint id="3316" firstItem="3224" firstAttribute="trailing" secondItem="2090" secondAttribute="trailing"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="EndSearchBar" destination="3214" id="name-outlet-3214"/>
+                        <outlet property="StartSearchBar" destination="3172" id="name-outlet-3172"/>
+                        <outlet property="RouteButton" destination="3229" id="name-outlet-3229"/>
+                        <outlet property="AutosuggestionsTableView" destination="3336" id="name-outlet-3336"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2091" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="691" y="-3"/>
         </scene>
     </scenes>
     <resources>
@@ -422,5 +589,8 @@
         <image name="Maps" width="30" height="30"/>
         <image name="Home" width="30" height="30"/>
         <image name="CurrentLocation" width="30" height="30"/>
+        <image name="EndPin" width="57" height="108"/>
+        <image name="StartPin" width="57" height="108"/>
+        <image name="Navigation" width="30" height="30"/>
     </resources>
 </document>

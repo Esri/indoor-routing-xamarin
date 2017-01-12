@@ -11,15 +11,24 @@ using UIKit;
 
 namespace IndoorNavigation.iOS
 {
-    [Register ("ViewController")]
-    partial class ViewController
+    [Register ("MapViewController")]
+    partial class MapViewController
     {
         [Outlet]
-        UIKit.UIButton Button { get; set; }
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITableView AutosuggestionsTableView { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton CurrentLocation { get; set; }
+        UIKit.UIView ContactCardView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton CurrentLocationButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton DirectionsButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -35,7 +44,15 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UISearchBar LocationSearchBar { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         Esri.ArcGISRuntime.UI.Controls.MapView MapView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel NameLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -47,9 +64,24 @@ namespace IndoorNavigation.iOS
 
         void ReleaseDesignerOutlets ()
         {
-            if (CurrentLocation != null) {
-                CurrentLocation.Dispose ();
-                CurrentLocation = null;
+            if (AutosuggestionsTableView != null) {
+                AutosuggestionsTableView.Dispose ();
+                AutosuggestionsTableView = null;
+            }
+
+            if (ContactCardView != null) {
+                ContactCardView.Dispose ();
+                ContactCardView = null;
+            }
+
+            if (CurrentLocationButton != null) {
+                CurrentLocationButton.Dispose ();
+                CurrentLocationButton = null;
+            }
+
+            if (DirectionsButton != null) {
+                DirectionsButton.Dispose ();
+                DirectionsButton = null;
             }
 
             if (FloorsTableView != null) {
@@ -67,9 +99,19 @@ namespace IndoorNavigation.iOS
                 InvisibleButton = null;
             }
 
+            if (LocationSearchBar != null) {
+                LocationSearchBar.Dispose ();
+                LocationSearchBar = null;
+            }
+
             if (MapView != null) {
                 MapView.Dispose ();
                 MapView = null;
+            }
+
+            if (NameLabel != null) {
+                NameLabel.Dispose ();
+                NameLabel = null;
             }
 
             if (Settings != null) {

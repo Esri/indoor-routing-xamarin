@@ -92,6 +92,7 @@
     <Reference Include="Esri.ArcGISRuntime">
       <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK-1.0" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -132,6 +133,18 @@
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen640x960.png" />
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen640x1136.png" />
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\LaunchScreen320x480.png" />
+    <ImageAsset Include="Assets.xcassets\EndPin.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_End108.png" />
+    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_End36.png" />
+    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_End72.png" />
+    <ImageAsset Include="Assets.xcassets\StartPin.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start108.png" />
+    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start36.png" />
+    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_Start72.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections30.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections60.png" />
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_TabBar_OpenDirections90.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -140,6 +153,12 @@
     <Folder Include="Assets.xcassets\Maps.imageset\" />
     <Folder Include="Assets.xcassets\Home.imageset\" />
     <Folder Include="Assets.xcassets\CurrentLocation.imageset\" />
+    <Folder Include="Assets.xcassets\EndPin.imageset\" />
+    <Folder Include="Assets.xcassets\StartPin.imageset\" />
+    <Folder Include="Assets.xcassets\Navigation.imageset\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -153,24 +172,31 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="ViewController.cs" />
-    <Compile Include="ViewController.designer.cs">
-      <DependentUpon>ViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DownloadController.cs" />
-    <Compile Include="DownloadController.designer.cs">
+    <Compile Include="Controllers\DownloadController.cs" />
+    <Compile Include="Controllers\DownloadController.designer.cs">
       <DependentUpon>DownloadController.cs</DependentUpon>
     </Compile>
-    <Compile Include="DownloadDelegate.cs" />
-    <Compile Include="SettingsController.cs" />
-    <Compile Include="SettingsController.designer.cs">
+    <Compile Include="Controllers\SettingsController.cs" />
+    <Compile Include="Controllers\SettingsController.designer.cs">
       <DependentUpon>SettingsController.cs</DependentUpon>
     </Compile>
-    <Compile Include="HomeLocationController.cs" />
-    <Compile Include="HomeLocationController.designer.cs">
+    <Compile Include="Controllers\RouteController.cs" />
+    <Compile Include="Controllers\RouteController.designer.cs">
+      <DependentUpon>RouteController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\MapViewController.cs" />
+    <Compile Include="Controllers\MapViewController_.designer.cs">
+      <DependentUpon>MapViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\HomeLocationController.cs" />
+    <Compile Include="Controllers\HomeLocationController.designer.cs">
       <DependentUpon>HomeLocationController.cs</DependentUpon>
     </Compile>
-    <Compile Include="NetworkReachability.cs" />
+    <Compile Include="Helpers\NetworkReachability.cs" />
+    <Compile Include="Helpers\DownloadDelegate.cs" />
+    <Compile Include="Models\AutosuggestionsTableSource.cs" />
+    <Compile Include="Models\FloorsTableSource.cs" />
+    <Compile Include="Models\TableRowSelectedEventArgs.cs" />
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
