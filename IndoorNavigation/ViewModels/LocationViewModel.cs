@@ -23,7 +23,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <returns>List of location suggestions.</returns>
 		/// <param name="userInput">User input.</param>
-		internal static async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestions(string userInput)
+		internal static async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestionsAsync(string userInput)
 		{
 			// Load the locator from the mobile map package
 			var locator = mmpk.LocatorTask;
@@ -53,7 +53,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <returns>The searched location.</returns>
 		/// <param name="searchString">User input.</param>
-		internal static async Task<GeocodeResult> GetSearchedLocation(string searchString)
+		internal static async Task<GeocodeResult> GetSearchedLocationAsync(string searchString)
 		{
 			// Load the locator from the mobile map package
 			var locator = mmpk.LocatorTask;
@@ -79,7 +79,7 @@ namespace IndoorNavigation
 		/// <returns>The requested route.</returns>
 		/// <param name="fromLocation">From location.</param>
 		/// <param name="toLocation">To location.</param>
-		internal static async Task<RouteResult> GetRequestedRoute(MapPoint fromLocation, MapPoint toLocation)
+		internal static async Task<RouteResult> GetRequestedRouteAsync(MapPoint fromLocation, MapPoint toLocation)
 		{
 			if (mmpk.Maps[0].LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
 				await mmpk.Maps[0].LoadAsync();

@@ -22,14 +22,6 @@ namespace IndoorNavigation.iOS
 			set;
 		}
 
-		/// <summary>
-		/// Overrides the behavior of the application when it has finished launching
-		/// </summary>
-		/// <param name="application">Application.</param>
-		public override async void FinishedLaunching(UIApplication application)
-		{
-			
-		}
 
 		/// <summary>
 		/// Overrides the behavior of the application when it has entered background mode

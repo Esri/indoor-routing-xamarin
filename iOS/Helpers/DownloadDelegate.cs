@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Foundation;
 using UIKit;
 
@@ -51,8 +52,8 @@ namespace IndoorNavigation.iOS
 
 			// Remove any existing files in our destination
 			NSError error;
-			fileManager.Remove(DownloadViewModel.GetFullMMPKPath(), out error);
-			var success = fileManager.Copy(sourceFile, DownloadViewModel.GetFullMMPKPath(), out error);
+			fileManager.Remove(Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName), out error);
+			var success = fileManager.Copy(sourceFile, Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName), out error);
 			if (!success)
 			{
 				Console.WriteLine("Error during the copy: {0}", error.LocalizedDescription);
@@ -70,7 +71,7 @@ namespace IndoorNavigation.iOS
 		{
 			if (error == null)
 			{
-				AppSettings.CurrentSettings.MmpkDate = DateTime.Now;
+				AppSettings.CurrentSettings.MmpkDownloadDate = DateTime.Now;
 				return;
 			}
 

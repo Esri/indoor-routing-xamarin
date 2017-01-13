@@ -94,11 +94,11 @@ namespace IndoorNavigation
 		/// <summary>
 		/// Gets the data for the map. It downloads the mmpk if it doesn't exist or if there's a newer one available
 		/// </summary>
-		public async Task GetData()
+		public async Task GetDataAsync()
 		{
 			// List of all files inside the Documents directory on the device
 			Files = Directory.EnumerateFiles(GetDataFolder()).ToList();
-			TargetFileName = Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.ItemName);
+			TargetFileName = Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.PortalItemName);
 
 			// Test if device is online
 			if (IsDeviceConnected())
@@ -107,11 +107,11 @@ namespace IndoorNavigation
 				{
 					// Get portal item
 					var portal = await ArcGISPortal.CreateAsync().ConfigureAwait(false);
-					var item = await PortalItem.CreateAsync(portal, AppSettings.CurrentSettings.ItemID).ConfigureAwait(false);
+					var item = await PortalItem.CreateAsync(portal, AppSettings.CurrentSettings.PortalItemID).ConfigureAwait(false);
 
 					// Test if mmpk is not already downloaded or is older than current portal version
 					if (!Files.Contains(TargetFileName) ||
-								item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDate)
+					    item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDownloadDate)
 					{
 						Status = "Downloading";
 						DownloadURL = item.Url.AbsoluteUri + "/data";

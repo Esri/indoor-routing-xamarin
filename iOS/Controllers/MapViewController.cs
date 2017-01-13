@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using CoreGraphics;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
@@ -34,17 +33,17 @@ namespace IndoorNavigation.iOS
 				if (_route != value && value != null)
 				{
 					_route = value;
-					OnRouteChanged();
+					OnRouteChangedAsync();
 				}
 			}
 		}
 
-		public async Task OnRouteChanged()
+		public async Task OnRouteChangedAsync()
 		{
 			if (Route != null)
 			{
 				// get the route from the results
-				var route = Route.Routes[0];
+				var route = Route.Routes.FirstOrDefault();
 
 				// create a picture marker symbol for start pin
 				var startPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -54,23 +53,26 @@ namespace IndoorNavigation.iOS
 				var endPin = ImageToByteArray(UIImage.FromBundle("EndPin"));
 				var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
 
-				// Create graphics
-				var startGraphic = new Graphic(route.RouteGeometry.Parts.First().Points.First(), startMarker);
-				var endGraphic = new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), endMarker);
+				if (route != null)
+				{
+					// Create graphics
+					var startGraphic = new Graphic(route.RouteGeometry.Parts.First().Points.First(), startMarker);
+					var endGraphic = new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), endMarker);
 
-				// create a graphic (with a dashed line symbol) to represent the routee
-				var routeSymbol = new SimpleLineSymbol();
-				routeSymbol.Width = 5;
-				routeSymbol.Style = SimpleLineSymbolStyle.Dash;
-				routeSymbol.Color = System.Drawing.Color.DarkRed;
+					// create a graphic (with a dashed line symbol) to represent the routee
+					var routeSymbol = new SimpleLineSymbol();
+					routeSymbol.Width = 5;
+					routeSymbol.Style = SimpleLineSymbolStyle.Dash;
+					routeSymbol.Color = System.Drawing.Color.DarkRed;
 
 
-				var routeGraphic = new Graphic(route.RouteGeometry, routeSymbol);
+					var routeGraphic = new Graphic(route.RouteGeometry, routeSymbol);
 
-				MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
-				MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
-				MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
-				await MapView.SetViewpointGeometryAsync(route.RouteGeometry, 30);
+					MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
+					MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
+					MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
+					await MapView.SetViewpointGeometryAsync(route.RouteGeometry, 30);
+				}
 			}
 		}
 
@@ -85,7 +87,7 @@ namespace IndoorNavigation.iOS
 			base.ViewWillAppear(animated);
 
 			// Hide Home button if user doesn't have home location set
-			if (AppSettings.CurrentSettings.HomeLocation != "Set home location")
+			if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.defaultHomeLocationText)
 				HomeButton.Enabled = true;
 
 			// Hide Current Location button if location services is disabled
@@ -99,8 +101,8 @@ namespace IndoorNavigation.iOS
 		public async override void ViewDidLayoutSubviews()
 		{
 			// If map is zoomed in past threshold, call to display the floors data
-			if (MapView.Map != null && MapView.MapScale <= AppSettings.CurrentSettings.ZoomLevelToDisplayRoomLayers)
-				await DisplayFloorLevels();
+			if (MapView.Map != null && MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+				await DisplayFloorLevelsAsync();
 		}
 
 		/// <summary>
@@ -111,7 +113,7 @@ namespace IndoorNavigation.iOS
 			base.ViewDidLoad();
 
 			// Get Mobile Map Package from the location on device
-			var mmpk = await MobileMapPackage.OpenAsync(DownloadViewModel.GetFullMMPKPath());
+			var mmpk = await MobileMapPackage.OpenAsync(Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName));
 			LocationViewModel.mmpk = mmpk;
 
 			// Display map from the mmpk. Assumption is made that the mmpk has only one map
@@ -119,7 +121,7 @@ namespace IndoorNavigation.iOS
 			await map.LoadAsync();
 
 			// Set viewpoint of the map depending on user's settings
-			MapViewModel.SetInitialViewPoint(map);
+			MapViewModel.SetInitialViewPointAsync(map);
 
 			// Add the map to the MapView to be displayed
 			MapView.Map = map;
@@ -134,14 +136,14 @@ namespace IndoorNavigation.iOS
 			MapView.NavigationCompleted += MapView_NavigationCompleted;
 
 			// Show the floor picker if the map is zoomed to user's home location
-			if (MapView.Map != null && AppSettings.CurrentSettings.HomeLocation != "Set home location")
-				await DisplayFloorLevels();
+			if (MapView.Map != null && AppSettings.CurrentSettings.HomeLocation != MapViewModel.defaultHomeLocationText)
+				await DisplayFloorLevelsAsync();
 
 			// Handle text changing in the search bar
 			LocationSearchBar.TextChanged += async (sender, e) =>
 			{
 				// Call to populate autosuggestions 
-				await RetrieveSuggestionsFromLocator();
+				await GetSuggestionsFromLocatorAsync();
 			};
 
 			LocationSearchBar.SearchButtonClicked += async (sender, e) =>
@@ -152,7 +154,7 @@ namespace IndoorNavigation.iOS
 
 				// Dismiss autosuggestions table
 				AutosuggestionsTableView.Hidden = true;
-				await RetrieveSearchedFeature(searchText);
+				await GetSearchedFeatureAsync(searchText);
 			};
 
 
@@ -182,8 +184,8 @@ namespace IndoorNavigation.iOS
 						// identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max results
 						IdentifyLayerResult idResults = await MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
-						// get the layer identified and cast it to FeatureLayer
-						var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.FloorColumnInRoomsTable];
+						// get the floor number for the tapped feature
+						var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName];
 
 						// create a picture marker symbol
 						var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -220,9 +222,9 @@ namespace IndoorNavigation.iOS
 		/// <summary>
 		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
 		/// </summary>
-		async Task RetrieveSuggestionsFromLocator()
+		async Task GetSuggestionsFromLocatorAsync()
 		{
-			var suggestions = await LocationViewModel.GetLocationSuggestions(LocationSearchBar.Text);
+			var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(LocationSearchBar.Text);
 			if (suggestions == null || suggestions.Count == 0)
 			{
 				AutosuggestionsTableView.Hidden = true;
@@ -255,12 +257,16 @@ namespace IndoorNavigation.iOS
 			LocationSearchBar.Text = selectedItem.Label;
 			LocationSearchBar.ResignFirstResponder();
 			AutosuggestionsTableView.Hidden = true;
-			await RetrieveSearchedFeature(selectedItem.Label);
+			await GetSearchedFeatureAsync(selectedItem.Label);
 		}
 
-		async Task RetrieveSearchedFeature(string searchText)
+		/// <summary>
+		/// Zooms to geocode result
+		/// </summary>
+		/// <param name="searchText">Search text entered by user.</param>
+		async Task GetSearchedFeatureAsync(string searchText)
 		{
-			var geocodeResult = await LocationViewModel.GetSearchedLocation(searchText);
+			var geocodeResult = await LocationViewModel.GetSearchedLocationAsync(searchText);
 
 			// create a picture marker symbol
 			var mapPin = ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -315,13 +321,13 @@ namespace IndoorNavigation.iOS
 		async void MapView_NavigationCompleted(object sender, EventArgs e)
 		{
 			// Display floors and level if user is zoomed in 
-			if (MapView.MapScale <= AppSettings.CurrentSettings.ZoomLevelToDisplayRoomLayers)
-				await DisplayFloorLevels();
+			if (MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+				await DisplayFloorLevelsAsync();
 			// If user is zoomed out, only show the base layer
 			else
 			{
 				FloorsTableView.Hidden = true;
-				MapViewModel.TurnLayersOnOff(false, MapView.Map, _selectedFloor);
+				MapViewModel.SetFloorVisibility(false, MapView.Map, _selectedFloor);
 			}
 		}
 
@@ -329,13 +335,13 @@ namespace IndoorNavigation.iOS
 		/// Display the floor levels based on which building the current viewpoint is over
 		/// </summary>
 		/// <returns>The floor levels.</returns>
-		async Task DisplayFloorLevels()
+		async Task DisplayFloorLevelsAsync()
 		{
 			if (MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
 			{
 				try
 				{
-					string[] tableItems = await MapViewModel.GetFloorsInVisibleArea(MapView);
+					string[] tableItems = await MapViewModel.GetFloorsInVisibleAreaAsync(MapView);
 
 					// Only show the floors tableview if the buildings in view have more than one floor
 					if (tableItems.Count() > 1)
@@ -364,7 +370,7 @@ namespace IndoorNavigation.iOS
 					_selectedFloor = "";
 				}
 				// Turn layers on. If there is no floor selected, first floor will be displayed by default
-				MapViewModel.TurnLayersOnOff(true, MapView.Map, _selectedFloor);
+				MapViewModel.SetFloorVisibility(true, MapView.Map, _selectedFloor);
 			}
 		}
 
@@ -374,7 +380,7 @@ namespace IndoorNavigation.iOS
 		void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
 		{
 			_selectedFloor = e.SelectedItem;
-			MapViewModel.TurnLayersOnOff(true, MapView.Map, _selectedFloor); 
+			MapViewModel.SetFloorVisibility(true, MapView.Map, _selectedFloor); 
 		}
 
 		/// <summary>
@@ -383,7 +389,7 @@ namespace IndoorNavigation.iOS
 		/// <param name="sender">Home button</param>
 		async partial void Home_TouchUpInside(UIButton sender)
 		{
-			var viewPoint = await MapViewModel.MoveToHomeLocation(MapView.Map);
+			var viewPoint = await MapViewModel.MoveToHomeLocationAsync(MapView.Map);
 			await MapView.SetViewpointAsync(viewPoint);
 		}
 

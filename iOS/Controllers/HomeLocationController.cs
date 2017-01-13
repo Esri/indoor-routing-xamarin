@@ -40,22 +40,22 @@ namespace IndoorNavigation.iOS
 			HomeLocationSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searchess
-				await RetrieveSuggestionsFromLocator();
+				await GetSuggestionsFromLocatorAsync();
 			};
 
 			HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
 			{
 				var locationText = ((UISearchBar)sender).Text;
-				await SetHomeLocation(locationText);
+				await SetHomeLocationAsync(locationText);
 			};
 		}
 
 		/// <summary>
 		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
 		/// </summary>
-	    async Task RetrieveSuggestionsFromLocator()
+		async Task GetSuggestionsFromLocatorAsync()
 		{
-			var suggestions = await LocationViewModel.GetLocationSuggestions(HomeLocationSearchBar.Text);
+			var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
 			if (suggestions == null || suggestions.Count == 0)
 			{
 				AutosuggestionsTableView.Hidden = true;
@@ -87,17 +87,17 @@ namespace IndoorNavigation.iOS
 		{
 			var selectedItem = e.SelectedItem;
 			HomeLocationSearchBar.Text = selectedItem.Label;
-			await SetHomeLocation(selectedItem.Label);;
+			await SetHomeLocationAsync(selectedItem.Label);;
 		}
 
 		/// <summary>
 		/// Sets the home location for the user and saves it into settings.
 		/// </summary>
 		/// <param name="locationText">Location text.</param>
-		async Task SetHomeLocation(string locationText)
+		async Task SetHomeLocationAsync(string locationText)
 		{
 			AppSettings.CurrentSettings.HomeLocation = locationText;
-			var homeLocation = await LocationViewModel.GetSearchedLocation(locationText);
+			var homeLocation = await LocationViewModel.GetSearchedLocationAsync(locationText);
 
 			if (homeLocation != null)
 			{

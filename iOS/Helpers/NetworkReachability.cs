@@ -42,14 +42,14 @@ static class Reachability
 		var isReachable = (flags & NetworkReachabilityFlags.Reachable) != 0;
 
 		// Do we need a connection to reach it?
-		var noConnectionRequired = (flags & NetworkReachabilityFlags.ConnectionRequired) == 0;
+		var isConnectionRequired = (flags & NetworkReachabilityFlags.ConnectionRequired) == 0;
 
 		// Since the network stack will automatically try to get the WAN up,
 		// probe that
 		if ((flags & NetworkReachabilityFlags.IsWWAN) != 0)
-			noConnectionRequired = true;
+			isConnectionRequired = true;
 
-		return isReachable && noConnectionRequired;
+		return isReachable && isConnectionRequired;
 	}
 
 }

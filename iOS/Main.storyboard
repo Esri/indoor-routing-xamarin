@@ -168,7 +168,7 @@
                                 <color key="barTintColor" red="0.72941176470588232" green="0.72941176470588232" blue="0.75294117647058822" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
-                            <view hidden="YES" contentMode="scaleToFill" id="2033">
+                            <view contentMode="scaleToFill" id="2033" hidden="YES">
                                 <rect key="frame" x="0.0" y="489" width="600" height="111"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Office Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2062">
@@ -200,6 +200,7 @@
                                     <constraint firstItem="2079" firstAttribute="leading" secondItem="2062" secondAttribute="trailing" constant="8" id="3444"/>
                                     <constraint firstItem="2062" firstAttribute="leading" secondItem="2033" secondAttribute="leading" constant="11" id="3445"/>
                                     <constraint firstItem="2062" firstAttribute="top" secondItem="2033" secondAttribute="top" constant="5" id="3446"/>
+                                    <constraint id="3477" firstItem="2033" firstAttribute="height" constant="111"/>
                                 </constraints>
                             </view>
                         </subviews>

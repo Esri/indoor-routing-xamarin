@@ -19,8 +19,15 @@ namespace IndoorNavigation.iOS
 
 		internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items)
 		{
-			_items = items;
-			_cellIdentifier = "cell_id";
+			if (items != null)
+			{
+				_items = items;
+				_cellIdentifier = "cell_id";
+			}
+			else
+			{
+				//TODO: throw null exception
+			}
 		}
 
 		/// <summary>
@@ -28,7 +35,14 @@ namespace IndoorNavigation.iOS
 		/// </summary>
 		public override nint RowsInSection(UITableView tableview, nint section)
 		{
-			return _items.Count();
+			try
+			{
+				return _items.Count();
+			}
+			catch
+			{
+				return 0;
+			}
 		}
 
 		/// <summary>
@@ -42,11 +56,18 @@ namespace IndoorNavigation.iOS
 			if (cell == null)
 				{ cell = new UITableViewCell(UITableViewCellStyle.Default, _cellIdentifier); }
 
-			var item = _items.ElementAt(indexPath.Row);
+			try
+			{
+				var item = _items.ElementAt(indexPath.Row);
 
-			cell.TextLabel.Text = item.Label;
+				cell.TextLabel.Text = item.Label;
 
-			return cell;
+				return cell;
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -56,7 +77,6 @@ namespace IndoorNavigation.iOS
 		/// <param name="indexPath">Index path.</param>
 		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
-
 			OnTableRowSelected(indexPath);
 		}
 
@@ -65,8 +85,15 @@ namespace IndoorNavigation.iOS
 
 		void OnTableRowSelected(NSIndexPath itemIndexPath)
 		{
-			var item = _items.ElementAt(itemIndexPath.Row);
-			TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
+			try
+			{
+				var item = _items.ElementAt(itemIndexPath.Row);
+				TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
+			}
+			catch
+			{
+				//TODO: figure out how to trigger this catch and what happens
+			}
 		}
 	}
 }

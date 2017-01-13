@@ -47,7 +47,7 @@ namespace IndoorNavigation.iOS
 			AppSettings.CurrentSettings = await AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).ConfigureAwait(false);
 
 			// Call GetData to download or load the mmpk
-			await ViewModel.GetData().ConfigureAwait(false);
+			await ViewModel.GetDataAsync().ConfigureAwait(false);
 
 
 		}

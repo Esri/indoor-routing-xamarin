@@ -14,7 +14,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>Portal Item ID</value>
 		[XmlElement]
-		public string ItemID
+		public string PortalItemID
 		{
 			get; set;
 		}
@@ -24,7 +24,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The name of the Portal item</value>
 		[XmlElement]
-		public string ItemName
+		public string PortalItemName
 		{
 			get; set;
 		}
@@ -34,7 +34,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The date the mobile map package was downloaded</value>
 		[XmlElement]
-		public DateTime MmpkDate
+		public DateTime MmpkDownloadDate
 		{
 			get; set;
 		}
@@ -94,7 +94,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The zoom level to display room layers.</value>
 		[XmlElement]
-		public float ZoomLevelToDisplayRoomLayers
+		public double RoomsLayerMinimumZoomLevel
 		{
 			get; set;
 		}
@@ -104,7 +104,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The floor column in rooms tabel.</value>
 		[XmlElement]
-		public string FloorColumnInRoomsTable
+		public string RoomsLayerFloorColumnName
 		{
 			get; set;
 		}
@@ -154,7 +154,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The minimum scale.</value>
 		[XmlElement]
-		public int MinScale
+		public int MapViewMinScale
 		{
 			get; set;
 		}
@@ -164,7 +164,7 @@ namespace IndoorNavigation
 		/// </summary>
 		/// <value>The max scale.</value>
 		[XmlElement]
-		public int MaxScale
+		public int MapViewMaxScale
 		{
 			get; set;
 		}
@@ -190,18 +190,18 @@ namespace IndoorNavigation
 			if (!files.Contains(filePath))
 			{
 				var appSettings = new AppSettings();
-				appSettings.ItemID = "018f779883434a8daadfb51524ec3498";
-				appSettings.ItemName = "EsriCampus.mmpk";
-				appSettings.MmpkDate = new DateTime(1900, 1, 1);
+				appSettings.PortalItemID = "018f779883434a8daadfb51524ec3498";
+				appSettings.PortalItemName = "EsriCampus.mmpk";
+				appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
 				appSettings.HomeLocation = "Set home location";
 				appSettings.IsLocationServicesEnabled = false;
 				appSettings.IsPreferElevatorsEnabled = false;
 				appSettings.RoomsLayerIndex = 1;
 				appSettings.FloorplanLinesLayerIndex = 2;
-				appSettings.ZoomLevelToDisplayRoomLayers = 500;
-				appSettings.FloorColumnInRoomsTable = "FLOOR";
-				appSettings.MinScale = 100;
-				appSettings.MaxScale = 13000;
+				appSettings.RoomsLayerMinimumZoomLevel = 500;
+				appSettings.RoomsLayerFloorColumnName = "FLOOR";
+				appSettings.MapViewMinScale = 100;
+				appSettings.MapViewMaxScale = 13000;
 				CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
 				{
 				new CoordinatesKeyValuePair<string, double>("X", -13046209),
@@ -236,8 +236,18 @@ namespace IndoorNavigation
 				using (var fileStream = new FileStream(filePath, FileMode.Open))
 				{
 					var appSettings = new AppSettings();
-					var serializer = new XmlSerializer(appSettings.GetType());
-					return serializer.Deserialize(fileStream) as AppSettings;
+					try
+					{
+						var serializer = new XmlSerializer(appSettings.GetType());
+						return serializer.Deserialize(fileStream) as AppSettings;
+					}
+					// If settings file is invalid, delete it and recreate it
+					catch (System.Xml.XmlException)
+					{
+						File.Delete(filePath);
+						return await AppSettings.CreateAsync(filePath).ConfigureAwait(false);
+					}
+
 				}
 			}
 		}
@@ -248,7 +258,7 @@ namespace IndoorNavigation
 		/// <param name="filePath">File path.</param>
 		internal static void SaveSettings(string filePath)
 		{
-			var serializer = new XmlSerializer(CurrentSettings.GetType());
+			var serializer = new XmlSerializer(typeof(AppSettings));
 
 			using (var fileStream = new FileStream(filePath, FileMode.Open))
 			{

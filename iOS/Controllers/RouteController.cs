@@ -38,7 +38,7 @@ namespace IndoorNavigation.iOS
 			EndSearchBar.Text = EndLocation;
 
 			// Set start location as home location if available
-			if (AppSettings.CurrentSettings.HomeLocation != "Set home location")
+			if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.defaultHomeLocationText)
 			{
 				StartLocation = AppSettings.CurrentSettings.HomeLocation;
 				StartSearchBar.Text = StartLocation;
@@ -49,7 +49,7 @@ namespace IndoorNavigation.iOS
 			StartSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searchess
-				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text, true);
+				await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, true);
 			};
 
 			StartSearchBar.SearchButtonClicked += (sender, e) =>
@@ -62,7 +62,7 @@ namespace IndoorNavigation.iOS
 			EndSearchBar.TextChanged += async (sender, e) =>
 			{
 				//this is the method that is called when the user searches
-				await RetrieveSuggestionsFromLocator(((UISearchBar)sender).Text, false);
+				await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, false);
 			};
 
 			EndSearchBar.SearchButtonClicked += (sender, e) =>
@@ -76,10 +76,10 @@ namespace IndoorNavigation.iOS
 		/// <summary>
 		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
 		/// </summary>
-		async Task RetrieveSuggestionsFromLocator(string searchText, bool startSearchBarFlag)
+		async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
 		{
 			_startSearchBarFlag = startSearchBarFlag;
-			var suggestions = await LocationViewModel.GetLocationSuggestions(searchText);
+			var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(searchText);
 			if (suggestions == null || suggestions.Count == 0)
 			{
 				AutosuggestionsTableView.Hidden = true;
@@ -143,10 +143,10 @@ namespace IndoorNavigation.iOS
 				// Geocode the locations selected by the use
 				try
 				{
-					var fromLocation = await LocationViewModel.GetSearchedLocation(StartLocation);
-					var toLocation = await LocationViewModel.GetSearchedLocation(EndLocation);
+					var fromLocation = await LocationViewModel.GetSearchedLocationAsync(StartLocation);
+					var toLocation = await LocationViewModel.GetSearchedLocationAsync(EndLocation);
 
-					var route = await LocationViewModel.GetRequestedRoute(fromLocation.DisplayLocation, toLocation.DisplayLocation);
+					var route = await LocationViewModel.GetRequestedRouteAsync(fromLocation.DisplayLocation, toLocation.DisplayLocation);
 					mapViewController.Route = route;
 				}
 				catch { mapViewController.Route = null; }
