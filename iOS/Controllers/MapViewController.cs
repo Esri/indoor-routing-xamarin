@@ -111,7 +111,7 @@ namespace IndoorNavigation.iOS
 			base.ViewDidLoad();
 
 			// Get Mobile Map Package from the location on device
-			var mmpk = await MobileMapPackage.OpenAsync(DownloadController.targetFilename);
+			var mmpk = await MobileMapPackage.OpenAsync(DownloadViewModel.GetFullMMPKPath());
 			LocationViewModel.mmpk = mmpk;
 
 			// Display map from the mmpk. Assumption is made that the mmpk has only one map

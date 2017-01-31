@@ -89,10 +89,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="OpenTK-1.0" />
     <Reference Include="Esri.ArcGISRuntime">
       <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK-1.0" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Structures\CoordinatesKeyValuePair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\LocationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DownloadViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Structures\" />

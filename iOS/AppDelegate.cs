@@ -28,8 +28,7 @@ namespace IndoorNavigation.iOS
 		/// <param name="application">Application.</param>
 		public override async void FinishedLaunching(UIApplication application)
 		{
-			// When the application has finished loading, bring in the settings
-			AppSettings.CurrentSettings = AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).Result;
+			
 		}
 
 		/// <summary>
