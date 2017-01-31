@@ -116,9 +116,14 @@
                                     <constraint id="3606" firstItem="3600" firstAttribute="leading" secondItem="2033" secondAttribute="leading" constant="11"/>
                                     <constraint id="3615" firstItem="3600" firstAttribute="top" secondItem="2062" secondAttribute="bottom" constant="8"/>
                                 </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
+                                        <real key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </view>
                             <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="center" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1601">
-                                <rect key="frame" x="10" y="165" width="39" height="39"/>
+                                <rect key="frame" x="10" y="128" width="39" height="39"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17" weight="semibold"/>
                                 <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -129,12 +134,12 @@
                                     <action selector="Home_TouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1866"/>
                                 </connections>
                                 <constraints>
-                                    <constraint id="3572" firstItem="1601" firstAttribute="height" constant="39"/>
-                                    <constraint id="3573" firstItem="1601" firstAttribute="width" constant="39"/>
+                                    <constraint id="3626" firstItem="1601" firstAttribute="height" constant="39"/>
+                                    <constraint id="3627" firstItem="1601" firstAttribute="width" constant="39"/>
                                 </constraints>
                             </button>
                             <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView">
-                                <rect key="frame" x="10" y="212" width="39" height="40"/>
+                                <rect key="frame" x="10" y="222" width="39" height="40"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -147,7 +152,7 @@
                                 </constraints>
                             </button>
                             <button clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1600">
-                                <rect key="frame" x="10" y="118" width="39" height="39"/>
+                                <rect key="frame" x="10" y="175" width="39" height="39"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -159,8 +164,8 @@
                                     <segue destination="544" kind="show" id="1732"/>
                                 </connections>
                                 <constraints>
-                                    <constraint id="3568" firstItem="1600" firstAttribute="height" constant="39"/>
-                                    <constraint id="3569" firstItem="1600" firstAttribute="width" constant="39"/>
+                                    <constraint id="3630" firstItem="1600" firstAttribute="height" constant="39"/>
+                                    <constraint id="3631" firstItem="1600" firstAttribute="width" constant="39"/>
                                 </constraints>
                             </button>
                             <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1955">
@@ -195,15 +200,15 @@
                             <constraint firstItem="1955" firstAttribute="bottom" secondItem="49" secondAttribute="bottom" id="1997"/>
                             <constraint firstItem="49" firstAttribute="trailing" secondItem="1955" secondAttribute="trailing" constant="20" id="1998"/>
                             <constraint firstItem="1955" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="16" id="1999"/>
-                            <constraint id="3566" firstItem="1600" firstAttribute="top" secondItem="1981" secondAttribute="bottom" constant="10"/>
-                            <constraint id="3567" firstItem="1600" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="10"/>
-                            <constraint id="3570" firstItem="1601" firstAttribute="top" secondItem="1600" secondAttribute="bottom" constant="8" symbolic="YES"/>
-                            <constraint id="3571" firstItem="1601" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="10"/>
-                            <constraint id="3574" firstItem="1808" firstAttribute="top" secondItem="1601" secondAttribute="bottom" constant="8" symbolic="YES"/>
                             <constraint id="3575" firstItem="1808" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="10"/>
                             <constraint id="3588" firstItem="2033" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
                             <constraint id="3589" firstItem="1955" firstAttribute="leading" secondItem="2033" secondAttribute="leading" constant="16"/>
                             <constraint id="3590" firstItem="2033" firstAttribute="trailing" secondItem="1955" secondAttribute="trailing" constant="20"/>
+                            <constraint id="3624" firstItem="1601" firstAttribute="top" secondItem="1981" secondAttribute="bottom" constant="20"/>
+                            <constraint id="3625" firstItem="1601" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="10"/>
+                            <constraint id="3629" firstItem="1600" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="10"/>
+                            <constraint id="3633" firstItem="1600" firstAttribute="top" secondItem="1601" secondAttribute="bottom" constant="8"/>
+                            <constraint id="3634" firstItem="1808" firstAttribute="top" secondItem="1600" secondAttribute="bottom" constant="8"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
