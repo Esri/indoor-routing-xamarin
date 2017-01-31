@@ -149,7 +149,7 @@ namespace IndoorNavigation.iOS
             if (segue.Identifier == "RouteSegue")
             {
                 var routeController = segue.DestinationViewController as RouteController;
-                routeController.EndLocation = NameLabel.Text;
+                routeController.EndLocation = OfficeNumberLabel.Text;
             }
         }
 
@@ -270,11 +270,11 @@ namespace IndoorNavigation.iOS
             }    
             else
             {
-                MapView.GraphicsOverlays[0].Graphics.Clear();
-                ContactCardView.Hidden = true;
-                if (LocationSearchBar.IsFirstResponder == true)
+                this.MapView.GraphicsOverlays[0].Graphics.Clear();
+                this.ContactCardView.Hidden = true;
+                if (this.LocationSearchBar.IsFirstResponder == true)
                 {
-                    LocationSearchBar.ResignFirstResponder();
+                    this.LocationSearchBar.ResignFirstResponder();
                 }
             }
         }
@@ -288,57 +288,68 @@ namespace IndoorNavigation.iOS
         {
             // Override default behavior
             e.Handled = true;
-            if (LocationSearchBar.IsFirstResponder == true)
+
+            // get the tap hold location in screen unit
+            var tapScreenPoint = e.Position;
+
+            var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
+            var pixelTolerance = 20;
+            var returnPopupsOnly = false;
+            var maxResults = 1;
+
+            try
             {
-                LocationSearchBar.ResignFirstResponder();
-                ContactCardView.Hidden = true;
+                // TODO: Move this bit into the MapViewModel
+                // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
+                IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                // get the floor number for the tapped featur
+                ////var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName];
+
+                // create a picture marker symbo
+                var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
+                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+
+                // Create graphic
+                var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+
+                // Add pin to mapview
+                var graphicsOverlay = this.MapView.GraphicsOverlays[0];
+                graphicsOverlay.Graphics.Clear();
+                graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+                ////this.ViewModel.Viewpoint = new Viewpoint(idResults.GeoElements.First().Geometry);
+
+                // Get room attribute from the settings. First attribute should be set as the searcheable on
+                var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
+                var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
+
+                if (!string.IsNullOrEmpty(roomNumber.ToString()))
+                {
+                    this.OfficeNumberLabel.Text = roomNumber.ToString();
+                }
+                else
+                {
+                    this.OfficeNumberLabel.Text = string.Empty;
+                }
+
+                if (!string.IsNullOrEmpty(employeeName.ToString()))
+                {
+                    this.EmployeeNameLabel.Text = employeeName.ToString();
+                }
+                else
+                {
+                    this.EmployeeNameLabel.Text = string.Empty;
+                }
+
+                ContactCardView.Hidden = false;
             }
-            else
+            catch
             {
-                // get the tap hold location in screen unit
-                var tapScreenPoint = e.Position;
-
-                var layer = MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-                var pixelTolerance = 20;
-                var returnPopupsOnly = false;
-                var maxResults = 1;
-
-                try
-                {
-                    // TODO: Move this bit into the MapViewModel
-                    // identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
-                    IdentifyLayerResult idResults = await MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
-
-                    // get the floor number for the tapped featur
-                    var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName];
-
-                    // create a picture marker symbo
-                    var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
-                    var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-
-                    // Create graphi
-                    var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
-
-                    // Add pin to ma
-                    var graphicsOverlay = MapView.GraphicsOverlays[0];
-                    graphicsOverlay.Graphics.Clear();
-                    graphicsOverlay.Graphics.Add(mapPinGraphic);
-
-                    this.ViewModel.Viewpoint = new Viewpoint(idResults.GeoElements.First().Geometry);
-
-                    // Get room attribute from the settings. First attribute should be set as the searcheable on
-                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                    var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
-                    NameLabel.Text = roomNumber.ToString();
-
-                    // TODO: Add additional fields to the contact card from the ContactCardDisplayField
-                    ContactCardView.Hidden = false;
-                }
-                catch
-                {
-                    MapView.GraphicsOverlays[0].Graphics.Clear();
-                    ContactCardView.Hidden = true;
-                }
+                MapView.GraphicsOverlays[0].Graphics.Clear();
+                ContactCardView.Hidden = true;
             }
         }
 
@@ -484,7 +495,7 @@ namespace IndoorNavigation.iOS
 
             this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
-            NameLabel.Text = searchText;
+            OfficeNumberLabel.Text = searchText;
             ContactCardView.Hidden = false;
         }
 

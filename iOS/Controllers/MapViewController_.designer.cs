@@ -32,6 +32,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel EmployeeNameLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView FloorsTableView { get; set; }
 
         [Outlet]
@@ -48,7 +52,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel NameLabel { get; set; }
+        UIKit.UILabel OfficeNumberLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -80,6 +84,11 @@ namespace IndoorNavigation.iOS
                 DirectionsButton = null;
             }
 
+            if (EmployeeNameLabel != null) {
+                EmployeeNameLabel.Dispose ();
+                EmployeeNameLabel = null;
+            }
+
             if (FloorsTableView != null) {
                 FloorsTableView.Dispose ();
                 FloorsTableView = null;
@@ -100,9 +109,9 @@ namespace IndoorNavigation.iOS
                 MapView = null;
             }
 
-            if (NameLabel != null) {
-                NameLabel.Dispose ();
-                NameLabel = null;
+            if (OfficeNumberLabel != null) {
+                OfficeNumberLabel.Dispose ();
+                OfficeNumberLabel = null;
             }
 
             if (SettingsButton != null) {
