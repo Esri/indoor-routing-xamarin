@@ -6,6 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using Foundation;
     using UIKit;
 
@@ -82,6 +83,8 @@ namespace IndoorNavigation.iOS
             if (error == null)
             {
                 AppSettings.CurrentSettings.MmpkDownloadDate = DateTime.Now;
+                // Save user settings
+                Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
                 return;
             }
 

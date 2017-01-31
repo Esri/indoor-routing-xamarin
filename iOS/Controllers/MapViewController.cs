@@ -6,6 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
@@ -94,21 +95,9 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
-        /// Override default behavior when subviews are loaded
-        /// </summary>
-        public async override void ViewDidLayoutSubviews()
-        {
-            // If map is zoomed in past threshold, call to display the floors data
-            if (MapView.Map != null && MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
-            {
-                await this.DisplayFloorLevelsAsync();
-            }
-        }
-
-        /// <summary>
         /// Overrides default behavior when view has loaded. 
         /// </summary>
-        public async override void ViewDidLoad()
+        public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
@@ -128,12 +117,6 @@ namespace IndoorNavigation.iOS
             // Handle the user holding tap on the mapp
             MapView.GeoViewHolding += this.MapView_GeoViewHolding;
 
-            // Show the floor picker and the correct floor if the map is zoomed to user's home location
-            if (MapView.Map != null && AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
-            {
-                await this.DisplayFloorLevelsAsync();
-            }
-
             // Handle text changing in the search bar
             LocationSearchBar.TextChanged += async (sender, e) =>
             {
@@ -148,7 +131,7 @@ namespace IndoorNavigation.iOS
                 // Dismiss keyboard
                 ((UISearchBar)sender).EndEditing(true);
 
-                // Dismiss autosuggestions tablee
+                // Dismiss autosuggestions table
                 AutosuggestionsTableView.Hidden = true;
                 await GetSearchedFeatureAsync(searchText);
             };
@@ -372,51 +355,66 @@ namespace IndoorNavigation.iOS
                     var floorsViewModel = new FloorSelectorViewModel();
                     string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(MapView);
 
-                    // Only show the floors tableview if the buildings in view have more than one floor
-                    if (tableItems.Count() > 1)
+                    this.InvokeOnMainThread(() =>
                     {
-                        // Show the tableview and populate it
-                        FloorsTableView.Hidden = false;
-                        var tableSource = new FloorsTableSource(tableItems);
-                        tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
-                        FloorsTableView.Source = tableSource;
-                        FloorsTableView.ReloadData();
-
-                        // Auto extend ot shrink the tableview based on the content inside
-                        var frame = FloorsTableView.Frame;
-                        frame.Height = FloorsTableView.ContentSize.Height;
-                        FloorsTableView.Frame = frame;
-
-                        // Select appropriate row when the tableview is regenerated. If selectedFloor is empty, select first floor 
-                        if (FloorSelectorViewModel.SelectedFloor != string.Empty)
+                        // Only show the floors tableview if the buildings in view have more than one floor
+                        if (tableItems.Count() > 1)
                         {
-                            if (FloorSelectorViewModel.SelectedFloorIndex == -1)
+                            // Show the tableview and populate it
+                            FloorsTableView.Hidden = false;
+                            var tableSource = new FloorsTableSource(tableItems);
+                            tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
+                            FloorsTableView.Source = tableSource;
+                            FloorsTableView.ReloadData();
+
+                            // Auto extend ot shrink the tableview based on the content inside
+                            var frame = FloorsTableView.Frame;
+                            frame.Height = FloorsTableView.ContentSize.Height;
+                            FloorsTableView.Frame = frame;
+
+                            if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))
                             {
-                                FloorSelectorViewModel.SelectedFloorIndex = tableItems.Select((floorItem, index) => new { floorItem, index }).First(i => i.floorItem == "3").index;
+                                ViewModel.SelectedFloorLevel = MapViewModel.DefaultFloorLevel;
                             }
 
-                            var selectedFloorNSIndex = NSIndexPath.FromRowSection(FloorSelectorViewModel.SelectedFloorIndex, 0);
+                            var selectedFloorNSIndex = GetTableViewRowIndex(ViewModel.SelectedFloorLevel, tableItems, 0);
                             FloorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+
+                            // Turn layers on. If there is no floor selected, first floor will be displayed by default
+                            this.ViewModel.SetFloorVisibility(true);
+                        }
+                        else if (tableItems.Count() == 1)
+                        {
+                            this.DismissFloorsTableView();
+                            ViewModel.SelectedFloorLevel = tableItems[0];
+
+                            // Turn layers on. If there is no floor selected, first floor will be displayed by default
+                            this.ViewModel.SetFloorVisibility(true);
                         }
                         else
                         {
-                            var selectedFloorNSIndex = NSIndexPath.FromRowSection(FloorSelectorViewModel.DefaultFloorIndex, 0);
-                            FloorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+                            this.DismissFloorsTableView();
                         }
-                    }
-                    else
-                    {
-                        this.DismissFloorsTableView();
-                    }
+                    });
                 }
-                catch
+                catch (Exception ex)
                 {
                     this.DismissFloorsTableView();
                 }
-
-                // Turn layers on. If there is no floor selected, first floor will be displayed by default
-                this.ViewModel.SetFloorVisibility(true);
             }
+        }
+
+        /// <summary>
+        /// Gets the index of the table view row.
+        /// </summary>
+        /// <returns>The table view row index.</returns>
+        /// <param name="rowValue">Row value.</param>
+        /// <param name="tableSource">Table source.</param>
+        /// <param name="section">TableView Section.</param>
+        private NSIndexPath GetTableViewRowIndex(string rowValue, string[] tableSource, nint section)
+        {
+            var rowIndex = tableSource.Select((rowItem, index) => new { rowItem, index }).First(i => i.rowItem == rowValue).index;
+            return NSIndexPath.FromRowSection(rowIndex, section);
         }
 
         /// <summary>
@@ -463,13 +461,14 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
-        /// Zooms to geocode result
+        /// Zooms to geocode result of the searched feature
         /// </summary>
         /// <param name="searchText">Search text entered by user.</param>
         /// <returns>The searched feature</returns>
         private async Task GetSearchedFeatureAsync(string searchText)
         {
             var geocodeResult = await LocationViewModel.GetSearchedLocationAsync(searchText);
+            this.ViewModel.SelectedFloorLevel = await LocationViewModel.GetFloorLevelFromQueryAsync(searchText);
 
             // create a picture marker symbol
             var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -509,9 +508,7 @@ namespace IndoorNavigation.iOS
         /// </summary>
         private void DismissFloorsTableView()
         {
-            FloorsTableView.Hidden = true;
-            FloorSelectorViewModel.SelectedFloor = string.Empty;
-            FloorSelectorViewModel.SelectedFloorIndex = -1;
+            this.InvokeOnMainThread(() => FloorsTableView.Hidden = true);
         }
 
         /// <summary>
@@ -521,8 +518,7 @@ namespace IndoorNavigation.iOS
         /// <param name="e">Event args.</param>
         private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
-            FloorSelectorViewModel.SelectedFloor = e.SelectedItem;
-            FloorSelectorViewModel.SelectedFloorIndex = e.SelectedItemIndexPath.Item;
+            this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
         }
 

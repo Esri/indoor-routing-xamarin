@@ -2,10 +2,10 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation
+namespace IndoorNavigation 
 {
-    using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
@@ -17,72 +17,6 @@ namespace IndoorNavigation
     /// </summary>
     internal class FloorSelectorViewModel
     {
-        /// <summary>
-        /// The selected floor.
-        /// </summary>
-        private static string selectedFloor = string.Empty;
-
-        /// <summary>
-        /// The index of the selcted floor.
-        /// </summary>
-        private static nint selectedFloorIndex = -1;
-
-        /// <summary>
-        /// The default index of the floor.
-        /// </summary>
-        private static nint defaultFloorIndex = 0;
-
-        /// <summary>
-        /// Gets or sets the selected floor.
-        /// </summary>
-        /// <value>The selected floor.</value>
-        public static string SelectedFloor
-        {
-            get
-            {
-                return selectedFloor;
-            }
-
-            set
-            {
-                selectedFloor = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the index of the selected floor.
-        /// </summary>
-        /// <value>The index of the selected floor.</value>
-        public static nint SelectedFloorIndex
-        {
-            get
-            {
-                return selectedFloorIndex;
-            }
-
-            set
-            {
-                selectedFloorIndex = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the default index of the floor.
-        /// </summary>
-        /// <value>The default index of the floor.</value>
-        public static nint DefaultFloorIndex
-        {
-            get
-            {
-                return defaultFloorIndex;
-            }
-
-            set
-            {
-                defaultFloorIndex = value;
-            }
-        }
-
         /// <summary>
         /// Gets the floors in visible area.
         /// </summary>
@@ -107,7 +41,7 @@ namespace IndoorNavigation
             // Group by floors to get the distinct list of floors in the table selection
             var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName])
                                             .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
-                                            
+
             var tableItems = new List<string>();
             if (distinctFloors != null)
             {

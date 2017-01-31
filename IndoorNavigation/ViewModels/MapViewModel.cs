@@ -6,6 +6,7 @@ namespace IndoorNavigation
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -25,6 +26,11 @@ namespace IndoorNavigation
         public const string DefaultHomeLocationText = "Set home location";
 
         /// <summary>
+        /// The default floor level.
+        /// </summary>
+        public const string DefaultFloorLevel = "1";
+
+        /// <summary>
         /// The map used in the application.
         /// </summary>
         private Map map;
@@ -33,6 +39,11 @@ namespace IndoorNavigation
         /// The viewpoint of the map.
         /// </summary>
         private Viewpoint viewpoint;
+
+        /// <summary>
+        /// The selected floor level.
+        /// </summary>
+        private string selectedFloorLevel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:IndoorNavigation.MapViewModel"/> class.
@@ -63,7 +74,7 @@ namespace IndoorNavigation
                 if (this.map != value && value != null)
                 {
                     this.map = value;
-                    this.OnPropertyChanged(nameof(Map));
+                    this.OnPropertyChanged(nameof(this.Map));
                 }
             }
         }
@@ -84,7 +95,29 @@ namespace IndoorNavigation
                 if (this.viewpoint != value && value != null)
                 {
                     this.viewpoint = value;
-                    this.OnPropertyChanged(nameof(Viewpoint));
+                    this.OnPropertyChanged(nameof(this.Viewpoint));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the selected floor level.
+        /// </summary>
+        /// <value>The selected floor level.</value>
+        public string SelectedFloorLevel
+        {
+            get
+            {
+                return this.selectedFloorLevel;
+            }
+
+            set
+            {
+                if (this.selectedFloorLevel != value && value != null)
+                {
+                    this.SetFloorVisibility(true);
+                    this.selectedFloorLevel = value;
+                    this.OnPropertyChanged(nameof(this.SelectedFloorLevel));
                 }
             }
         }
@@ -154,8 +187,8 @@ namespace IndoorNavigation
         /// <returns>The viewpoint with coordinates for the home location.</returns>
         internal async Task MoveToHomeLocationAsync()
         {
-            FloorSelectorViewModel.SelectedFloor = AppSettings.CurrentSettings.HomeFloorLevel;
-
+        this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
+           
             double x = 0, y = 0, wkid = 0;
 
             for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
@@ -188,20 +221,17 @@ namespace IndoorNavigation
             for (int i = 1; i < Map.OperationalLayers.Count; i++)
             {
                 var featureLayer = Map.OperationalLayers[i] as FeatureLayer;
-                if (FloorSelectorViewModel.SelectedFloor == string.Empty)
+                if (this.SelectedFloorLevel == string.Empty)
                 {
-                    // select first floor by default
-                    featureLayer.DefinitionExpression = string.Format("{0} = '1'", AppSettings.CurrentSettings.RoomsLayerFloorColumnName);
-                }
-                else
-                {
-                    // select chosen floor
-                    featureLayer.DefinitionExpression = string.Format(
-                        "{0} = '{1}'",
-                        AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
-                        FloorSelectorViewModel.SelectedFloor);
+                    this.SelectedFloorLevel = DefaultFloorLevel;
                 }
 
+                // select chosen floor
+                featureLayer.DefinitionExpression = string.Format(
+                    "{0} = '{1}'",
+                    AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
+                this.SelectedFloorLevel);
+                
                 Map.OperationalLayers[i].IsVisible = areLayersOn;
             }
         }
@@ -227,8 +257,6 @@ namespace IndoorNavigation
 
             // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
             Map = mmpk.Maps.FirstOrDefault();
-
-            // TODO: Remove this if not needed
             await Map.LoadAsync().ConfigureAwait(false);
 
             // Set viewpoint of the map depending on user's setting
