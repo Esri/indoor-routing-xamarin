@@ -40,10 +40,6 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton InvisibleButton { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISearchBar LocationSearchBar { get; set; }
 
         [Outlet]
@@ -56,7 +52,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton Settings { get; set; }
+        UIKit.UIButton SettingsButton { get; set; }
 
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -94,11 +90,6 @@ namespace IndoorNavigation.iOS
                 HomeButton = null;
             }
 
-            if (InvisibleButton != null) {
-                InvisibleButton.Dispose ();
-                InvisibleButton = null;
-            }
-
             if (LocationSearchBar != null) {
                 LocationSearchBar.Dispose ();
                 LocationSearchBar = null;
@@ -114,9 +105,9 @@ namespace IndoorNavigation.iOS
                 NameLabel = null;
             }
 
-            if (Settings != null) {
-                Settings.Dispose ();
-                Settings = null;
+            if (SettingsButton != null) {
+                SettingsButton.Dispose ();
+                SettingsButton = null;
             }
         }
     }
