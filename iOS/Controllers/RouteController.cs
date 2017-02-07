@@ -6,6 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Foundation;
     using UIKit;
@@ -138,11 +139,13 @@ namespace IndoorNavigation.iOS
             if (this.startSearchBarFlag == true)
             {
                 StartSearchBar.Text = selectedItem.Label;
+                StartLocation = selectedItem.Label;
                 StartSearchBar.ResignFirstResponder();
             }
             else
             {
                 EndSearchBar.Text = selectedItem.Label;
+                EndLocation = selectedItem.Label;
                 EndSearchBar.ResignFirstResponder();
             }
 
@@ -166,11 +169,19 @@ namespace IndoorNavigation.iOS
                 // Geocode the locations selected by the use
                 try
                 {
-                    var fromLocation = await LocationViewModel.GetSearchedLocationAsync(StartLocation);
-                    var toLocation = await LocationViewModel.GetSearchedLocationAsync(EndLocation);
+                    var fromLocationFeature = await LocationViewModel.GetRoomFeatureAsync(StartLocation);
+                    var toLocationFeature = await LocationViewModel.GetRoomFeatureAsync(EndLocation);
 
-                    var route = await LocationViewModel.GetRequestedRouteAsync(fromLocation.DisplayLocation, toLocation.DisplayLocation);
+                    var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
+                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+
+
+                    var route = await LocationViewModel.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+                    mapViewController.FromLocationFeature = fromLocationFeature;
+                    mapViewController.ToLocationFeature = toLocationFeature;
+
                     mapViewController.Route = route;
+
                 }
                 catch { mapViewController.Route = null; }
             }

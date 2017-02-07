@@ -117,7 +117,7 @@ namespace IndoorNavigation
                         this.Status = "Ready";
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // If unable to get item from Portal, use already existing map package, unless this is the initial application download. 
                     if (this.Files.Contains(this.TargetFileName))
@@ -126,7 +126,8 @@ namespace IndoorNavigation
                     }
                     else
                     {
-                        this.Status = "The application is online but is unable to connect to Portal and the necessary data has not been downloaded. This could mean there is not enough bandwidth. Please try again";
+                        ////this.Status = "The application is online but is unable to connect to Portal and the necessary data has not been downloaded. This could mean there is not enough bandwidth. Please try again";
+                        this.Status = ex.Message;
                     }
                 }
             }

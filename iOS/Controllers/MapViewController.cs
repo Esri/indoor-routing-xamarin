@@ -8,6 +8,7 @@ namespace IndoorNavigation.iOS
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
@@ -70,6 +71,18 @@ namespace IndoorNavigation.iOS
         /// Gets or sets the map view model containing the common logic for dealing with the map
         /// </summary>
         private MapViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets from location feature.
+        /// </summary>
+        /// <value>From location feature.</value>
+        public Feature FromLocationFeature { get; set; }
+
+        /// <summary>
+        /// Gets or sets to location feature.
+        /// </summary>
+        /// <value>To locationfeature.</value>
+        public Feature ToLocationFeature { get; set; }
 
         /// <summary>
         /// Overrides the controller behavior before view is about to appear
@@ -149,7 +162,7 @@ namespace IndoorNavigation.iOS
             if (segue.Identifier == "RouteSegue")
             {
                 var routeController = segue.DestinationViewController as RouteController;
-                routeController.EndLocation = OfficeNumberLabel.Text;
+                routeController.EndLocation = MainLabel.Text;
             }
         }
 
@@ -174,15 +187,38 @@ namespace IndoorNavigation.iOS
 
                 if (newRoute != null)
                 {
+                    var labelStringBuilder = new StringBuilder("Walk time: ");
+
+                    // Add walk time and distance label
+                    if (newRoute.TotalTime.Hours > 0)
+                    {
+                        labelStringBuilder.Append(string.Format("{0} hr {1} min", newRoute.TotalTime.Hours, newRoute.TotalTime.Minutes));
+                    }
+                    else
+                    {
+                        labelStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
+                    }
+
+                    var floorStringBuilder = new StringBuilder("Floor changes: ");
+
+                    if (FromLocationFeature != null && ToLocationFeature != null)
+                    {
+                        floorStringBuilder.Append(string.Format("{0} to {1}", 
+                                                                FromLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName],
+                                                               ToLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]));
+                    }
+
+                    ShowContactCard(labelStringBuilder.ToString(), floorStringBuilder.ToString(), true);
+
                     // Create graphics
                     var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
                     var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
 
                     // create a graphic (with a dashed line symbol) to represent the routee
                     var routeSymbol = new SimpleLineSymbol();
-                    routeSymbol.Width = 3;
-                    routeSymbol.Style = SimpleLineSymbolStyle.Dash;
-                    routeSymbol.Color = System.Drawing.Color.Red;
+                    routeSymbol.Width = 5;
+                    routeSymbol.Style = SimpleLineSymbolStyle.Solid;
+                    routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
 
                     var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
 
@@ -192,6 +228,32 @@ namespace IndoorNavigation.iOS
                     await MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                 }
             }
+        }
+
+        /// <summary>
+        /// Shows the contact card and sets the fields on it depending of context.
+        /// </summary>
+        /// <param name="mainLabel">Main label.</param>
+        /// <param name="secondaryLabel">Secondary label.</param>
+        /// <param name="isDetailedRoute">If set to <c>true</c> is detailed route.</param>
+        private void ShowContactCard(string mainLabel, string secondaryLabel, bool isRoute)
+        {
+            // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
+            // If the label is for the contact info, show the Directions button and fill the labels with the office info
+            if (isRoute)
+            {
+                DirectionsButton.Hidden = true;
+                RouteDetailsButton.Hidden = false;
+            }
+            else
+            {
+                DirectionsButton.Hidden = false;
+                RouteDetailsButton.Hidden = true;
+            }
+
+            MainLabel.Text = mainLabel;
+            SecondaryLabel.Text = secondaryLabel;
+            ContactCardView.Hidden = false;
         }
 
         /// <summary>
@@ -299,14 +361,10 @@ namespace IndoorNavigation.iOS
 
             try
             {
-                // TODO: Move this bit into the MapViewModel
                 // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
                 IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
-                // get the floor number for the tapped featur
-                ////var floorNumber = idResults.GeoElements.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName];
-
-                // create a picture marker symbo
+                // create a picture marker symbol
                 var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
 
@@ -318,33 +376,34 @@ namespace IndoorNavigation.iOS
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
 
-                ////this.ViewModel.Viewpoint = new Viewpoint(idResults.GeoElements.First().Geometry);
-
                 // Get room attribute from the settings. First attribute should be set as the searcheable on
                 var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
                 var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
                 var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
                 var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
 
-                if (!string.IsNullOrEmpty(roomNumber.ToString()))
-                {
-                    this.OfficeNumberLabel.Text = roomNumber.ToString();
-                }
-                else
-                {
-                    this.OfficeNumberLabel.Text = string.Empty;
-                }
+                var roomNumberLabel = roomNumber ?? string.Empty;
+                var employeeNameLabel = employeeName ?? string.Empty;
 
-                if (!string.IsNullOrEmpty(employeeName.ToString()))
-                {
-                    this.EmployeeNameLabel.Text = employeeName.ToString();
-                }
-                else
-                {
-                    this.EmployeeNameLabel.Text = string.Empty;
-                }
+                //if (roomNumber != null)
+                //{
+                //    this.OfficeNumberLabel.Text = roomNumber.ToString();
+                //}
+                //else
+                //{
+                //    this.OfficeNumberLabel.Text = string.Empty;
+                //}
 
-                ContactCardView.Hidden = false;
+                //if (employeeName != null)
+                //{
+                //    this.EmployeeNameLabel.Text = employeeName.ToString();
+                //}
+                //else
+                //{
+                //    this.EmployeeNameLabel.Text = string.Empty;
+                //}
+
+                ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
             }
             catch
             {
@@ -495,8 +554,20 @@ namespace IndoorNavigation.iOS
 
             this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
-            OfficeNumberLabel.Text = searchText;
-            ContactCardView.Hidden = false;
+            // Get the feature to populate the Contact Card
+            var roomFeature = await LocationViewModel.GetRoomFeatureAsync(searchText);
+
+            // Get room attribute from the settings. First attribute should be set as the searcheable one
+            var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+            var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+            var roomNumber = roomFeature.Attributes[roomAttribute];
+            var employeeName = roomFeature.Attributes[employeeNameAttribute];
+
+            var roomNumberLabel = roomNumber ?? string.Empty;
+            var employeeNameLabel = employeeName ?? string.Empty;
+
+            ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+
         }
 
         /// <summary>

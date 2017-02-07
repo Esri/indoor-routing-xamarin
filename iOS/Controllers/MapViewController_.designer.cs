@@ -32,10 +32,6 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel EmployeeNameLabel { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView FloorsTableView { get; set; }
 
         [Outlet]
@@ -48,11 +44,19 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel MainLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         Esri.ArcGISRuntime.UI.Controls.MapView MapView { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel OfficeNumberLabel { get; set; }
+        UIKit.UIButton RouteDetailsButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel SecondaryLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -84,11 +88,6 @@ namespace IndoorNavigation.iOS
                 DirectionsButton = null;
             }
 
-            if (EmployeeNameLabel != null) {
-                EmployeeNameLabel.Dispose ();
-                EmployeeNameLabel = null;
-            }
-
             if (FloorsTableView != null) {
                 FloorsTableView.Dispose ();
                 FloorsTableView = null;
@@ -104,14 +103,24 @@ namespace IndoorNavigation.iOS
                 LocationSearchBar = null;
             }
 
+            if (MainLabel != null) {
+                MainLabel.Dispose ();
+                MainLabel = null;
+            }
+
             if (MapView != null) {
                 MapView.Dispose ();
                 MapView = null;
             }
 
-            if (OfficeNumberLabel != null) {
-                OfficeNumberLabel.Dispose ();
-                OfficeNumberLabel = null;
+            if (RouteDetailsButton != null) {
+                RouteDetailsButton.Dispose ();
+                RouteDetailsButton = null;
+            }
+
+            if (SecondaryLabel != null) {
+                SecondaryLabel.Dispose ();
+                SecondaryLabel = null;
             }
 
             if (SettingsButton != null) {

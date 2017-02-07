@@ -82,6 +82,29 @@ namespace IndoorNavigation
         }
 
         /// <summary>
+        /// Gets the room feature async.
+        /// </summary>
+        /// <returns>The room feature.</returns>
+        /// <param name="searchString">Search string for the query.</param>
+        internal static async Task<Feature> GetRoomFeatureAsync(string searchString)
+        {
+            // Run query to get the floor of the selected room
+            var roomsLayer = MMPK.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
+            var roomsTable = roomsLayer.FeatureTable;
+
+            // Set query parametersin 
+            var queryParams = new QueryParameters()
+            {
+                ReturnGeometry = true,
+                WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", searchString)
+            };
+
+            // Query the feature table 
+            var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+            return queryResult.FirstOrDefault();
+        }
+
+        /// <summary>
         /// Gets the requested route based on start and end location points.
         /// </summary>
         /// <returns>The requested route.</returns>
@@ -100,7 +123,7 @@ namespace IndoorNavigation
             var routeParams = await routeTask.CreateDefaultParametersAsync();
 
             // Explicitly set values for some params
-            routeParams.ReturnDirections = false; // Indoor networks do not support turn by turn navigation
+            // Indoor networks do not support turn by turn navigation
             routeParams.ReturnRoutes = true;
 
             // Create stops
