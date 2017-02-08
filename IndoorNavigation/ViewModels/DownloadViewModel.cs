@@ -19,9 +19,14 @@ namespace IndoorNavigation
     internal class DownloadViewModel : INotifyPropertyChanged
     {
         /// <summary>
-        /// The status of the download process.
+        /// Gets set to true when the mmpk is downloading.
         /// </summary>
-        private string status;
+        private bool isDownloading;
+
+        /// <summary>
+        /// Gets set to true when the map is ready to be loaded
+        /// </summary>
+        private bool isReady;
 
         /// <summary>
         /// The download URL.
@@ -44,24 +49,9 @@ namespace IndoorNavigation
         public List<string> Files { get; private set; }
 
         /// <summary>
-        /// Gets the map package status. This could be Downloading, Ready, or another status that represents error
+        /// Gets or sets the map package status.
         /// </summary>
-        public string Status
-        {
-            get
-            {
-                return this.status;
-            }
-
-            private set
-            {
-                if (this.status != value && !string.IsNullOrEmpty(value))
-                {
-                    this.status = value;
-                    this.OnPropertyChanged(nameof(this.Status));
-                }
-            }
-        }
+        public string Status { get; set; }
 
         /// <summary>
         /// Gets the download URL for the mmpk.
@@ -75,10 +65,52 @@ namespace IndoorNavigation
 
             private set
             {
-                if (this.downloadURL != value && !string.IsNullOrEmpty(value))
+                if (this.downloadURL != value)
                 {
                     this.downloadURL = value;
                     this.OnPropertyChanged(nameof(this.DownloadURL));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="T:IndoorNavigation.DownloadViewModel"/> is downloading.
+        /// </summary>
+        /// <value><c>true</c> if is downloading; otherwise, <c>false</c>.</value>
+        public bool IsDownloading
+        {
+            get
+            {
+                return this.isDownloading;
+            }
+
+            private set
+            {
+                if (this.isDownloading != value)
+                {
+                    this.isDownloading = value;
+                    this.OnPropertyChanged(nameof(this.IsDownloading));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="T:IndoorNavigation.DownloadViewModel"/> is ready.
+        /// </summary>
+        /// <value><c>true</c> if is ready; otherwise, <c>false</c>.</value>
+        public bool IsReady
+        {
+            get
+            {
+                return this.isReady;
+            }
+
+            private set
+            {
+                if (this.isReady != value)
+                {
+                    this.isReady = value;
+                    this.OnPropertyChanged(nameof(this.IsReady));
                 }
             }
         }
@@ -109,33 +141,35 @@ namespace IndoorNavigation
                     if (!this.Files.Contains(this.TargetFileName) ||
                         item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDownloadDate)
                     {
-                        this.Status = "Downloading";
+                        this.IsDownloading = true;
                         this.DownloadURL = item.Url.AbsoluteUri + "/data";
                     }
                     else
                     {
-                        this.Status = "Ready";
+                        this.IsReady = true;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // If unable to get item from Portal, use already existing map package, unless this is the initial application download. 
                     if (this.Files.Contains(this.TargetFileName))
                     {
-                        this.Status = "Ready";
+                        this.IsReady = true;
                     }
                     else
                     {
-                        this.Status = "The application is online but is unable to connect to Portal and the necessary data has not been downloaded. This could mean there is not enough bandwidth. Please try again";
+                        this.Status = ex.Message;
+                        this.IsDownloading = false;
                     }
                 }
             }
             else if (this.Files.Contains(this.TargetFileName))
             {
-                this.Status = "Ready";
+                this.IsReady = true;
             }
             else
             {
+                this.IsDownloading = false;
                 this.Status = "Device does not seem to be connected to the network and the necessary data has not been downloaded. Please retry when in network range";
             }
         }
@@ -146,11 +180,7 @@ namespace IndoorNavigation
         /// <returns>The data folder.</returns>
         internal static string GetDataFolder()
         {
-#if __ANDROID__
-                return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-#elif __IOS__
             return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#endif
         }
 
         /// <summary>
@@ -159,11 +189,7 @@ namespace IndoorNavigation
         /// <returns><c>true</c>, if device connected was ised, <c>false</c> otherwise.</returns>
         internal static bool IsDeviceConnected()
         {
-#if __ANDROID__
-                //return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-#elif __IOS__
             return Reachability.IsNetworkAvailable();
-#endif
         }
 
         /// <summary>

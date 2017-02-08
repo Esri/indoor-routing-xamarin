@@ -1,121 +1,110 @@
 {
   "images": [
     {
-      "filename": "SDK29.png",
+      "filename": "IND_App_Icon_iOS-29.png",
       "size": "29x29",
       "scale": "1x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK58.png",
+      "filename": "IND_App_Icon_iOS-58.png",
       "size": "29x29",
       "scale": "2x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK87.png",
       "size": "29x29",
       "scale": "3x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK80.png",
+      "filename": "IND_App_Icon_iOS-80.png",
       "size": "40x40",
       "scale": "2x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK120.png",
+      "filename": "IND_App_Icon_iOS-120.png",
       "size": "40x40",
       "scale": "3x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK57.png",
       "size": "57x57",
       "scale": "1x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK114.png",
       "size": "57x57",
       "scale": "2x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK120.png",
+      "filename": "IND_App_Icon_iOS-120.png",
       "size": "60x60",
       "scale": "2x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK180.png",
       "size": "60x60",
       "scale": "3x",
       "idiom": "iphone"
     },
     {
-      "filename": "SDK29.png",
+      "filename": "IND_App_Icon_iOS-29.png",
       "size": "29x29",
       "scale": "1x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK58.png",
       "size": "29x29",
       "scale": "2x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK40.png",
+      "filename": "IND_App_Icon_iOS-40.png",
       "size": "40x40",
       "scale": "1x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK80.png",
       "size": "40x40",
       "scale": "2x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK50.png",
       "size": "50x50",
       "scale": "1x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK100.png",
       "size": "50x50",
       "scale": "2x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK167.png",
       "size": "83.5x83.5",
       "scale": "2x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK72.png",
       "size": "72x72",
       "scale": "1x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK144.png",
       "size": "72x72",
       "scale": "2x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK76.png",
+      "filename": "IND_App_Icon_iOS-76.png",
       "size": "76x76",
       "scale": "1x",
       "idiom": "ipad"
     },
     {
-      "filename": "SDK152.png",
+      "filename": "IND_App_Icon_iOS-152.png",
       "size": "76x76",
       "scale": "2x",
       "idiom": "ipad"
@@ -215,11 +204,13 @@
       "idiom": "mac"
     },
     {
+      "filename": "IND_App_Icon_iOS-512.png",
       "size": "512x512",
       "scale": "1x",
       "idiom": "mac"
     },
     {
+      "filename": "IND_App_Icon_iOS-1024.png",
       "size": "512x512",
       "scale": "2x",
       "idiom": "mac"

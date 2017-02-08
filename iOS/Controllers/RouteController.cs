@@ -6,6 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Foundation;
     using UIKit;
@@ -102,18 +103,21 @@ namespace IndoorNavigation.iOS
         private async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
         {
             this.startSearchBarFlag = startSearchBarFlag;
-            var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(searchText);
+            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(searchText);
+
+            //var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(searchText);
             if (suggestions == null || suggestions.Count == 0)
             {
                 AutosuggestionsTableView.Hidden = true;
             }
+
             // Only show the floors tableview if the buildings in view have more than one floor
             if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
                 AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
-                tableSource.TableRowSelected += TableSource_TableRowSelected;
+                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
                 AutosuggestionsTableView.Source = tableSource;
 
                 AutosuggestionsTableView.ReloadData();
@@ -138,24 +142,25 @@ namespace IndoorNavigation.iOS
             if (this.startSearchBarFlag == true)
             {
                 StartSearchBar.Text = selectedItem.Label;
+                this.StartLocation = selectedItem.Label;
                 StartSearchBar.ResignFirstResponder();
             }
             else
             {
                 EndSearchBar.Text = selectedItem.Label;
+                this.EndLocation = selectedItem.Label;
                 EndSearchBar.ResignFirstResponder();
             }
 
             // Dismiss autosuggest table and keyboard
             AutosuggestionsTableView.Hidden = true;
-
         }
 
         /// <summary>
         /// Prepares for segueto go back to the Main View Controller. This segue is initiated by the Route button
         /// </summary>
-        /// <param name="segue">Segue.</param>
-        /// <param name="sender">Sender.</param>
+        /// <param name="segue">Segue control.</param>
+        /// <param name="sender">Sender control.</param>
         public async override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);
@@ -163,16 +168,26 @@ namespace IndoorNavigation.iOS
             if (segue.Identifier == "BackFromRouteSegue")
             {
                 var mapViewController = segue.DestinationViewController as MapViewController;
+
                 // Geocode the locations selected by the use
                 try
                 {
-                    var fromLocation = await LocationViewModel.GetSearchedLocationAsync(StartLocation);
-                    var toLocation = await LocationViewModel.GetSearchedLocationAsync(EndLocation);
+                    var fromLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.StartLocation);
+                    var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
 
-                    var route = await LocationViewModel.GetRequestedRouteAsync(fromLocation.DisplayLocation, toLocation.DisplayLocation);
+                    var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
+                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+
+                    var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+                    mapViewController.FromLocationFeature = fromLocationFeature;
+                    mapViewController.ToLocationFeature = toLocationFeature;
+
                     mapViewController.Route = route;
                 }
-                catch { mapViewController.Route = null; }
+                catch 
+                { 
+                    mapViewController.Route = null; 
+                }
             }
         }
     }

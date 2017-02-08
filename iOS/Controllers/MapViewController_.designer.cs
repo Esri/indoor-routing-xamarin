@@ -40,11 +40,11 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton InvisibleButton { get; set; }
+        UIKit.UISearchBar LocationSearchBar { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UISearchBar LocationSearchBar { get; set; }
+        UIKit.UILabel MainLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -52,11 +52,15 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UILabel NameLabel { get; set; }
+        UIKit.UIButton RouteDetailsButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton Settings { get; set; }
+        UIKit.UILabel SecondaryLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton SettingsButton { get; set; }
 
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -94,14 +98,14 @@ namespace IndoorNavigation.iOS
                 HomeButton = null;
             }
 
-            if (InvisibleButton != null) {
-                InvisibleButton.Dispose ();
-                InvisibleButton = null;
-            }
-
             if (LocationSearchBar != null) {
                 LocationSearchBar.Dispose ();
                 LocationSearchBar = null;
+            }
+
+            if (MainLabel != null) {
+                MainLabel.Dispose ();
+                MainLabel = null;
             }
 
             if (MapView != null) {
@@ -109,14 +113,19 @@ namespace IndoorNavigation.iOS
                 MapView = null;
             }
 
-            if (NameLabel != null) {
-                NameLabel.Dispose ();
-                NameLabel = null;
+            if (RouteDetailsButton != null) {
+                RouteDetailsButton.Dispose ();
+                RouteDetailsButton = null;
             }
 
-            if (Settings != null) {
-                Settings.Dispose ();
-                Settings = null;
+            if (SecondaryLabel != null) {
+                SecondaryLabel.Dispose ();
+                SecondaryLabel = null;
+            }
+
+            if (SettingsButton != null) {
+                SettingsButton.Dispose ();
+                SettingsButton = null;
             }
         }
     }

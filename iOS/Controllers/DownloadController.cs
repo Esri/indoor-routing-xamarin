@@ -6,7 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.ComponentModel;
-    using System.IO;
+    using System.IO;    using System.Threading.Tasks;
     using Foundation;
     using UIKit;
 
@@ -89,7 +89,8 @@ namespace IndoorNavigation.iOS
         /// <param name="sender">Sender element.</param>
         partial void RetryButton_TouchUpInside(UIButton sender)
         {
-            this.ViewDidLoad();
+            // Call GetData to download or load the mmpk
+            this.ViewModel.GetDataAsync().ConfigureAwait(false);
         }
 
          /// <summary>
@@ -101,24 +102,41 @@ namespace IndoorNavigation.iOS
         {
             switch (e.PropertyName)
             {
-                case "Status":
-                    if (this.ViewModel.Status == "Downloading")
-                    {
-                        this.InvokeOnMainThread(() => statusLabel.Text = "Downloading Mobile Map Package...");
-                    }
-                    else if (ViewModel.Status == "Ready")
-                    {
-                        InvokeOnMainThread(() => LoadMapView());
-                    }
-                    else {
-                        InvokeOnMainThread(() => statusLabel.Text = ViewModel.Status);
-                        progressView.Hidden = true;
-                        RetryButton.Hidden = false;
-                    }
-
-                    break;
                 case "DownloadURL":
                     this.EnqueueDownload(this.ViewModel.DownloadURL);
+                    break;
+
+                case "IsDownloading":
+                    if (this.ViewModel.IsDownloading == true)
+                    {
+                        this.InvokeOnMainThread(() =>
+                        {
+                            this.ViewModel.Status = "Downloading Map...";
+                            progressView.Hidden = false;
+                            RetryButton.Hidden = true;
+                        });
+                    }
+
+                    else
+                    {
+                        this.InvokeOnMainThread(() =>
+                        {
+                            progressView.Hidden = true;
+                            RetryButton.Hidden = false;
+                        });
+                    }
+
+                    this.InvokeOnMainThread(() =>
+                    {
+                        statusLabel.Text = this.ViewModel.Status;
+                    });
+                    break;
+
+                case "IsReady":
+                    {
+                        InvokeOnMainThread(() => this.LoadMapView());
+                    }
+
                     break;
             }
         }

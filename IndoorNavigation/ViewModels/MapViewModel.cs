@@ -6,12 +6,10 @@ namespace IndoorNavigation
 {
     using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Mapping;
 
@@ -253,7 +251,7 @@ namespace IndoorNavigation
         {
             // Get Mobile Map Package from the location on device
             var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
-            LocationViewModel.MMPK = mmpk;
+            LocationViewModel.LocationViewModelInstance.Mmpk = mmpk;
 
             // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
             Map = mmpk.Maps.FirstOrDefault();

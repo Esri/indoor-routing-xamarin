@@ -208,15 +208,15 @@ namespace IndoorNavigation
             if (!files.Contains(filePath))
             {
                 var appSettings = new AppSettings();
-                appSettings.PortalItemID = "018f779883434a8daadfb51524ec3498";
-                appSettings.PortalItemName = "EsriCampus.mmpk";
+                appSettings.PortalItemID = "df35efe1d4534313a226cf3e1991cbfd";
+                appSettings.PortalItemName = "Campus.mmpk";
                 appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
                 appSettings.HomeLocation = "Set home location";
                 appSettings.IsLocationServicesEnabled = false;
                 appSettings.IsPreferElevatorsEnabled = false;
                 appSettings.RoomsLayerIndex = 1;
                 appSettings.FloorplanLinesLayerIndex = 2;
-                appSettings.RoomsLayerMinimumZoomLevel = 500;
+                appSettings.RoomsLayerMinimumZoomLevel = 750;
                 appSettings.RoomsLayerFloorColumnName = "FLOOR";
                 appSettings.MapViewMinScale = 100;
                 appSettings.MapViewMaxScale = 13000;

@@ -39,7 +39,6 @@
       "minimum-system-version": "7.0",
       "orientation": "portrait",
       "extent": "full-screen",
-      "filename": "LaunchScreen640x960.png",
       "size": "320x480",
       "scale": "2x",
       "idiom": "iphone"
@@ -48,7 +47,6 @@
       "minimum-system-version": "7.0",
       "orientation": "portrait",
       "extent": "full-screen",
-      "filename": "LaunchScreen640x1136.png",
       "size": "320x568",
       "subtype": "retina4",
       "scale": "2x",
@@ -89,7 +87,6 @@
     {
       "orientation": "portrait",
       "extent": "full-screen",
-      "filename": "LaunchScreen320x480.png",
       "size": "320x480",
       "scale": "1x",
       "idiom": "iphone"
@@ -97,7 +94,6 @@
     {
       "orientation": "portrait",
       "extent": "full-screen",
-      "filename": "LaunchScreen640x960.png",
       "size": "320x480",
       "scale": "2x",
       "idiom": "iphone"
@@ -105,7 +101,6 @@
     {
       "orientation": "portrait",
       "extent": "full-screen",
-      "filename": "LaunchScreen640x1136.png",
       "size": "320x568",
       "subtype": "retina4",
       "scale": "2x",
