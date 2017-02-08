@@ -6,7 +6,6 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -68,11 +67,6 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
-        /// Gets or sets the map view model containing the common logic for dealing with the map
-        /// </summary>
-        private MapViewModel ViewModel { get; set; }
-
-        /// <summary>
         /// Gets or sets from location feature.
         /// </summary>
         /// <value>From location feature.</value>
@@ -83,6 +77,11 @@ namespace IndoorNavigation.iOS
         /// </summary>
         /// <value>To locationfeature.</value>
         public Feature ToLocationFeature { get; set; }
+
+        /// <summary>
+        /// Gets or sets the map view model containing the common logic for dealing with the map
+        /// </summary>
+        private MapViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Overrides the controller behavior before view is about to appear
@@ -97,13 +96,13 @@ namespace IndoorNavigation.iOS
             // Show home button if user has home location enabled (not set as default value)
             if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
-                HomeButton.Hidden = false;
+                this.HomeButton.Hidden = false;
             }
 
             // Show Current Location button if location services is enabled
             if (!AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
-                CurrentLocationButton.Hidden = false;
+                this.CurrentLocationButton.Hidden = false;
             }
         }
 
@@ -114,30 +113,30 @@ namespace IndoorNavigation.iOS
         {
             base.ViewDidLoad();
 
-            //// Add a graphics overlay to hold the pins and route graphics
-            MapView.GraphicsOverlays.Add(new GraphicsOverlay());
+            // Add a graphics overlay to hold the pins and route graphics
+            this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());
 
             // TODO: The comments below were added on January 24. Check to see if the last letter disappears. 
             // Handle the user moving the map 
-            MapView.NavigationCompleted += this.MapView_NavigationCompleted;
+            this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
 
             // Handle the user tapping on the map
-            MapView.GeoViewTapped += this.MapView_GeoViewTapped;
+            this.MapView.GeoViewTapped += this.MapView_GeoViewTapped;
 
             // Handle the user double tapping on the map
-            MapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
+            this.MapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
 
             // Handle the user holding tap on the mapp
-            MapView.GeoViewHolding += this.MapView_GeoViewHolding;
+            this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
 
             // Handle text changing in the search bar
-            LocationSearchBar.TextChanged += async (sender, e) =>
+            this.LocationSearchBar.TextChanged += async (sender, e) =>
             {
                 // Call to populate autosuggestions 
                 await GetSuggestionsFromLocatorAsync();
             };
 
-            LocationSearchBar.SearchButtonClicked += async (sender, e) =>
+            this.LocationSearchBar.SearchButtonClicked += async (sender, e) =>
             {
                 var searchText = ((UISearchBar)sender).Text;
 
@@ -162,7 +161,7 @@ namespace IndoorNavigation.iOS
             if (segue.Identifier == "RouteSegue")
             {
                 var routeController = segue.DestinationViewController as RouteController;
-                routeController.EndLocation = MainLabel.Text;
+                routeController.EndLocation = this.MainLabel.Text;
             }
         }
 
@@ -201,14 +200,15 @@ namespace IndoorNavigation.iOS
 
                     var floorStringBuilder = new StringBuilder("Floor changes: ");
 
-                    if (FromLocationFeature != null && ToLocationFeature != null)
+                    if (this.FromLocationFeature != null && this.ToLocationFeature != null)
                     {
-                        floorStringBuilder.Append(string.Format("{0} to {1}", 
-                                                                FromLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName],
-                                                               ToLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]));
+                        floorStringBuilder.Append(string.Format(
+                            "{0} to {1}",
+                            this.FromLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName],
+                            this.ToLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]));
                     }
 
-                    ShowContactCard(labelStringBuilder.ToString(), floorStringBuilder.ToString(), true);
+                    this.ShowContactCard(labelStringBuilder.ToString(), floorStringBuilder.ToString(), true);
 
                     // Create graphics
                     var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
@@ -235,7 +235,7 @@ namespace IndoorNavigation.iOS
         /// </summary>
         /// <param name="mainLabel">Main label.</param>
         /// <param name="secondaryLabel">Secondary label.</param>
-        /// <param name="isDetailedRoute">If set to <c>true</c> is detailed route.</param>
+        /// <param name="isRoute">If set to <c>true</c> is route.</param>
         private void ShowContactCard(string mainLabel, string secondaryLabel, bool isRoute)
         {
             // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
@@ -385,25 +385,7 @@ namespace IndoorNavigation.iOS
                 var roomNumberLabel = roomNumber ?? string.Empty;
                 var employeeNameLabel = employeeName ?? string.Empty;
 
-                //if (roomNumber != null)
-                //{
-                //    this.OfficeNumberLabel.Text = roomNumber.ToString();
-                //}
-                //else
-                //{
-                //    this.OfficeNumberLabel.Text = string.Empty;
-                //}
-
-                //if (employeeName != null)
-                //{
-                //    this.EmployeeNameLabel.Text = employeeName.ToString();
-                //}
-                //else
-                //{
-                //    this.EmployeeNameLabel.Text = string.Empty;
-                //}
-
-                ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
             }
             catch
             {
@@ -467,7 +449,7 @@ namespace IndoorNavigation.iOS
                         }
                     });
                 }
-                catch (Exception ex)
+                catch
                 {
                     this.DismissFloorsTableView();
                 }
@@ -493,7 +475,7 @@ namespace IndoorNavigation.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
                 AutosuggestionsTableView.Hidden = true;
@@ -537,8 +519,8 @@ namespace IndoorNavigation.iOS
         /// <returns>The searched feature</returns>
         private async Task GetSearchedFeatureAsync(string searchText)
         {
-            var geocodeResult = await LocationViewModel.GetSearchedLocationAsync(searchText);
-            this.ViewModel.SelectedFloorLevel = await LocationViewModel.GetFloorLevelFromQueryAsync(searchText);
+            var geocodeResult = await LocationViewModel.LocationViewModelInstance.GetSearchedLocationAsync(searchText);
+            this.ViewModel.SelectedFloorLevel = await LocationViewModel.LocationViewModelInstance.GetFloorLevelFromQueryAsync(searchText);
 
             // create a picture marker symbol
             var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
@@ -555,7 +537,7 @@ namespace IndoorNavigation.iOS
             this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
             // Get the feature to populate the Contact Card
-            var roomFeature = await LocationViewModel.GetRoomFeatureAsync(searchText);
+            var roomFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(searchText);
 
             // Get room attribute from the settings. First attribute should be set as the searcheable one
             var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
@@ -566,8 +548,7 @@ namespace IndoorNavigation.iOS
             var roomNumberLabel = roomNumber ?? string.Empty;
             var employeeNameLabel = employeeName ?? string.Empty;
 
-            ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
-
+            this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
         }
 
         /// <summary>

@@ -102,32 +102,41 @@ namespace IndoorNavigation.iOS
         {
             switch (e.PropertyName)
             {
-                case "Status":
-                    if (this.ViewModel.Status == "Downloading")
+                case "DownloadURL":
+                    this.EnqueueDownload(this.ViewModel.DownloadURL);
+                    break;
+
+                case "IsDownloading":
+                    if (this.ViewModel.IsDownloading == true)
                     {
                         this.InvokeOnMainThread(() =>
                         {
-                            statusLabel.Text = "Downloading Map...";
+                            this.ViewModel.Status = "Downloading Map...";
                             progressView.Hidden = false;
                             RetryButton.Hidden = true;
                         });
                     }
-                    else if (ViewModel.Status == "Ready")
+
+                    else
                     {
-                        InvokeOnMainThread(() => LoadMapView());
-                    }
-                    else {
                         this.InvokeOnMainThread(() =>
                         {
-                            statusLabel.Text = ViewModel.Status;
                             progressView.Hidden = true;
                             RetryButton.Hidden = false;
                         });
                     }
 
+                    this.InvokeOnMainThread(() =>
+                    {
+                        statusLabel.Text = this.ViewModel.Status;
+                    });
                     break;
-                case "DownloadURL":
-                    this.EnqueueDownload(this.ViewModel.DownloadURL);
+
+                case "IsReady":
+                    {
+                        InvokeOnMainThread(() => this.LoadMapView());
+                    }
+
                     break;
             }
         }

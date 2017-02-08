@@ -128,7 +128,7 @@ namespace IndoorNavigation.iOS
         /// <returns>Async task</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
+            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
                 AutosuggestionsTableView.Hidden = true;
@@ -166,8 +166,8 @@ namespace IndoorNavigation.iOS
         private async Task SetHomeLocationAsync(string locationText)
         {
             AppSettings.CurrentSettings.HomeLocation = locationText;
-            this.HomeLocation = await LocationViewModel.GetSearchedLocationAsync(locationText);
-            this.FloorLevel = await LocationViewModel.GetFloorLevelFromQueryAsync(locationText);
+            this.HomeLocation = await LocationViewModel.LocationViewModelInstance.GetSearchedLocationAsync(locationText);
+            this.FloorLevel = await LocationViewModel.LocationViewModelInstance.GetFloorLevelFromQueryAsync(locationText);
 
             NavigationController.PopViewController(true);
         }
