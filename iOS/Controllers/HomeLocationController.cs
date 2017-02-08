@@ -1,123 +1,175 @@
-using System;
-using UIKit;
-using System.Threading.Tasks;
-using System.IO;
-using Esri.ArcGISRuntime.Tasks.Geocoding;
-
+// <copyright file="HomeLocationController.cs" company="Esri, Inc">
+//     Copyright (c) Esri. All rights reserved.
+// </copyright>
+// <author>Mara Stoica</author>
 namespace IndoorNavigation.iOS
 {
-	/// <summary>
-	/// Controller handles the ui and logic of the user choosing a home location
-	/// </summary>
-    partial class HomeLocationController : UIViewController
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.Tasks.Geocoding;
+    using UIKit;
+
+    /// <summary>
+    /// Controller handles the ui and logic of the user choosing a home location
+    /// </summary>
+    internal partial class HomeLocationController : UIViewController
     {
+        /// <summary>
+        /// The home location.
+        /// </summary>
+        private GeocodeResult homeLocation;
 
-		HomeLocationController(IntPtr handle) : base(handle)
-		{
-		}
+        /// <summary>
+        /// The home floor level.
+        /// </summary>
+        private string floorLevel;
 
-		/// <summary>
-		/// Overrides the controller behavior before view is about to appear
-		/// </summary>
-		/// <param name="animated">If set to <c>true</c> animated.</param>
-		public override void ViewWillAppear(bool animated)
-		{
-			// Show the navigation bar
-			NavigationController.NavigationBarHidden = false;
-			base.ViewWillAppear(animated);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.HomeLocationController"/> class.
+        /// </summary>
+        /// <param name="handle">Controller Handle.</param>
+        private HomeLocationController(IntPtr handle) : base(handle)
+        {
+        }
+        
+        /// <summary>
+        /// Gets the coordinates for the home location
+        /// </summary>
+        public GeocodeResult HomeLocation
+        {
+            get
+            {
+                return this.homeLocation;
+            }
 
-		}
+            private set
+            {
+                if (this.homeLocation != value && value != null)
+                {
+                    this.homeLocation = value;
 
-		/// <summary>
-		/// Overrides the behavior of the controller once the view has loaded
-		/// </summary>
-		public override void ViewDidLoad()
-		{
-			base.ViewDidLoad();
-			HomeLocationSearchBar.BecomeFirstResponder();
+                    // Save extent of home location and floor level to Settings file
+                    CoordinatesKeyValuePair<string, double>[] homeCoordinates =
+                    {
+                    new CoordinatesKeyValuePair<string, double>("X", this.homeLocation.DisplayLocation.X),
+                    new CoordinatesKeyValuePair<string, double>("Y", this.homeLocation.DisplayLocation.Y),
+                    new CoordinatesKeyValuePair<string, double>("WKID", this.homeLocation.DisplayLocation.SpatialReference.Wkid)
+                    };
 
-			// Set text changed event on the search bar
-			HomeLocationSearchBar.TextChanged += async (sender, e) =>
-			{
-				//this is the method that is called when the user searchess
-				await RetrieveSuggestionsFromLocator();
-			};
+                    AppSettings.CurrentSettings.HomeCoordinates = homeCoordinates;
 
-			HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
-			{
-				var locationText = ((UISearchBar)sender).Text;
-				await SetHomeLocation(locationText);
-			};
-		}
+                    // Save user settings
+                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                }
+            }
+        }
 
-		/// <summary>
-		/// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
-		/// </summary>
-	    async Task RetrieveSuggestionsFromLocator()
-		{
-			var suggestions = await LocationViewModel.GetLocationSuggestions(HomeLocationSearchBar.Text);
-			if (suggestions == null || suggestions.Count == 0)
-			{
-				AutosuggestionsTableView.Hidden = true;
-			}
-			// Only show the floors tableview if the buildings in view have more than one floor
-			if (suggestions.Count > 0)
-			{
-				// Show the tableview with autosuggestions and populate it
-				AutosuggestionsTableView.Hidden = false;
-				var tableSource = new AutosuggestionsTableSource(suggestions);
-				tableSource.TableRowSelected += TableSource_TableRowSelected;
-				AutosuggestionsTableView.Source = tableSource; 
+        /// <summary>
+        /// Gets or sets the floor level for the home location.
+        /// </summary>
+        /// <value>The floor level.</value>
+        public string FloorLevel
+        {
+            get
+            {
+                return this.floorLevel;
+            }
 
-				AutosuggestionsTableView.ReloadData();
+            set
+            {
+                if (this.floorLevel != value && value != string.Empty)
+                {
+                    this.floorLevel = value;
+                    AppSettings.CurrentSettings.HomeFloorLevel = this.floorLevel;
 
-				// Auto extend or shrink the tableview based on the content inside
-        		var frame = AutosuggestionsTableView.Frame;
-				frame.Height = AutosuggestionsTableView.ContentSize.Height;
-        		AutosuggestionsTableView.Frame = frame;
-			}
-		}
+                    // Save user settings
+                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                }
+            }
+        }
 
-		/// <summary>
-		/// Get the value selected in the Autosuggestions Table
-		/// </summary>
-		/// <param name="sender">Sender.</param>
-		/// <param name="e">E.</param>
-		async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
-		{
-			var selectedItem = e.SelectedItem;
-			HomeLocationSearchBar.Text = selectedItem.Label;
-			await SetHomeLocation(selectedItem.Label);;
-		}
+        /// <summary>
+        /// Overrides the controller behavior before view is about to appear
+        /// </summary>
+        /// <param name="animated">If set to <c>true</c> animated.</param>
+        public override void ViewWillAppear(bool animated)
+        {
+            // Show the navigation bar
+            NavigationController.NavigationBarHidden = false;
+            base.ViewWillAppear(animated);
+        }
 
-		/// <summary>
-		/// Sets the home location for the user and saves it into settings.
-		/// </summary>
-		/// <param name="locationText">Location text.</param>
-		async Task SetHomeLocation(string locationText)
-		{
-			AppSettings.CurrentSettings.HomeLocation = locationText;
-			var homeLocation = await LocationViewModel.GetSearchedLocation(locationText);
+        /// <summary>
+        /// Overrides the behavior of the controller once the view has loaded
+        /// </summary>
+        public override void ViewDidLoad()
+        {
+            base.ViewDidLoad();
+            HomeLocationSearchBar.BecomeFirstResponder();
 
-			if (homeLocation != null)
-			{
-				// Save extent of home location and floor level to Settings file
-				CoordinatesKeyValuePair<string, double>[] homeCoordinates =
-				{
-					new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
-					new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-					new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid),
-					new CoordinatesKeyValuePair<string, double>("Floor", 1),
-				};
+            // Set text changed event on the search bar
+            HomeLocationSearchBar.TextChanged += async (sender, e) =>
+            {
+                // This is the method that is called when the user searchess
+                await GetSuggestionsFromLocatorAsync();
+            };
 
-				AppSettings.CurrentSettings.HomeCoordinates = homeCoordinates;
+            HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
+            {
+                var locationText = ((UISearchBar)sender).Text;
+                await SetHomeLocationAsync(locationText);
+            };
+        }
 
-				// Save user settings
-				var settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-				await Task.Run(() => AppSettings.SaveSettings(Path.Combine(settingsPath, "AppSettings.xml")));
-			}
+        /// <summary>
+        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
+        /// </summary>
+        /// <returns>Async task</returns>
+        private async Task GetSuggestionsFromLocatorAsync()
+        {
+            var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
+            if (suggestions == null || suggestions.Count == 0)
+            {
+                AutosuggestionsTableView.Hidden = true;
+            }
 
-			NavigationController.PopViewController(true);
-		}
-	}
+            // Only show the floors tableview if the buildings in view have more than one floor
+            if (suggestions.Count > 0)
+            {
+                // Show the tableview with autosuggestions and populate it
+                AutosuggestionsTableView.Hidden = false;
+                var tableSource = new AutosuggestionsTableSource(suggestions);
+                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
+                AutosuggestionsTableView.Source = tableSource;
+                AutosuggestionsTableView.ReloadData();
+            }
+        }
+
+        /// <summary>
+        /// Get the value selected in the Autosuggestions Table
+        /// </summary>
+        /// <param name="sender">Sender element.</param>
+        /// <param name="e">Event args.</param>
+        private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+        {
+            var selectedItem = e.SelectedItem;
+            HomeLocationSearchBar.Text = selectedItem.Label;
+            await this.SetHomeLocationAsync(selectedItem.Label);
+        }
+
+        /// <summary>
+        /// Sets the home location for the user and saves it into settings.
+        /// </summary>
+        /// <param name="locationText">Location text.</param>
+        /// <returns>Async task</returns>
+        private async Task SetHomeLocationAsync(string locationText)
+        {
+            AppSettings.CurrentSettings.HomeLocation = locationText;
+            this.HomeLocation = await LocationViewModel.GetSearchedLocationAsync(locationText);
+            this.FloorLevel = await LocationViewModel.GetFloorLevelFromQueryAsync(locationText);
+
+            NavigationController.PopViewController(true);
+        }
+    }
 }

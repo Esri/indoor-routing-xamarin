@@ -43,7 +43,7 @@
                                                 </connections>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             </button>
-                                            <button opaque="NO" clipsSubviews="YES" contentMode="center" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1601">
+                                            <button opaque="NO" clipsSubviews="YES" contentMode="center" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1601" hidden="YES">
                                                 <rect key="frame" x="0.0" y="47" width="42" height="42"/>
                                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="35"/>
@@ -61,7 +61,7 @@
                                                 </connections>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             </button>
-                                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808">
+                                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" hidden="YES">
                                                 <rect key="frame" x="0.0" y="94" width="42" height="43"/>
                                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="36"/>
@@ -105,22 +105,22 @@
                                     <constraint firstAttribute="bottom" secondItem="1599" secondAttribute="bottom" constant="23" id="2001"/>
                                 </constraints>
                             </view>
-                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="34" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="58">
-                                <rect key="frame" x="546" y="254" width="34" height="227"/>
+                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="58">
+                                <rect key="frame" x="536" y="254" width="44" height="227"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="34" id="1995"/>
+                                    <constraint firstAttribute="width" constant="44" id="1995"/>
                                 </constraints>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="cell_id" rowHeight="34" id="97">
-                                        <rect key="frame" x="0.0" y="28" width="34" height="34"/>
+                                        <rect key="frame" x="0.0" y="28" width="44" height="34"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="97" id="98">
-                                            <rect key="frame" x="0.0" y="0.0" width="34" height="34"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="44" height="34"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="172">
+                                                <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="172" misplaced="YES">
                                                     <rect key="frame" x="10" y="3" width="14" height="30"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -163,12 +163,14 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <searchBar tag="2" contentMode="redraw" placeholder="Search rooms or people" translatesAutoresizingMaskIntoConstraints="NO" id="1981">
+                            <searchBar tag="2" contentMode="redraw" placeholder="Search rooms or people" translatesAutoresizingMaskIntoConstraints="NO" id="1981" searchBarStyle="minimal" opaque="NO">
                                 <rect key="frame" x="0.0" y="64" width="600" height="44"/>
                                 <color key="barTintColor" red="0.72941176470588232" green="0.72941176470588232" blue="0.75294117647058822" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <color key="backgroundColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
                             </searchBar>
-                            <view hidden="YES" contentMode="scaleToFill" id="2033">
+                            <view contentMode="scaleToFill" id="2033" hidden="YES">
                                 <rect key="frame" x="0.0" y="489" width="600" height="111"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Office Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2062">
@@ -200,6 +202,7 @@
                                     <constraint firstItem="2079" firstAttribute="leading" secondItem="2062" secondAttribute="trailing" constant="8" id="3444"/>
                                     <constraint firstItem="2062" firstAttribute="leading" secondItem="2033" secondAttribute="leading" constant="11" id="3445"/>
                                     <constraint firstItem="2062" firstAttribute="top" secondItem="2033" secondAttribute="top" constant="5" id="3446"/>
+                                    <constraint id="3477" firstItem="2033" firstAttribute="height" constant="111"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -440,14 +443,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1476">
+                            <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="1476">
                                 <rect key="frame" x="15" y="110" width="568" height="490"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell_id" rowHeight="44" id="1477">
-                                        <rect key="frame" x="0.0" y="28" width="568" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="3528">
+                                        <rect key="frame" x="0.0" y="1" width="568" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" tableViewCell="1477" id="1478">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3528" id="3529">
                                             <rect key="frame" x="0.0" y="0.0" width="568" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
@@ -595,5 +598,6 @@
         <image name="Maps" width="30" height="30"/>
         <image name="EndPin" width="57" height="108"/>
         <image name="StartPin" width="57" height="108"/>
+        <image name="Menu" width="31" height="30"/>
     </resources>
 </document>
