@@ -36,7 +36,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton HomeButton { get; set; }
+        UIKit.UIBarButtonItem HomeButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -52,19 +52,15 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton RouteDetailsButton { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel SecondaryLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton SettingsButton { get; set; }
+        UIKit.UIBarButtonItem SettingsButton { get; set; }
 
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
-        partial void Home_TouchUpInside (UIKit.UIButton sender);
+        partial void Home_TouchUpInside (UIKit.UIBarButtonItem sender);
 
         void ReleaseDesignerOutlets ()
         {
@@ -111,11 +107,6 @@ namespace IndoorNavigation.iOS
             if (MapView != null) {
                 MapView.Dispose ();
                 MapView = null;
-            }
-
-            if (RouteDetailsButton != null) {
-                RouteDetailsButton.Dispose ();
-                RouteDetailsButton = null;
             }
 
             if (SecondaryLabel != null) {

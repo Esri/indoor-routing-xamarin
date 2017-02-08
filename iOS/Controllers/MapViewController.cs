@@ -96,7 +96,7 @@ namespace IndoorNavigation.iOS
             // Show home button if user has home location enabled (not set as default value)
             if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
-                this.HomeButton.Hidden = false;
+                this.HomeButton.Enabled = true;
             }
 
             // Show Current Location button if location services is enabled
@@ -243,12 +243,10 @@ namespace IndoorNavigation.iOS
             if (isRoute)
             {
                 DirectionsButton.Hidden = true;
-                RouteDetailsButton.Hidden = false;
             }
             else
             {
                 DirectionsButton.Hidden = false;
-                RouteDetailsButton.Hidden = true;
             }
 
             MainLabel.Text = mainLabel;
@@ -589,9 +587,24 @@ namespace IndoorNavigation.iOS
         /// When user taps on the home button, zoom them to the home location
         /// </summary>
         /// <param name="sender">Home button</param>
-        async partial void Home_TouchUpInside(UIButton sender)
+        async partial void Home_TouchUpInside(UIBarButtonItem sender)
         {
-            await this.ViewModel.MoveToHomeLocationAsync().ConfigureAwait(false);
+            var homeLocation = await this.ViewModel.MoveToHomeLocationAsync().ConfigureAwait(false);
+
+            if (homeLocation != null)
+            {
+                // create a picture marker symbol
+                var mapPin = this.ImageToByteArray(UIImage.FromBundle("HomePin"));
+                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+
+                // Create graphic
+                var mapPinGraphic = new Graphic(homeLocation, roomMarker);
+
+                // Add pin to map
+                var graphicsOverlay = MapView.GraphicsOverlays[0];
+                graphicsOverlay.Graphics.Clear();
+                graphicsOverlay.Graphics.Add(mapPinGraphic);
+            }
         }
     }
 }
