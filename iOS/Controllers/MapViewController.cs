@@ -9,6 +9,7 @@ namespace IndoorNavigation.iOS
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using CoreGraphics;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Mapping;
@@ -112,6 +113,18 @@ namespace IndoorNavigation.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
+            CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
+            CurrentLocationButton.Layer.ShadowRadius = 6.0f;
+            CurrentLocationButton.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            CurrentLocationButton.Layer.MasksToBounds = false;
+               
+            FloorsTableView.Layer.ShadowColor = UIColor.Gray.CGColor;
+            FloorsTableView.Layer.ShadowOpacity = 1.0f;
+            FloorsTableView.Layer.ShadowRadius = 6.0f;
+            FloorsTableView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            FloorsTableView.Layer.MasksToBounds = false;
 
             // Add a graphics overlay to hold the pins and route graphics
             this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());

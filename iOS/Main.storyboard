@@ -22,53 +22,6 @@
                                 <subviews/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
-                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="58">
-                                <rect key="frame" x="12" y="280" width="44" height="227"/>
-                                <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
-                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="cell_id" rowHeight="34" id="97">
-                                        <rect key="frame" x="0.0" y="28" width="44" height="34"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="97" id="98">
-                                            <rect key="frame" x="0.0" y="0.0" width="44" height="34"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="5" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="172">
-                                                    <rect key="frame" x="10" y="3" width="14" height="30"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="172" firstAttribute="top" secondItem="98" secondAttribute="top" constant="3" id="1544"/>
-                                                <constraint firstAttribute="trailing" secondItem="172" secondAttribute="trailing" constant="10" id="1545"/>
-                                                <constraint firstItem="172" firstAttribute="leading" secondItem="98" secondAttribute="leading" constant="10" id="1546"/>
-                                                <constraint firstAttribute="bottom" secondItem="172" secondAttribute="bottom" constant="1" id="1547"/>
-                                            </constraints>
-                                            <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                                            <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                    <real key="value" value="5"/>
-                                                </userDefinedRuntimeAttribute>
-                                            </userDefinedRuntimeAttributes>
-                                        </tableViewCellContentView>
-                                        <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                                    </tableViewCell>
-                                </prototypes>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <constraints>
-                                    <constraint id="4000" firstItem="58" firstAttribute="width" constant="44"/>
-                                    <constraint id="4001" firstAttribute="width" secondItem="58" secondAttribute="height" multiplier="44:227"/>
-                                </constraints>
-                                <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
-                                <color key="sectionIndexColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
-                            </tableView>
                             <view hidden="YES" contentMode="scaleToFill" id="2033">
                                 <rect key="frame" x="0.0" y="525" width="600" height="75"/>
                                 <subviews>
@@ -159,6 +112,38 @@
                                     <constraint id="3975" firstAttribute="height" constant="494"/>
                                 </constraints>
                             </tableView>
+                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58" misplaced="YES">
+                                <rect key="frame" x="12" y="440" width="44" height="68"/>
+                                <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
+                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="cell_id" rowHeight="34" id="97">
+                                        <rect key="frame" x="0.0" y="28" width="44" height="34"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" tableViewCell="97" id="98">
+                                            <rect key="frame" x="0.0" y="0.0" width="44" height="34"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                    <real key="value" value="5"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                        </tableViewCellContentView>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                    </tableViewCell>
+                                </prototypes>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <real key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                <color key="sectionIndexColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                <constraints>
+                                    <constraint id="4077" firstItem="58" firstAttribute="width" constant="44"/>
+                                </constraints>
+                            </tableView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3829" translatesAutoresizingMaskIntoConstraints="NO">
                                 <rect key="frame" x="0.0" y="64" width="600" height="44"/>
                                 <items>
@@ -208,8 +193,8 @@
                             <constraint id="3973" firstItem="8bC-Xf-vdC" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
                             <constraint id="3980" firstItem="49" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
                             <constraint id="3981" firstItem="1955" firstAttribute="bottom" secondItem="1808" secondAttribute="bottom" constant="110"/>
-                            <constraint id="3998" firstItem="1955" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="93"/>
-                            <constraint id="3999" firstItem="58" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="12"/>
+                            <constraint id="4073" firstItem="58" firstAttribute="centerY" secondItem="1955" secondAttribute="centerY"/>
+                            <constraint id="4074" firstItem="58" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="12"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
