@@ -257,28 +257,31 @@ namespace IndoorNavigation.iOS
         /// <param name="isRoute">If set to <c>true</c> is route.</param>
         private void ShowContactCard(string mainLabel, string secondaryLabel, bool isRoute)
         {
-            // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
-            // If the label is for the contact info, show the Directions button and fill the labels with the office info
-            if (isRoute)
+            this.InvokeOnMainThread(() =>
             {
-                DirectionsButton.Hidden = true;
-            }
-            else
-            {
-                DirectionsButton.Hidden = false;
-            }
-
-            MainLabel.Text = mainLabel;
-            SecondaryLabel.Text = secondaryLabel;
-
-            UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
+                // If the label is for the contact info, show the Directions button and fill the labels with the office info
+                if (isRoute)
                 {
-                    ContactCardView.Alpha = 1;
+                    DirectionsButton.Hidden = true;
+                }
+                else
+                {
+                    DirectionsButton.Hidden = false;
+                }
 
-                }, null);
+                MainLabel.Text = mainLabel;
+                SecondaryLabel.Text = secondaryLabel;
 
-            var buttonConstraint = 15 + ContactCardView.Frame.Height;
-            BottomConstraint.Constant = buttonConstraint;
+                UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                    {
+                        ContactCardView.Alpha = 1;
+
+                    }, null);
+
+                var buttonConstraint = 15 + ContactCardView.Frame.Height;
+                BottomConstraint.Constant = buttonConstraint;
+            });
 
         }
 
@@ -287,12 +290,15 @@ namespace IndoorNavigation.iOS
         /// </summary>
         private void HideContactCard()
         {
-            UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+            this.InvokeOnMainThread(() =>
             {
-                ContactCardView.Alpha = 0;
-                BottomConstraint.Constant = 15;
+                UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                {
+                    ContactCardView.Alpha = 0;
+        BottomConstraint.Constant = 15;
 
-            }, null);
+    }, null);
+});
         }
 
         /// <summary>
@@ -458,10 +464,11 @@ namespace IndoorNavigation.iOS
                             FloorsTableView.Source = tableSource;
                             FloorsTableView.ReloadData();
 
-                            // Auto extend ot shrink the tableview based on the content inside
-                            var frame = FloorsTableView.Frame;
-                            frame.Height = FloorsTableView.ContentSize.Height;
-                            FloorsTableView.Frame = frame;
+                            // Auto extend or shrink the tableview based on the content inside
+                            //var frame = FloorsTableView.Frame;
+                            //frame.Height = FloorsTableView.ContentSize.Height;
+                            //FloorsTableView.Frame = frame;
+                            HeightConstraint.Constant = FloorsTableView.ContentSize.Height;
 
                             if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))
                             {

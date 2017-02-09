@@ -40,6 +40,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint HeightConstraint { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem HomeButton { get; set; }
 
         [Outlet]
@@ -96,6 +100,11 @@ namespace IndoorNavigation.iOS
             if (FloorsTableView != null) {
                 FloorsTableView.Dispose ();
                 FloorsTableView = null;
+            }
+
+            if (HeightConstraint != null) {
+                HeightConstraint.Dispose ();
+                HeightConstraint = null;
             }
 
             if (HomeButton != null) {

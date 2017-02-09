@@ -112,13 +112,13 @@
                                     <constraint id="3975" firstAttribute="height" constant="494"/>
                                 </constraints>
                             </tableView>
-                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
+                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
                                 <rect key="frame" x="540" y="125" width="44" height="66"/>
                                 <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="cell_id" rowHeight="34" id="97">
-                                        <rect key="frame" x="0.0" y="28" width="44" height="34"/>
+                                        <rect key="frame" x="0.0" y="1" width="44" height="34"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" tableViewCell="97" id="98">
                                             <rect key="frame" x="0.0" y="0.0" width="44" height="34"/>
@@ -141,7 +141,8 @@
                                 <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <color key="sectionIndexColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <constraints>
-                                    <constraint id="4137" firstItem="58" firstAttribute="width" constant="44"/>
+                                    <constraint id="4167" firstAttribute="width" constant="44"/>
+                                    <constraint id="4168" firstAttribute="height" constant="66"/>
                                 </constraints>
                             </tableView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3829" translatesAutoresizingMaskIntoConstraints="NO">
@@ -193,9 +194,8 @@
                             <constraint id="3973" firstItem="8bC-Xf-vdC" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
                             <constraint id="4111" firstItem="wfy-db-euE" firstAttribute="top" secondItem="1808" secondAttribute="bottom" constant="15"/>
                             <constraint id="4112" firstItem="2033" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
-                            <constraint id="4134" firstItem="58" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="61"/>
-                            <constraint id="4135" firstItem="1808" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="394"/>
-                            <constraint id="4136" firstItem="8bC-Xf-vdC" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="16"/>
+                            <constraint id="4165" firstItem="8bC-Xf-vdC" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="16"/>
+                            <constraint id="4166" firstItem="58" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="125"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
@@ -212,6 +212,7 @@
                         <outlet property="HomeButton" destination="3837" id="name-outlet-3837"/>
                         <outlet property="SettingsButton" destination="3830" id="name-outlet-3830"/>
                         <outlet property="BottomConstraint" destination="4111" id="name-outlet-4111"/>
+                        <outlet property="HeightConstraint" destination="4168" id="name-outlet-4168"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
