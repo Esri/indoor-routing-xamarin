@@ -20,6 +20,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint BottomConstraint { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIView ContactCardView { get; set; }
 
         [Outlet]
@@ -67,6 +71,11 @@ namespace IndoorNavigation.iOS
             if (AutosuggestionsTableView != null) {
                 AutosuggestionsTableView.Dispose ();
                 AutosuggestionsTableView = null;
+            }
+
+            if (BottomConstraint != null) {
+                BottomConstraint.Dispose ();
+                BottomConstraint = null;
             }
 
             if (ContactCardView != null) {

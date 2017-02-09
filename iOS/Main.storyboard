@@ -22,7 +22,7 @@
                                 <subviews/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
-                            <view hidden="YES" contentMode="scaleToFill" id="2033">
+                            <view contentMode="scaleToFill" id="2033" opaque="NO" alpha="0">
                                 <rect key="frame" x="0.0" y="525" width="600" height="75"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Office Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2062">
@@ -74,8 +74,8 @@
                                     <constraint id="4010" firstItem="2033" firstAttribute="trailing" secondItem="2079" secondAttribute="trailing" constant="18"/>
                                 </constraints>
                             </view>
-                            <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView">
-                                <rect key="frame" x="540" y="445" width="45" height="45"/>
+                            <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView" misplaced="YES">
+                                <rect key="frame" x="540" y="542" width="45" height="45"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" customColorSpace="sRGB" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <color key="backgroundColor" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
@@ -83,15 +83,15 @@
                                     <color key="titleColor" colorSpace="calibratedRGB" red="0.10980392156862745" green="0.44705882352941179" blue="0.996078431372549" alpha="1"/>
                                     <color key="titleShadowColor" colorSpace="calibratedRGB" red="0" green="0" blue="1" alpha="1"/>
                                 </state>
-                                <constraints>
-                                    <constraint id="3982" firstItem="1808" firstAttribute="width" constant="45"/>
-                                    <constraint id="3983" firstItem="1808" firstAttribute="height" constant="45"/>
-                                </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute keyPath="layer.cornerRadius" type="number">
                                         <real key="value" value="23"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <constraints>
+                                    <constraint id="4113" firstItem="1808" firstAttribute="height" constant="45"/>
+                                    <constraint id="4114" firstItem="1808" firstAttribute="width" constant="45"/>
+                                </constraints>
                             </button>
                             <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1955">
                                 <rect key="frame" x="16" y="106" width="564" height="494"/>
@@ -112,8 +112,8 @@
                                     <constraint id="3975" firstAttribute="height" constant="494"/>
                                 </constraints>
                             </tableView>
-                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58" misplaced="YES">
-                                <rect key="frame" x="12" y="440" width="44" height="68"/>
+                            <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
+                                <rect key="frame" x="540" y="125" width="44" height="66"/>
                                 <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
@@ -141,7 +141,7 @@
                                 <color key="tintColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <color key="sectionIndexColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <constraints>
-                                    <constraint id="4077" firstItem="58" firstAttribute="width" constant="44"/>
+                                    <constraint id="4137" firstItem="58" firstAttribute="width" constant="44"/>
                                 </constraints>
                             </tableView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3829" translatesAutoresizingMaskIntoConstraints="NO">
@@ -191,10 +191,11 @@
                             <constraint id="3959" firstItem="2033" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
                             <constraint id="3972" firstItem="1955" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="16"/>
                             <constraint id="3973" firstItem="8bC-Xf-vdC" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
-                            <constraint id="3980" firstItem="49" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
-                            <constraint id="3981" firstItem="1955" firstAttribute="bottom" secondItem="1808" secondAttribute="bottom" constant="110"/>
-                            <constraint id="4073" firstItem="58" firstAttribute="centerY" secondItem="1955" secondAttribute="centerY"/>
-                            <constraint id="4074" firstItem="58" firstAttribute="leading" secondItem="49" secondAttribute="leading" constant="12"/>
+                            <constraint id="4111" firstItem="wfy-db-euE" firstAttribute="top" secondItem="1808" secondAttribute="bottom" constant="15"/>
+                            <constraint id="4112" firstItem="2033" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
+                            <constraint id="4134" firstItem="58" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="61"/>
+                            <constraint id="4135" firstItem="1808" firstAttribute="bottom" secondItem="58" secondAttribute="bottom" constant="394"/>
+                            <constraint id="4136" firstItem="8bC-Xf-vdC" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="16"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
@@ -210,6 +211,7 @@
                         <outlet property="SecondaryLabel" destination="3600" id="name-outlet-3600"/>
                         <outlet property="HomeButton" destination="3837" id="name-outlet-3837"/>
                         <outlet property="SettingsButton" destination="3830" id="name-outlet-3830"/>
+                        <outlet property="BottomConstraint" destination="4111" id="name-outlet-4111"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

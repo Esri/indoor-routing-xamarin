@@ -126,6 +126,12 @@ namespace IndoorNavigation.iOS
             FloorsTableView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
             FloorsTableView.Layer.MasksToBounds = false;
 
+            ContactCardView.Layer.ShadowColor = UIColor.Gray.CGColor;
+            ContactCardView.Layer.ShadowOpacity = 1.0f;
+            ContactCardView.Layer.ShadowRadius = 6.0f;
+            ContactCardView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            ContactCardView.Layer.MasksToBounds = false;
+
             // Add a graphics overlay to hold the pins and route graphics
             this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());
 
@@ -264,7 +270,29 @@ namespace IndoorNavigation.iOS
 
             MainLabel.Text = mainLabel;
             SecondaryLabel.Text = secondaryLabel;
-            ContactCardView.Hidden = false;
+
+            UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                {
+                    ContactCardView.Alpha = 1;
+
+                }, null);
+
+            var buttonConstraint = 15 + ContactCardView.Frame.Height;
+            BottomConstraint.Constant = buttonConstraint;
+
+        }
+
+        /// <summary>
+        /// Hides the contact card.
+        /// </summary>
+        private void HideContactCard()
+        {
+            UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+            {
+                ContactCardView.Alpha = 0;
+                BottomConstraint.Constant = 15;
+
+            }, null);
         }
 
         /// <summary>
@@ -344,7 +372,7 @@ namespace IndoorNavigation.iOS
             else
             {
                 this.MapView.GraphicsOverlays[0].Graphics.Clear();
-                this.ContactCardView.Hidden = true;
+                HideContactCard();
                 if (this.LocationSearchBar.IsFirstResponder == true)
                 {
                     this.LocationSearchBar.ResignFirstResponder();
@@ -401,7 +429,7 @@ namespace IndoorNavigation.iOS
             catch
             {
                 MapView.GraphicsOverlays[0].Graphics.Clear();
-                ContactCardView.Hidden = true;
+                HideContactCard();
             }
         }
 
