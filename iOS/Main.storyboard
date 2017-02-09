@@ -75,7 +75,7 @@
                                 </constraints>
                             </view>
                             <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView">
-                                <rect key="frame" x="540" y="540" width="45" height="45"/>
+                                <rect key="frame" x="540" y="520" width="45" height="45"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" customColorSpace="sRGB" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <color key="backgroundColor" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
@@ -113,7 +113,7 @@
                                 </constraints>
                             </tableView>
                             <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
-                                <rect key="frame" x="15" y="520" width="44" height="66"/>
+                                <rect key="frame" x="15" y="499" width="44" height="66"/>
                                 <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
@@ -192,10 +192,10 @@
                             <constraint id="3959" firstItem="2033" firstAttribute="leading" secondItem="49" secondAttribute="leading"/>
                             <constraint id="3972" firstItem="1955" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="16"/>
                             <constraint id="3973" firstItem="8bC-Xf-vdC" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
-                            <constraint id="4111" firstItem="wfy-db-euE" firstAttribute="top" secondItem="1808" secondAttribute="bottom" constant="15"/>
+                            <constraint id="4111" firstItem="wfy-db-euE" firstAttribute="top" secondItem="1808" secondAttribute="bottom" constant="35"/>
                             <constraint id="4112" firstItem="2033" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
                             <constraint id="4176" firstItem="58" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="15"/>
-                            <constraint id="4177" firstItem="wfy-db-euE" firstAttribute="top" secondItem="58" secondAttribute="bottom" constant="15"/>
+                            <constraint id="4177" firstItem="wfy-db-euE" firstAttribute="top" secondItem="58" secondAttribute="bottom" constant="35"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
@@ -418,40 +418,40 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="1476">
-                                <rect key="frame" x="15" y="110" width="568" height="490"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <searchBar tag="2" contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="2018">
+                                <rect key="frame" x="0.0" y="65" width="600" height="44"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="28" id="4186" translatesAutoresizingMaskIntoConstraints="NO" hidden="YES">
+                                <rect key="frame" x="14" y="108" width="572" height="492"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="3528">
-                                        <rect key="frame" x="0.0" y="1" width="568" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="4187" reuseIdentifier="cell_id">
+                                        <rect key="frame" x="0.0" y="1" width="572" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3528" id="3529">
-                                            <rect key="frame" x="0.0" y="0.0" width="568" height="43.5"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="4187" id="4188">
+                                            <rect key="frame" x="0.0" y="0.0" width="572" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <searchBar tag="2" contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="2018">
-                                <rect key="frame" x="0.0" y="65" width="600" height="44"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </searchBar>
                         </subviews>
                         <color key="backgroundColor" red="0.90588235294117647" green="0.90588235294117647" blue="0.90588235294117647" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="2018" firstAttribute="top" secondItem="1339" secondAttribute="bottom" constant="1" id="2019"/>
                             <constraint firstItem="2018" firstAttribute="leading" secondItem="1343" secondAttribute="leading" id="2020"/>
                             <constraint firstItem="2018" firstAttribute="trailing" secondItem="1343" secondAttribute="trailing" id="2021"/>
-                            <constraint firstItem="1476" firstAttribute="top" secondItem="2018" secondAttribute="bottom" constant="1" id="2022"/>
-                            <constraint firstItem="1476" firstAttribute="leading" secondItem="1343" secondAttribute="leading" constant="15" id="2023"/>
-                            <constraint firstAttribute="trailing" secondItem="1476" secondAttribute="trailing" constant="17" id="2024"/>
-                            <constraint firstItem="1476" firstAttribute="bottom" secondItem="1343" secondAttribute="bottom" id="2025"/>
+                            <constraint id="4189" firstItem="2018" firstAttribute="bottom" secondItem="4186" secondAttribute="top" constant="1"/>
+                            <constraint id="4190" firstItem="4186" firstAttribute="bottom" secondItem="1340" secondAttribute="top"/>
+                            <constraint id="4191" firstItem="1343" firstAttribute="trailing" secondItem="4186" secondAttribute="trailing" constant="14"/>
+                            <constraint id="4192" firstItem="4186" firstAttribute="leading" secondItem="1343" secondAttribute="leading" constant="14"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="AutosuggestionsTableView" destination="1476" id="name-outlet-1476"/>
                         <outlet property="HomeLocationSearchBar" destination="2018" id="name-outlet-2018"/>
                         <outlet property="HomeLocationView" destination="1343" id="name-outlet-1343"/>
+                        <outlet property="AutosuggestionsTableView" destination="4186" id="name-outlet-4186"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1344" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -563,33 +563,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2091" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="691" y="-3"/>
-        </scene>
-        <scene sceneID="3752">
-            <objects>
-                <tableViewController id="3753" sceneMemberID="viewController" customClass="RouteDetailController" title="Route Details">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="3754">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="3757">
-                                <rect key="frame" x="0.0" y="28" width="600" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3757" id="3758">
-                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="3753" id="3755"/>
-                            <outlet property="delegate" destination="3753" id="3756"/>
-                        </connections>
-                    </tableView>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3759" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="723" y="674"/>
         </scene>
     </scenes>
     <resources>

@@ -9,7 +9,6 @@ namespace IndoorNavigation.iOS
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using CoreGraphics;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Mapping;
@@ -90,9 +89,10 @@ namespace IndoorNavigation.iOS
         /// <param name="animated">If set to <c>true</c> animated.</param>
         public override void ViewWillAppear(bool animated)
         {
+            base.ViewWillAppear(animated);
+
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = true;
-            base.ViewWillAppear(animated);
 
             // Show home button if user has home location enabled (not set as default value)
             if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
@@ -104,6 +104,15 @@ namespace IndoorNavigation.iOS
             if (!AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
                 this.CurrentLocationButton.Hidden = false;
+            }
+        }
+
+        public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
+        {
+            base.ViewWillTransitionToSize(toSize, coordinator);
+                if (UIDevice.CurrentDevice.Orientation.IsLandscape())
+            {
+                var x = 1;
             }
         }
 
@@ -119,7 +128,7 @@ namespace IndoorNavigation.iOS
             CurrentLocationButton.Layer.ShadowRadius = 6.0f;
             CurrentLocationButton.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
             CurrentLocationButton.Layer.MasksToBounds = false;
-               
+
             FloorsTableView.Layer.ShadowColor = UIColor.Gray.CGColor;
             FloorsTableView.Layer.ShadowOpacity = 1.0f;
             FloorsTableView.Layer.ShadowRadius = 6.0f;
@@ -285,7 +294,7 @@ namespace IndoorNavigation.iOS
 
                     }, null);
 
-                var buttonConstraint = 15 + ContactCardView.Frame.Height;
+                var buttonConstraint = 35 + ContactCardView.Frame.Height;
                 ButtonBottomConstraint.Constant = buttonConstraint;
                 FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
@@ -299,14 +308,14 @@ namespace IndoorNavigation.iOS
         {
             this.InvokeOnMainThread(() =>
             {
-                UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
                 {
                     ContactCardView.Alpha = 0;
-                    ButtonBottomConstraint.Constant = 15;
-                    FloorPickerBottomConstraint.Constant = 15;
+                    ButtonBottomConstraint.Constant = 35;
+                    FloorPickerBottomConstraint.Constant = 35;
 
-    }, null);
-});
+                }, null);
+            });
         }
 
         /// <summary>
@@ -385,8 +394,54 @@ namespace IndoorNavigation.iOS
             }    
             else
             {
-                this.MapView.GraphicsOverlays[0].Graphics.Clear();
-                HideContactCard();
+                // get the tap location in screen unit
+                var tapScreenPoint = e.Position;
+
+                var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
+                var pixelTolerance = 20;
+                var returnPopupsOnly = false;
+                var maxResults = 1;
+
+                try
+                {
+                    // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
+                    IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                    // create a picture marker symbol
+                    var mapPin = this.ImageToByteArray(UIImage.FromBundle("EndPin"));
+                    var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+
+                    // Create graphic
+                    var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+
+                    // Add pin to mapview
+                    var graphicsOverlay = this.MapView.GraphicsOverlays[0];
+                    graphicsOverlay.Graphics.Clear();
+                    graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+                    // Get room attribute from the settings. First attribute should be set as the searcheable on
+                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                    var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
+                    var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
+
+                    if (roomNumber != null)
+                    {
+                        var employeeNameLabel = employeeName ?? string.Empty;
+                        this.ShowContactCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
+                    }
+                    else
+                    {
+                        MapView.GraphicsOverlays[0].Graphics.Clear();
+                        HideContactCard();
+                    }
+                }
+                catch
+                {
+                    MapView.GraphicsOverlays[0].Graphics.Clear();
+                    HideContactCard();
+                }
+
                 if (this.LocationSearchBar.IsFirstResponder == true)
                 {
                     this.LocationSearchBar.ResignFirstResponder();
@@ -404,47 +459,7 @@ namespace IndoorNavigation.iOS
             // Override default behavior
             e.Handled = true;
 
-            // get the tap hold location in screen unit
-            var tapScreenPoint = e.Position;
-
-            var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-            var pixelTolerance = 20;
-            var returnPopupsOnly = false;
-            var maxResults = 1;
-
-            try
-            {
-                // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
-                IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
-
-                // create a picture marker symbol
-                var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
-                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-
-                // Create graphic
-                var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
-
-                // Add pin to mapview
-                var graphicsOverlay = this.MapView.GraphicsOverlays[0];
-                graphicsOverlay.Graphics.Clear();
-                graphicsOverlay.Graphics.Add(mapPinGraphic);
-
-                // Get room attribute from the settings. First attribute should be set as the searcheable on
-                var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
-                var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
-
-                var roomNumberLabel = roomNumber ?? string.Empty;
-                var employeeNameLabel = employeeName ?? string.Empty;
-
-                this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
-            }
-            catch
-            {
-                MapView.GraphicsOverlays[0].Graphics.Clear();
-                HideContactCard();
-            }
+            // TODO: Make map full screen
         }
 
         /// <summary>
@@ -657,6 +672,7 @@ namespace IndoorNavigation.iOS
                 var graphicsOverlay = MapView.GraphicsOverlays[0];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
+                HideContactCard();
             }
         }
     }

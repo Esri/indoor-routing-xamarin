@@ -202,10 +202,6 @@
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
-    <Compile Include="Controllers\RouteDetailController.cs" />
-    <Compile Include="Controllers\RouteDetailController.designer.cs">
-      <DependentUpon>RouteDetailController.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
