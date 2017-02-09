@@ -74,8 +74,8 @@
                                     <constraint id="4010" firstItem="2033" firstAttribute="trailing" secondItem="2079" secondAttribute="trailing" constant="18"/>
                                 </constraints>
                             </view>
-                            <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView" misplaced="YES">
-                                <rect key="frame" x="540" y="542" width="45" height="45"/>
+                            <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView">
+                                <rect key="frame" x="540" y="540" width="45" height="45"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" customColorSpace="sRGB" colorSpace="calibratedWhite" white="1" alpha="1"/>
                                 <color key="backgroundColor" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
@@ -113,7 +113,7 @@
                                 </constraints>
                             </tableView>
                             <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
-                                <rect key="frame" x="540" y="125" width="44" height="66"/>
+                                <rect key="frame" x="15" y="520" width="44" height="66"/>
                                 <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
@@ -194,8 +194,8 @@
                             <constraint id="3973" firstItem="8bC-Xf-vdC" firstAttribute="bottom" secondItem="1955" secondAttribute="bottom"/>
                             <constraint id="4111" firstItem="wfy-db-euE" firstAttribute="top" secondItem="1808" secondAttribute="bottom" constant="15"/>
                             <constraint id="4112" firstItem="2033" firstAttribute="trailing" secondItem="1808" secondAttribute="trailing" constant="15"/>
-                            <constraint id="4165" firstItem="8bC-Xf-vdC" firstAttribute="trailing" secondItem="58" secondAttribute="trailing" constant="16"/>
-                            <constraint id="4166" firstItem="58" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="125"/>
+                            <constraint id="4176" firstItem="58" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="15"/>
+                            <constraint id="4177" firstItem="wfy-db-euE" firstAttribute="top" secondItem="58" secondAttribute="bottom" constant="15"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
@@ -211,8 +211,10 @@
                         <outlet property="SecondaryLabel" destination="3600" id="name-outlet-3600"/>
                         <outlet property="HomeButton" destination="3837" id="name-outlet-3837"/>
                         <outlet property="SettingsButton" destination="3830" id="name-outlet-3830"/>
-                        <outlet property="BottomConstraint" destination="4111" id="name-outlet-4111"/>
+                        <outlet property="ButtonBottomConstraint" destination="4111" id="name-outlet-4111"/>
                         <outlet property="HeightConstraint" destination="4168" id="name-outlet-4168"/>
+                        <outlet property="FloorPickerBottomConstraint" destination="4177" id="name-outlet-4177"/>
+                        <outlet property="SearchToolbar" destination="3829" id="name-outlet-3829"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

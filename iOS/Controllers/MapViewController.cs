@@ -132,6 +132,12 @@ namespace IndoorNavigation.iOS
             ContactCardView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
             ContactCardView.Layer.MasksToBounds = false;
 
+            SearchToolbar.Layer.ShadowColor = UIColor.Gray.CGColor;
+            SearchToolbar.Layer.ShadowOpacity = 1.0f;
+            SearchToolbar.Layer.ShadowRadius = 6.0f;
+            SearchToolbar.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            SearchToolbar.Layer.MasksToBounds = false;
+
             // Add a graphics overlay to hold the pins and route graphics
             this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());
 
@@ -280,7 +286,8 @@ namespace IndoorNavigation.iOS
                     }, null);
 
                 var buttonConstraint = 15 + ContactCardView.Frame.Height;
-                BottomConstraint.Constant = buttonConstraint;
+                ButtonBottomConstraint.Constant = buttonConstraint;
+                FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
 
         }
@@ -295,7 +302,8 @@ namespace IndoorNavigation.iOS
                 UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
                 {
                     ContactCardView.Alpha = 0;
-        BottomConstraint.Constant = 15;
+                    ButtonBottomConstraint.Constant = 15;
+                    FloorPickerBottomConstraint.Constant = 15;
 
     }, null);
 });
@@ -464,10 +472,7 @@ namespace IndoorNavigation.iOS
                             FloorsTableView.Source = tableSource;
                             FloorsTableView.ReloadData();
 
-                            // Auto extend or shrink the tableview based on the content inside
-                            //var frame = FloorsTableView.Frame;
-                            //frame.Height = FloorsTableView.ContentSize.Height;
-                            //FloorsTableView.Frame = frame;
+                            // Set height constraint based on content inside table
                             HeightConstraint.Constant = FloorsTableView.ContentSize.Height;
 
                             if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))

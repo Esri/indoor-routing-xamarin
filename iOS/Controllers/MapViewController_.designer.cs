@@ -20,7 +20,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.NSLayoutConstraint BottomConstraint { get; set; }
+        UIKit.NSLayoutConstraint ButtonBottomConstraint { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -33,6 +33,10 @@ namespace IndoorNavigation.iOS
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIButton DirectionsButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint FloorPickerBottomConstraint { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -60,6 +64,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIToolbar SearchToolbar { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel SecondaryLabel { get; set; }
 
         [Outlet]
@@ -77,9 +85,9 @@ namespace IndoorNavigation.iOS
                 AutosuggestionsTableView = null;
             }
 
-            if (BottomConstraint != null) {
-                BottomConstraint.Dispose ();
-                BottomConstraint = null;
+            if (ButtonBottomConstraint != null) {
+                ButtonBottomConstraint.Dispose ();
+                ButtonBottomConstraint = null;
             }
 
             if (ContactCardView != null) {
@@ -95,6 +103,11 @@ namespace IndoorNavigation.iOS
             if (DirectionsButton != null) {
                 DirectionsButton.Dispose ();
                 DirectionsButton = null;
+            }
+
+            if (FloorPickerBottomConstraint != null) {
+                FloorPickerBottomConstraint.Dispose ();
+                FloorPickerBottomConstraint = null;
             }
 
             if (FloorsTableView != null) {
@@ -125,6 +138,11 @@ namespace IndoorNavigation.iOS
             if (MapView != null) {
                 MapView.Dispose ();
                 MapView = null;
+            }
+
+            if (SearchToolbar != null) {
+                SearchToolbar.Dispose ();
+                SearchToolbar = null;
             }
 
             if (SecondaryLabel != null) {
