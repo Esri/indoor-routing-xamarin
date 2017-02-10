@@ -107,14 +107,14 @@ namespace IndoorNavigation.iOS
             }
         }
 
-        public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
-        {
-            base.ViewWillTransitionToSize(toSize, coordinator);
-                if (UIDevice.CurrentDevice.Orientation.IsLandscape())
-            {
-                var x = 1;
-            }
-        }
+        // TODO: implement max size for floor picker when phone is in landscape mode
+        ////public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
+        ////{
+        ////    base.ViewWillTransitionToSize(toSize, coordinator);
+        ////        if (UIDevice.CurrentDevice.Orientation.IsLandscape())
+        ////    {         
+        ////    }
+        ////}
 
         /// <summary>
         /// Overrides default behavior when view has loaded. 
@@ -123,29 +123,29 @@ namespace IndoorNavigation.iOS
         {
             base.ViewDidLoad();
 
-            CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
-            CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
-            CurrentLocationButton.Layer.ShadowRadius = 6.0f;
-            CurrentLocationButton.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            CurrentLocationButton.Layer.MasksToBounds = false;
+            this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
+            this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
+            this.CurrentLocationButton.Layer.ShadowRadius = 6.0f;
+            this.CurrentLocationButton.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            this.CurrentLocationButton.Layer.MasksToBounds = false;
 
-            FloorsTableView.Layer.ShadowColor = UIColor.Gray.CGColor;
-            FloorsTableView.Layer.ShadowOpacity = 1.0f;
-            FloorsTableView.Layer.ShadowRadius = 6.0f;
-            FloorsTableView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            FloorsTableView.Layer.MasksToBounds = false;
+            this.FloorsTableView.Layer.ShadowColor = UIColor.Gray.CGColor;
+            this.FloorsTableView.Layer.ShadowOpacity = 1.0f;
+            this.FloorsTableView.Layer.ShadowRadius = 6.0f;
+            this.FloorsTableView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            this.FloorsTableView.Layer.MasksToBounds = false;
 
-            ContactCardView.Layer.ShadowColor = UIColor.Gray.CGColor;
-            ContactCardView.Layer.ShadowOpacity = 1.0f;
-            ContactCardView.Layer.ShadowRadius = 6.0f;
-            ContactCardView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            ContactCardView.Layer.MasksToBounds = false;
+            this.ContactCardView.Layer.ShadowColor = UIColor.Gray.CGColor;
+            this.ContactCardView.Layer.ShadowOpacity = 1.0f;
+            this.ContactCardView.Layer.ShadowRadius = 6.0f;
+            this.ContactCardView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            this.ContactCardView.Layer.MasksToBounds = false;
 
-            SearchToolbar.Layer.ShadowColor = UIColor.Gray.CGColor;
-            SearchToolbar.Layer.ShadowOpacity = 1.0f;
-            SearchToolbar.Layer.ShadowRadius = 6.0f;
-            SearchToolbar.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            SearchToolbar.Layer.MasksToBounds = false;
+            this.SearchToolbar.Layer.ShadowColor = UIColor.Gray.CGColor;
+            this.SearchToolbar.Layer.ShadowOpacity = 1.0f;
+            this.SearchToolbar.Layer.ShadowRadius = 6.0f;
+            this.SearchToolbar.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
+            this.SearchToolbar.Layer.MasksToBounds = false;
 
             // Add a graphics overlay to hold the pins and route graphics
             this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());
@@ -256,10 +256,10 @@ namespace IndoorNavigation.iOS
 
                     var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
 
-                    MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
-                    MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
-                    MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
-                    await MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                    this.MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
+                    this.MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
+                    this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
+                    await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                 }
             }
         }
@@ -288,17 +288,20 @@ namespace IndoorNavigation.iOS
                 MainLabel.Text = mainLabel;
                 SecondaryLabel.Text = secondaryLabel;
 
-                UIView.Transition(ContactCardView, 0.2, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                UIView.Transition(
+                    ContactCardView, 
+                    0.2, 
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
+                    () =>
                     {
                         ContactCardView.Alpha = 1;
-
-                    }, null);
+                    }, 
+                    null);
 
                 var buttonConstraint = 35 + ContactCardView.Frame.Height;
                 ButtonBottomConstraint.Constant = buttonConstraint;
                 FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
-
         }
 
         /// <summary>
@@ -313,7 +316,6 @@ namespace IndoorNavigation.iOS
                     ContactCardView.Alpha = 0;
                     ButtonBottomConstraint.Constant = 35;
                     FloorPickerBottomConstraint.Constant = 35;
-
                 }, null);
             });
         }
@@ -433,13 +435,13 @@ namespace IndoorNavigation.iOS
                     else
                     {
                         MapView.GraphicsOverlays[0].Graphics.Clear();
-                        HideContactCard();
+                        this.HideContactCard();
                     }
                 }
                 catch
                 {
                     MapView.GraphicsOverlays[0].Graphics.Clear();
-                    HideContactCard();
+                    this.HideContactCard();
                 }
 
                 if (this.LocationSearchBar.IsFirstResponder == true)
@@ -672,7 +674,7 @@ namespace IndoorNavigation.iOS
                 var graphicsOverlay = MapView.GraphicsOverlays[0];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
-                HideContactCard();
+                this.HideContactCard();
             }
         }
     }

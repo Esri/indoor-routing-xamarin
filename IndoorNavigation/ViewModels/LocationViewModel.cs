@@ -4,7 +4,6 @@
 // <author>Mara Stoica</author>
 namespace IndoorNavigation
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -79,7 +78,6 @@ namespace IndoorNavigation
                 await locator.LoadAsync();
                 var locatorInfo = locator.LocatorInfo;
 
-
                 if (locatorInfo.SupportsSuggestions)
                 {
                     // restrict the search to return no more than 10 suggestions
@@ -94,26 +92,8 @@ namespace IndoorNavigation
             {
                 return null;
             }
+
             return null;
-        }
-
-        /// <summary>
-        /// Formats the string for query.
-        /// </summary>
-        /// <returns>The formatted string.</returns>
-        /// <param name="searchString">String to be formatted.</param>
-        private string FormatStringForQuery(string searchString)
-        {
-            if (searchString.Contains("'"))
-            {
-                var newSearchString = searchString.Replace("'", "''");
-                return newSearchString;
-            }
-
-            else
-            {
-                return searchString;
-            }
         }
 
         /// <summary>
@@ -128,8 +108,7 @@ namespace IndoorNavigation
             var roomsTable = roomsLayer.FeatureTable;
 
             // Fix the search string if it contains a '
-
-            var formattedSearchString =  FormatStringForQuery(searchString);
+            var formattedSearchString = this.FormatStringForQuery(searchString);
 
             // Set query parametersin 
             var queryParams = new QueryParameters()
@@ -155,7 +134,7 @@ namespace IndoorNavigation
             var locator = this.Mmpk.LocatorTask;
             await locator.LoadAsync();
             var locatorInfo = locator.LocatorInfo;
-            var formattedSearchString = FormatStringForQuery(searchString);
+            var formattedSearchString = this.FormatStringForQuery(searchString);
 
             try
             {
@@ -181,7 +160,7 @@ namespace IndoorNavigation
             var roomsLayer = this.Mmpk.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
             var roomsTable = roomsLayer.FeatureTable;
 
-            var formattedSearchString = FormatStringForQuery(searchString);
+            var formattedSearchString = this.FormatStringForQuery(searchString);
 
             // Set query parametersin 
             var queryParams = new QueryParameters()
@@ -216,6 +195,7 @@ namespace IndoorNavigation
             // Explicitly set values for some params
             // Indoor networks do not support turn by turn navigation
             routeParams.ReturnRoutes = true;
+            routeParams.ReturnDirections = true;
 
             // Create stops
             var startPoint = new Stop(fromLocation);
@@ -228,6 +208,24 @@ namespace IndoorNavigation
             var routeResult = await routeTask.SolveRouteAsync(routeParams);
 
             return routeResult;
+        }
+
+        /// <summary>
+        /// Formats the string for query.
+        /// </summary>
+        /// <returns>The formatted string.</returns>
+        /// <param name="searchString">String to be formatted.</param>
+        private string FormatStringForQuery(string searchString)
+        {
+            if (searchString.Contains("'"))
+            {
+                var newSearchString = searchString.Replace("'", "''");
+                return newSearchString;
+            }
+            else
+            {
+                return searchString;
+            }
         }
     }
 }

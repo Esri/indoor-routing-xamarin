@@ -106,16 +106,16 @@ namespace IndoorNavigation.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            HomeLocationSearchBar.BecomeFirstResponder();
+            this.HomeLocationSearchBar.BecomeFirstResponder();
 
             // Set text changed event on the search bar
-            HomeLocationSearchBar.TextChanged += async (sender, e) =>
+            this.HomeLocationSearchBar.TextChanged += async (sender, e) =>
             {
                 // This is the method that is called when the user searchess
                 await GetSuggestionsFromLocatorAsync();
             };
 
-            HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
+            this.HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
             {
                 var locationText = ((UISearchBar)sender).Text;
                 await SetHomeLocationAsync(locationText);
@@ -128,21 +128,21 @@ namespace IndoorNavigation.iOS
         /// <returns>Async task</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
+            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(this.HomeLocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                AutosuggestionsTableView.Hidden = true;
+                this.AutosuggestionsTableView.Hidden = true;
             }
 
             // Only show the floors tableview if the buildings in view have more than one floor
             if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                AutosuggestionsTableView.Hidden = false;
+                this.AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.TableSource_TableRowSelected;
-                AutosuggestionsTableView.Source = tableSource;
-                AutosuggestionsTableView.ReloadData();
+                this.AutosuggestionsTableView.Source = tableSource;
+                this.AutosuggestionsTableView.ReloadData();
             }
         }
 
@@ -154,7 +154,7 @@ namespace IndoorNavigation.iOS
         private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            HomeLocationSearchBar.Text = selectedItem.Label;
+            this.HomeLocationSearchBar.Text = selectedItem.Label;
             await this.SetHomeLocationAsync(selectedItem.Label);
         }
 
