@@ -183,7 +183,7 @@ namespace IndoorNavigation
         /// Moves map to home location.
         /// </summary>
         /// <returns>The viewpoint with coordinates for the home location.</returns>
-        internal async Task MoveToHomeLocationAsync()
+        internal async Task<MapPoint> MoveToHomeLocationAsync()
         {
         this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
            
@@ -208,6 +208,7 @@ namespace IndoorNavigation
             }
 
             Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference((int)wkid)), 150);
+            return new MapPoint(x, y);
         }
 
         /// <summary>

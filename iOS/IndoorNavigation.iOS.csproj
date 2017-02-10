@@ -91,7 +91,7 @@
     <Reference Include="Xamarin.iOS" />
     <Reference Include="OpenTK-1.0" />
     <Reference Include="Esri.ArcGISRuntime">
-      <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
+      <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0.1\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -202,14 +202,9 @@
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
-    <Compile Include="Controllers\RouteDetailController.cs" />
-    <Compile Include="Controllers\RouteDetailController.designer.cs">
-      <DependentUpon>RouteDetailController.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <Import Project="..\IndoorNavigation\IndoorNavigation.projitems" Label="Shared" Condition="Exists('..\IndoorNavigation\IndoorNavigation.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
-  <Import Project="..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets" Condition="Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" />
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
@@ -220,4 +215,5 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <Import Project="..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0.1\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets" Condition="Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.0.0.1\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" />
 </Project>

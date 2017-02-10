@@ -116,7 +116,6 @@ namespace IndoorNavigation.iOS
                             RetryButton.Hidden = true;
                         });
                     }
-
                     else
                     {
                         this.InvokeOnMainThread(() =>
@@ -134,7 +133,7 @@ namespace IndoorNavigation.iOS
 
                 case "IsReady":
                     {
-                        InvokeOnMainThread(() => this.LoadMapView());
+                        this.InvokeOnMainThread(() => this.LoadMapView());
                     }
 
                     break;

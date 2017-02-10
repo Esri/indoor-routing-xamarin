@@ -20,6 +20,10 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint ButtonBottomConstraint { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIView ContactCardView { get; set; }
 
         [Outlet]
@@ -32,11 +36,19 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint FloorPickerBottomConstraint { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView FloorsTableView { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton HomeButton { get; set; }
+        UIKit.NSLayoutConstraint HeightConstraint { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIBarButtonItem HomeButton { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -52,7 +64,7 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton RouteDetailsButton { get; set; }
+        UIKit.UIToolbar SearchToolbar { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -60,17 +72,22 @@ namespace IndoorNavigation.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIButton SettingsButton { get; set; }
+        UIKit.UIBarButtonItem SettingsButton { get; set; }
 
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
-        partial void Home_TouchUpInside (UIKit.UIButton sender);
+        partial void Home_TouchUpInside (UIKit.UIBarButtonItem sender);
 
         void ReleaseDesignerOutlets ()
         {
             if (AutosuggestionsTableView != null) {
                 AutosuggestionsTableView.Dispose ();
                 AutosuggestionsTableView = null;
+            }
+
+            if (ButtonBottomConstraint != null) {
+                ButtonBottomConstraint.Dispose ();
+                ButtonBottomConstraint = null;
             }
 
             if (ContactCardView != null) {
@@ -88,9 +105,19 @@ namespace IndoorNavigation.iOS
                 DirectionsButton = null;
             }
 
+            if (FloorPickerBottomConstraint != null) {
+                FloorPickerBottomConstraint.Dispose ();
+                FloorPickerBottomConstraint = null;
+            }
+
             if (FloorsTableView != null) {
                 FloorsTableView.Dispose ();
                 FloorsTableView = null;
+            }
+
+            if (HeightConstraint != null) {
+                HeightConstraint.Dispose ();
+                HeightConstraint = null;
             }
 
             if (HomeButton != null) {
@@ -113,9 +140,9 @@ namespace IndoorNavigation.iOS
                 MapView = null;
             }
 
-            if (RouteDetailsButton != null) {
-                RouteDetailsButton.Dispose ();
-                RouteDetailsButton = null;
+            if (SearchToolbar != null) {
+                SearchToolbar.Dispose ();
+                SearchToolbar = null;
             }
 
             if (SecondaryLabel != null) {

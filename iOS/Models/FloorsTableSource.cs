@@ -84,9 +84,7 @@ namespace IndoorNavigation.iOS
             try
             {
                 var item = this.items.ElementAt(indexPath.Row);
-
-                var label = (UILabel)cell.ContentView.ViewWithTag(10);
-                label.Text = item;
+                cell.TextLabel.Text = item;
 
                 return cell;
             }

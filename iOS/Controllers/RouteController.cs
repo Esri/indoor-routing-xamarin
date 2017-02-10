@@ -95,68 +95,6 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
-        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
-        /// </summary>
-        /// <returns>The suggestions from locator async.</returns>
-        /// <param name="searchText">Search text.</param>
-        /// <param name="startSearchBarFlag">If set to <c>true</c> start search bar flag.</param>
-        private async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
-        {
-            this.startSearchBarFlag = startSearchBarFlag;
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(searchText);
-
-            //var suggestions = await LocationViewModel.GetLocationSuggestionsAsync(searchText);
-            if (suggestions == null || suggestions.Count == 0)
-            {
-                AutosuggestionsTableView.Hidden = true;
-            }
-
-            // Only show the floors tableview if the buildings in view have more than one floor
-            if (suggestions.Count > 0)
-            {
-                // Show the tableview with autosuggestions and populate it
-                AutosuggestionsTableView.Hidden = false;
-                var tableSource = new AutosuggestionsTableSource(suggestions);
-                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
-                AutosuggestionsTableView.Source = tableSource;
-
-                AutosuggestionsTableView.ReloadData();
-
-                // Auto extend or shrink the tableview based on the content inside
-                var frame = AutosuggestionsTableView.Frame;
-                frame.Height = AutosuggestionsTableView.ContentSize.Height;
-                AutosuggestionsTableView.Frame = frame;
-            }
-        }
-
-        /// <summary>
-        /// Get the value selected in the Autosuggestions Table
-        /// </summary>
-        /// <param name="sender">Sender.</param>
-        /// <param name="e">E.</param>
-        async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
-        {
-            var selectedItem = e.SelectedItem;
-
-            // Test which search box the initial request came from
-            if (this.startSearchBarFlag == true)
-            {
-                StartSearchBar.Text = selectedItem.Label;
-                this.StartLocation = selectedItem.Label;
-                StartSearchBar.ResignFirstResponder();
-            }
-            else
-            {
-                EndSearchBar.Text = selectedItem.Label;
-                this.EndLocation = selectedItem.Label;
-                EndSearchBar.ResignFirstResponder();
-            }
-
-            // Dismiss autosuggest table and keyboard
-            AutosuggestionsTableView.Hidden = true;
-        }
-
-        /// <summary>
         /// Prepares for segueto go back to the Main View Controller. This segue is initiated by the Route button
         /// </summary>
         /// <param name="segue">Segue control.</param>
@@ -184,11 +122,72 @@ namespace IndoorNavigation.iOS
 
                     mapViewController.Route = route;
                 }
-                catch 
-                { 
-                    mapViewController.Route = null; 
+                catch
+                {
+                    mapViewController.Route = null;
                 }
             }
+        }
+
+        /// <summary>
+        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
+        /// </summary>
+        /// <returns>The suggestions from locator async.</returns>
+        /// <param name="searchText">Search text.</param>
+        /// <param name="startSearchBarFlag">If set to <c>true</c> start search bar flag.</param>
+        private async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
+        {
+            this.startSearchBarFlag = startSearchBarFlag;
+            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(searchText);
+
+            if (suggestions == null || suggestions.Count == 0)
+            {
+                AutosuggestionsTableView.Hidden = true;
+            }
+
+            // Only show the floors tableview if the buildings in view have more than one floor
+            if (suggestions.Count > 0)
+            {
+                // Show the tableview with autosuggestions and populate it
+                AutosuggestionsTableView.Hidden = false;
+                var tableSource = new AutosuggestionsTableSource(suggestions);
+                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
+                AutosuggestionsTableView.Source = tableSource;
+
+                AutosuggestionsTableView.ReloadData();
+
+                // Auto extend or shrink the tableview based on the content inside
+                var frame = AutosuggestionsTableView.Frame;
+                frame.Height = AutosuggestionsTableView.ContentSize.Height;
+                AutosuggestionsTableView.Frame = frame;
+            }
+        }
+
+        /// <summary>
+        /// Get the value selected in the Autosuggestions Table
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
+        /// <param name="e">Event args.</param>
+        private void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+        {
+            var selectedItem = e.SelectedItem;
+
+            // Test which search box the initial request came from
+            if (this.startSearchBarFlag == true)
+            {
+                StartSearchBar.Text = selectedItem.Label;
+                this.StartLocation = selectedItem.Label;
+                StartSearchBar.ResignFirstResponder();
+            }
+            else
+            {
+                EndSearchBar.Text = selectedItem.Label;
+                this.EndLocation = selectedItem.Label;
+                EndSearchBar.ResignFirstResponder();
+            }
+
+            // Dismiss autosuggest table and keyboard
+            AutosuggestionsTableView.Hidden = true;
         }
     }
 }
