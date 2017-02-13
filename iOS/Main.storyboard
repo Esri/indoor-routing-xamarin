@@ -74,7 +74,7 @@
                                     <constraint id="4010" firstItem="2033" firstAttribute="trailing" secondItem="2079" secondAttribute="trailing" constant="18"/>
                                 </constraints>
                             </view>
-                            <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView">
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1808" key="tableHeaderView" hidden="YES">
                                 <rect key="frame" x="540" y="520" width="45" height="45"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="tintColor" customColorSpace="sRGB" colorSpace="calibratedWhite" white="1" alpha="1"/>

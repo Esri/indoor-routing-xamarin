@@ -268,17 +268,21 @@ namespace IndoorNavigation
         }
 
         /// <summary>
-        /// Saves the settings.
+        /// Saves the settings. If error occurs settings are not saved but application does not stop
         /// </summary>
         /// <param name="filePath">File path.</param>
         internal static void SaveSettings(string filePath)
         {
-            var serializer = new XmlSerializer(typeof(AppSettings));
-
-            using (var fileStream = new FileStream(filePath, FileMode.Open))
+            try
             {
-                serializer.Serialize(fileStream, CurrentSettings);
+                var serializer = new XmlSerializer(typeof(AppSettings));
+
+                using (var fileStream = new FileStream(filePath, FileMode.Open))
+                {
+                    serializer.Serialize(fileStream, CurrentSettings);
+                }
             }
+            catch { }
         }
     }
 }

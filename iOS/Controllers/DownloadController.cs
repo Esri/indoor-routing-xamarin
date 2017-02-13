@@ -6,7 +6,7 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.ComponentModel;
-    using System.IO;    using System.Threading.Tasks;
+    using System.IO;
     using Foundation;
     using UIKit;
 
@@ -18,7 +18,7 @@ namespace IndoorNavigation.iOS
         /// <summary>
         /// Unique identifier for the download session.
         /// </summary>
-        private const string SessionId = "com.esri.indoornavsession";
+        private const string SessionId = "com.esri.indoorroutesession";
 
         /// <summary>
         /// Session used for transfer.

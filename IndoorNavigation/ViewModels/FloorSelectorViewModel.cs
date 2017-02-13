@@ -25,35 +25,50 @@ namespace IndoorNavigation
         {
             // Run query to get all the polygons in the visible area
             var roomsLayer = mapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
-            var roomsTable = roomsLayer.FeatureTable;
 
-            // Set query parameters
-            var queryParams = new QueryParameters()
+            if (roomsLayer != null)
             {
-                ReturnGeometry = false,
-                Geometry = mapView.VisibleArea
-            };
-
-            // Query the feature table 
-            var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
-
-            // Group by floors to get the distinct list of floors in the table selection
-            var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName])
-                                            .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
-
-            var tableItems = new List<string>();
-            if (distinctFloors != null)
-            {
-                foreach (var item in distinctFloors)
+                try
                 {
-                    tableItems.Add(item.ToString());
+                    var roomsTable = roomsLayer.FeatureTable;
+
+                    // Set query parameters
+                    var queryParams = new QueryParameters()
+                    {
+                        ReturnGeometry = false,
+                        Geometry = mapView.VisibleArea
+                    };
+
+                    // Query the feature table 
+                    var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+
+                    // Group by floors to get the distinct list of floors in the table selection
+                    var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName])
+                                                    .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
+
+                    var tableItems = new List<string>();
+                    if (distinctFloors != null)
+                    {
+                        foreach (var item in distinctFloors)
+                        {
+                            tableItems.Add(item.ToString());
+                        }
+
+                        // Sort list so floors show up in order
+                        // Depending on the floors in your building, you might need to create a more complex sorting algorithm
+                        tableItems.Sort();
+
+                        return tableItems.ToArray();
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
-
-                // Sort list so floors show up in order
-                // Depending on the floors in your building, you might need to create a more complex sorting algorithm
-                tableItems.Sort();
-
-                return tableItems.ToArray();
+                catch
+                {
+                    return null;
+                }
             }
             else
             {

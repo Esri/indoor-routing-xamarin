@@ -154,8 +154,11 @@ namespace IndoorNavigation.iOS
         private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            this.HomeLocationSearchBar.Text = selectedItem.Label;
-            await this.SetHomeLocationAsync(selectedItem.Label);
+            if (selectedItem != null)
+            {
+                this.HomeLocationSearchBar.Text = selectedItem.Label;
+                await this.SetHomeLocationAsync(selectedItem.Label);
+            }
         }
 
         /// <summary>

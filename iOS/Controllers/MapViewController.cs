@@ -101,13 +101,13 @@ namespace IndoorNavigation.iOS
             }
 
             // Show Current Location button if location services is enabled
-            if (!AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
                 this.CurrentLocationButton.Hidden = false;
             }
         }
 
-        // TODO: implement max size for floor picker when phone is in landscape mode
+        // TODO: implement max size for floor picker 
         ////public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
         ////{
         ////    base.ViewWillTransitionToSize(toSize, coordinator);
@@ -148,7 +148,9 @@ namespace IndoorNavigation.iOS
             this.SearchToolbar.Layer.MasksToBounds = false;
 
             // Add a graphics overlay to hold the pins and route graphics
-            this.MapView.GraphicsOverlays.Add(new GraphicsOverlay());
+            var pinsGraphicOverlay = new GraphicsOverlay();
+            pinsGraphicOverlay.Id = "PinsGraphicsOverlay";
+            this.MapView.GraphicsOverlays.Add(pinsGraphicOverlay);
 
             // TODO: The comments below were added on January 24. Check to see if the last letter disappears. 
             // Handle the user moving the map 
@@ -261,6 +263,10 @@ namespace IndoorNavigation.iOS
                     this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
                     await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                 }
+                else
+                {
+                    this.ShowContactCard("Routing Error", "Please retry route", true);
+                }
             }
         }
 
@@ -344,6 +350,19 @@ namespace IndoorNavigation.iOS
                     }
 
                     break;
+                case "ErrorMessage":
+                    if (this.ViewModel.ErrorMessage != null)
+                    {
+                        this.InvokeOnMainThread(() =>
+                        {
+                            var alertController = UIAlertController.Create("Error", this.ViewModel.ErrorMessage, UIAlertControllerStyle.Alert);
+                            alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+
+                            //Present Alert
+                            this.PresentViewController(alertController, true, null);
+                        });
+                    }
+                    break;
             }
         }
 
@@ -387,8 +406,8 @@ namespace IndoorNavigation.iOS
             // Wait for double tap to fire
             await Task.Delay(500);
 
-            // If view has been double tapped, set tapped to handled and flag back to fals
-            // If view has been tapped just once clear the map of selection, close keyboard and bottom shee
+            // If view has been double tapped, set tapped to handled and flag back to false
+            // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
             if (this.isViewDoubleTapped == true)
             {
                 e.Handled = true;
@@ -400,7 +419,7 @@ namespace IndoorNavigation.iOS
                 var tapScreenPoint = e.Position;
 
                 var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-                var pixelTolerance = 20;
+                var pixelTolerance = 30;
                 var returnPopupsOnly = false;
                 var maxResults = 1;
 
@@ -421,7 +440,7 @@ namespace IndoorNavigation.iOS
                     graphicsOverlay.Graphics.Clear();
                     graphicsOverlay.Graphics.Add(mapPinGraphic);
 
-                    // Get room attribute from the settings. First attribute should be set as the searcheable on
+                    // Get room attribute from the settings. First attribute should be set as the searcheable one
                     var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
                     var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
                     var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
@@ -559,7 +578,7 @@ namespace IndoorNavigation.iOS
 
                 AutosuggestionsTableView.ReloadData();
 
-                // Auto extend ot shrink the tableview based on the content inside
+                // Auto extend or shrink the tableview based on the content inside
                 var frame = AutosuggestionsTableView.Frame;
                 frame.Height = AutosuggestionsTableView.ContentSize.Height;
                 AutosuggestionsTableView.Frame = frame;
@@ -590,33 +609,42 @@ namespace IndoorNavigation.iOS
             var geocodeResult = await LocationViewModel.LocationViewModelInstance.GetSearchedLocationAsync(searchText);
             this.ViewModel.SelectedFloorLevel = await LocationViewModel.LocationViewModelInstance.GetFloorLevelFromQueryAsync(searchText);
 
-            // create a picture marker symbol
-            var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
-            var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+            if (geocodeResult != null)
+            {
+                // create a picture marker symbol
+                var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
+                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
 
-            // Create graphic
-            var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
+                // Create graphic
+                var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
 
-            // Add pin to map
-            var graphicsOverlay = MapView.GraphicsOverlays[0];
-            graphicsOverlay.Graphics.Clear();
-            graphicsOverlay.Graphics.Add(mapPinGraphic);
+                // Add pin to map
+                var graphicsOverlay = MapView.GraphicsOverlays[0];
+                graphicsOverlay.Graphics.Clear();
+                graphicsOverlay.Graphics.Add(mapPinGraphic);
 
-            this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
+                this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
-            // Get the feature to populate the Contact Card
-            var roomFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(searchText);
+                // Get the feature to populate the Contact Card
+                var roomFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(searchText);
 
-            // Get room attribute from the settings. First attribute should be set as the searcheable one
-            var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-            var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-            var roomNumber = roomFeature.Attributes[roomAttribute];
-            var employeeName = roomFeature.Attributes[employeeNameAttribute];
+                if (roomFeature != null)
+                {
+                    // Get room attribute from the settings. First attribute should be set as the searcheable one
+                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                    var roomNumber = roomFeature.Attributes[roomAttribute];
+                    var employeeName = roomFeature.Attributes[employeeNameAttribute];
 
-            var roomNumberLabel = roomNumber ?? string.Empty;
-            var employeeNameLabel = employeeName ?? string.Empty;
+                    var roomNumberLabel = roomNumber ?? string.Empty;
+                    var employeeNameLabel = employeeName ?? string.Empty;
 
-            this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                    this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                }
+
+            }
+            else
+                this.ShowContactCard(searchText, "Location not found", true);
         }
 
         /// <summary>
