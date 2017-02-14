@@ -1,12 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Esri.ArcGISRuntime.Data;
-using Esri.ArcGISRuntime.Mapping;
-using Esri.ArcGISRuntime.UI.Controls;
-
-namespace IndoorNavigation
+﻿// <copyright file="LocationViewModel.cs" company="Esri, Inc">
+//     Copyright (c) Esri. All rights reserved.
+// </copyright>
+// <author>Mara Stoica</author>
+namespace IndoorRouting
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.Data;
+    using Esri.ArcGISRuntime.Mapping;
+    using Esri.ArcGISRuntime.UI.Controls;
+
+    /// <summary>
+    /// Labels view model.
+    /// </summary>
     public class LabelsViewModel
     {
         /// <summary>

@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.Threading.Tasks;
@@ -150,7 +150,7 @@ namespace IndoorNavigation.iOS
                         mapViewController.Route = route;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     mapViewController.Route = null;
                 }

@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation
+namespace IndoorRouting
 { 
     using System;
     using System.Collections.Generic;

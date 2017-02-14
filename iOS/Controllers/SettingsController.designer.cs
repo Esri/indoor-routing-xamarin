@@ -9,7 +9,7 @@ using System;
 using System.CodeDom.Compiler;
 using UIKit;
 
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     [Register ("SettingsController")]
     partial class SettingsController

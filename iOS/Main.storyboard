@@ -583,5 +583,6 @@
         <image name="Menu" width="31" height="30"/>
         <image name="HomePin" width="19" height="36"/>
         <image name="RouteDetails" width="22" height="22"/>
+        <image name="LaunchPic" width="512" height="512"/>
     </resources>
 </document>
