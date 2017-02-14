@@ -113,5 +113,6 @@ namespace IndoorNavigation.iOS
                 this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
             }
             catch { }
+        }
     }
 }

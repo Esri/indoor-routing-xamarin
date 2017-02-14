@@ -11,6 +11,7 @@ namespace IndoorNavigation.iOS
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
+    using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
@@ -101,10 +102,22 @@ namespace IndoorNavigation.iOS
             }
 
             // Show Current Location button if location services is enabled
-            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            this.CurrentLocationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
+
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
             {
-                this.CurrentLocationButton.Hidden = false;
+                MapView.LocationDisplay.IsEnabled = true;
+                MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                MapView.LocationDisplay.InitialZoomScale = 150;
+
+                // TODO: Set floor when available in the API (Update 2?)
             }
+            else
+            {
+                MapView.LocationDisplay.IsEnabled = false;
+            }
+
+
         }
 
         // TODO: implement max size for floor picker 
@@ -164,6 +177,8 @@ namespace IndoorNavigation.iOS
 
             // Handle the user holding tap on the mapp
             this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
+
+            this.MapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
 
             // Handle text changing in the search bar
             this.LocationSearchBar.TextChanged += async (sender, e) =>
@@ -470,6 +485,11 @@ namespace IndoorNavigation.iOS
             }
         }
 
+        partial void CurrentLocationButton_TouchUpInside(UIButton sender)
+        {
+            this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
+        }
+
         /// <summary>
         /// When user holds tap on a room, the information about the room is displayed
         /// </summary>
@@ -481,6 +501,11 @@ namespace IndoorNavigation.iOS
             e.Handled = true;
 
             // TODO: Make map full screen
+        }
+
+        private void MapView_LocationChanged(object sender, Location e)
+        {
+            LocationViewModel.LocationViewModelInstance.CurrentLocation = e.Position;
         }
 
         /// <summary>

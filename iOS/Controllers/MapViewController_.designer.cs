@@ -74,6 +74,10 @@ namespace IndoorNavigation.iOS
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem SettingsButton { get; set; }
 
+        [Action ("CurrentLocationButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void CurrentLocationButton_TouchUpInside (UIKit.UIButton sender);
+
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void Home_TouchUpInside (UIKit.UIBarButtonItem sender);

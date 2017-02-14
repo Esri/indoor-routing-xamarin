@@ -5,6 +5,8 @@
 namespace IndoorNavigation.iOS
 {
     using System;
+    using System.IO;
+    using System.Threading.Tasks;
     using UIKit;
 
     /// <summary>
@@ -32,7 +34,17 @@ namespace IndoorNavigation.iOS
             // Set the label for the home location from settings
             this.HomeLocationLabel.Text = AppSettings.CurrentSettings.HomeLocation;
 
+            // Set the current location switch
+            this.CurrentLocationSwitch.On = AppSettings.CurrentSettings.IsLocationServicesEnabled;
+
             base.ViewWillAppear(animated);
+        }
+
+
+        partial void CurrentLocationSwitchValueChanged(UISwitch sender)
+        {
+            AppSettings.CurrentSettings.IsLocationServicesEnabled = ((UISwitch)sender).On;
+            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
         }
     }
 }

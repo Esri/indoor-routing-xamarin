@@ -59,5 +59,7 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Show current location</string>
 </dict>
 </plist>

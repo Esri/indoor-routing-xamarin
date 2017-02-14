@@ -86,11 +86,9 @@ namespace IndoorNavigation
 
             private set
             {
-                if (this.isDownloading != value)
-                {
-                    this.isDownloading = value;
-                    this.OnPropertyChanged(nameof(this.IsDownloading));
-                }
+
+                this.isDownloading = value;
+                this.OnPropertyChanged(nameof(this.IsDownloading));
             }
         }
 

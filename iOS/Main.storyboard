@@ -92,6 +92,9 @@
                                     <constraint id="4113" firstItem="1808" firstAttribute="height" constant="45"/>
                                     <constraint id="4114" firstItem="1808" firstAttribute="width" constant="45"/>
                                 </constraints>
+                                <connections>
+                                    <action selector="CurrentLocationButton_TouchUpInside:" destination="BYZ-38-t0r" id="4220" eventType="touchUpInside"/>
+                                </connections>
                             </button>
                             <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1955">
                                 <rect key="frame" x="16" y="106" width="564" height="494"/>
@@ -336,6 +339,9 @@
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="1286">
                                                     <rect key="frame" x="531" y="6.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="CurrentLocationSwitchValueChanged:" destination="544" id="4211" eventType="valueChanged"/>
+                                                    </connections>
                                                 </switch>
                                             </subviews>
                                             <constraints>
@@ -384,6 +390,7 @@
                     </tableView>
                     <connections>
                         <outlet property="HomeLocationLabel" destination="1282" id="name-outlet-1282"/>
+                        <outlet property="CurrentLocationSwitch" destination="1286" id="name-outlet-1286"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="550" userLabel="First Responder" sceneMemberID="firstResponder"/>

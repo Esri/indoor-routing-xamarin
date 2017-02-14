@@ -65,6 +65,12 @@ namespace IndoorNavigation
         public MobileMapPackage Mmpk { get; set; }
 
         /// <summary>
+        /// Gets or sets the user's current location.
+        /// </summary>
+        /// <value>The current location.</value>
+        public MapPoint CurrentLocation { get; set; }
+
+        /// <summary>
         /// Gets the location suggestions from the mmpk.
         /// </summary>
         /// <returns>List of location suggestions.</returns>
@@ -220,7 +226,6 @@ namespace IndoorNavigation
             }
 
             var routeTask = await RouteTask.CreateAsync(this.Mmpk.Maps[0].TransportationNetworks[0]);
-
             if (routeTask != null)
             {
                 try

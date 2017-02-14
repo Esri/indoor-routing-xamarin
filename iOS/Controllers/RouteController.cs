@@ -62,12 +62,19 @@ namespace IndoorNavigation.iOS
                 EndSearchBar.Text = this.EndLocation;
             }
 
+            // Set start location as the current location, if available
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            {
+                this.StartLocation = "Current Location";
+                StartSearchBar.Text = this.StartLocation;
+            }
             // Set start location as home location if available
-            if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
+            else if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
                 this.StartLocation = AppSettings.CurrentSettings.HomeLocation;
                 StartSearchBar.Text = this.StartLocation;
             }
+
 
             // Set text changed event on the start search bar
             StartSearchBar.TextChanged += async (sender, e) =>
@@ -78,8 +85,11 @@ namespace IndoorNavigation.iOS
 
             StartSearchBar.SearchButtonClicked += (sender, e) =>
             {
-                StartLocation = ((UISearchBar)sender).Text;
-                AutosuggestionsTableView.Hidden = true;
+                if (this.StartLocation != "Current Location")
+                {
+                     StartLocation = ((UISearchBar)sender).Text;
+                    AutosuggestionsTableView.Hidden = true;
+                }
             };
 
             // Set text changed event on the end search bar
@@ -109,22 +119,38 @@ namespace IndoorNavigation.iOS
             {
                 var mapViewController = segue.DestinationViewController as MapViewController;
 
-                // Geocode the locations selected by the use
+                // Geocode the locations selected by the user
                 try
                 {
-                    var fromLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.StartLocation);
-                    var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
+                    if (this.StartLocation != "Current Location")
+                    {
+                        var fromLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.StartLocation);
+                        var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
 
-                    var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
-                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+                        var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
+                        var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
 
-                    var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
-                    mapViewController.FromLocationFeature = fromLocationFeature;
-                    mapViewController.ToLocationFeature = toLocationFeature;
+                        var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+                        mapViewController.FromLocationFeature = fromLocationFeature;
+                        mapViewController.ToLocationFeature = toLocationFeature;
 
-                    mapViewController.Route = route;
+                        mapViewController.Route = route;
+                    }
+                    else
+                    {
+                        var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
+
+                        var fromLocationPoint = LocationViewModel.LocationViewModelInstance.CurrentLocation;
+                        var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+
+                        var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+
+                        mapViewController.ToLocationFeature = toLocationFeature;
+
+                        mapViewController.Route = route;
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
                     mapViewController.Route = null;
                 }
