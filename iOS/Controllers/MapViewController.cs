@@ -603,6 +603,12 @@ namespace IndoorNavigation.iOS
             {
                 var graphicsOverlay = MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
+
+                // Run garbage collector manually to prevent System.ArgumentException bug
+                // TODO: Remove the manual garbage collection when bug is fixed
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
                 foreach (var feature in labelFeatures)
                 {
                     var centerPoint = feature.Geometry.Extent.GetCenter();
