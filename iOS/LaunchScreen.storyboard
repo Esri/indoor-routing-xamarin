@@ -17,15 +17,33 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="5" translatesAutoresizingMaskIntoConstraints="NO" image="LaunchPic">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Indoor Routing" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="13" translatesAutoresizingMaskIntoConstraints="NO">
+                                <rect key="frame" x="25" y="75" width="550" height="57"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="36" weight="heavy"/>
+                                <color key="textColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                <nil key="highlightedColor"/>
+                                <constraints>
+                                    <constraint id="22" firstItem="13" firstAttribute="height" constant="57"/>
+                                </constraints>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Built with the Xamarin Runtime SDK for iOS v. 100" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="16" translatesAutoresizingMaskIntoConstraints="NO" numberOfLines="3">
+                                <rect key="frame" x="25" y="477" width="245" height="103"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24" weight="semibold"/>
+                                <color key="textColor" colorSpace="calibratedWhite" white="1" alpha="1"/>
+                                <nil key="highlightedColor"/>
+                                <constraints>
+                                    <constraint id="25" firstItem="16" firstAttribute="height" constant="103"/>
+                                    <constraint id="26" firstItem="16" firstAttribute="width" constant="245"/>
+                                </constraints>
+                            </label>
                         </subviews>
+                        <color key="backgroundColor" colorSpace="calibratedRGB" red="0.47450980392156861" green="0.75686274509803919" blue="0.16862745098039217" alpha="1"/>
                         <constraints>
-                            <constraint id="6" firstItem="5" firstAttribute="bottom" secondItem="xb3-aO-Qok" secondAttribute="top"/>
-                            <constraint id="7" firstItem="5" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing"/>
-                            <constraint id="8" firstItem="5" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading"/>
-                            <constraint id="9" firstItem="Llm-lL-Icb" firstAttribute="bottom" secondItem="5" secondAttribute="top" constant="20"/>
+                            <constraint id="19" firstItem="13" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="25"/>
+                            <constraint id="20" firstItem="13" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="55"/>
+                            <constraint id="21" firstItem="Ze5-6b-2t3" firstAttribute="trailing" secondItem="13" secondAttribute="trailing" constant="25"/>
+                            <constraint id="23" firstItem="16" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="25"/>
+                            <constraint id="24" firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="16" secondAttribute="bottom" constant="20"/>
                         </constraints>
                     </view>
                 </viewController>
