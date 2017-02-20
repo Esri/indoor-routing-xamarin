@@ -43,7 +43,6 @@ namespace IndoorRouting.iOS
         private MapViewController(IntPtr handle) : base(handle)
         {
             this.ViewModel = new MapViewModel();
-            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
         }
 
         /// <summary>
@@ -132,9 +131,35 @@ namespace IndoorRouting.iOS
         /// <summary>
         /// Overrides default behavior when view has loaded. 
         /// </summary>
-        public override void ViewDidLoad()
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
+
+            try
+            {
+                await this.ViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                var genericError = "An error has occured and map was not loaded. Please restart the app";
+
+                this.InvokeOnMainThread(() =>
+                {
+                    var detailsController = UIAlertController.Create("Error Details", ex.Message, UIAlertControllerStyle.Alert);
+                    detailsController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+
+                    var alertController = UIAlertController.Create("Error", genericError, UIAlertControllerStyle.Alert);
+                    alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                    alertController.AddAction(
+                        UIAlertAction.Create(
+                            "Details",
+                            UIAlertActionStyle.Default,
+                            (obj) => { this.PresentViewController(detailsController, true, null); }));
+                    this.PresentViewController(alertController, true, null);
+                });
+            }
 
             this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
             this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
@@ -220,6 +245,12 @@ namespace IndoorRouting.iOS
             }
         }
 
+        [Action("UnwindToMainViewController:")]
+        public void UnwindToMainViewController(UIStoryboardSegue segue)
+        {
+            Console.WriteLine("We've unwinded to Main!");
+        }
+
         /// <summary>
         /// Fires when a new route is generated
         /// </summary>
@@ -284,7 +315,14 @@ namespace IndoorRouting.iOS
                     this.MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
-                    await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                    try
+                    {
+                        await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                    }
+                    catch (Exception ex)
+                    {
+                        var x = ex.StackTrace;
+                    }
                 }
                 else
                 {
@@ -372,19 +410,6 @@ namespace IndoorRouting.iOS
                         await MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
                     }
 
-                    break;
-                case "ErrorMessage":
-                    if (this.ViewModel.ErrorMessage != null)
-                    {
-                        this.InvokeOnMainThread(() =>
-                        {
-                            var alertController = UIAlertController.Create("Error", this.ViewModel.ErrorMessage, UIAlertControllerStyle.Alert);
-                            alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-
-                            //Present Alert
-                            this.PresentViewController(alertController, true, null);
-                        });
-                    }
                     break;
             }
         }
@@ -508,7 +533,11 @@ namespace IndoorRouting.iOS
 
         partial void CurrentLocationButton_TouchUpInside(UIButton sender)
         {
-            this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
+            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
+            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
+            this.MapView.LocationDisplay.IsEnabled = true;
+
+            // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
         }
 
         /// <summary>
@@ -526,7 +555,7 @@ namespace IndoorRouting.iOS
 
         private void MapView_LocationChanged(object sender, Location e)
         {
-            LocationViewModel.LocationViewModelInstance.CurrentLocation = e.Position;
+            LocationViewModel.Instance.CurrentLocation = e.Position;
         }
 
         /// <summary>
@@ -646,13 +675,12 @@ namespace IndoorRouting.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
                 AutosuggestionsTableView.Hidden = true;
             }
-
-            if (suggestions.Count > 0)
+            else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
                 AutosuggestionsTableView.Hidden = false;
@@ -690,8 +718,8 @@ namespace IndoorRouting.iOS
         /// <returns>The searched feature</returns>
         private async Task GetSearchedFeatureAsync(string searchText)
         {
-            var geocodeResult = await LocationViewModel.LocationViewModelInstance.GetSearchedLocationAsync(searchText);
-            this.ViewModel.SelectedFloorLevel = await LocationViewModel.LocationViewModelInstance.GetFloorLevelFromQueryAsync(searchText);
+            var geocodeResult = await LocationViewModel.Instance.GetSearchedLocationAsync(searchText);
+            this.ViewModel.SelectedFloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(searchText);
 
             if (geocodeResult != null)
             {
@@ -712,7 +740,7 @@ namespace IndoorRouting.iOS
                 this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
                 // Get the feature to populate the Contact Card
-                var roomFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(searchText);
+                var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(searchText);
 
                 if (roomFeature != null)
                 {

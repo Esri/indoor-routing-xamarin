@@ -209,6 +209,7 @@
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
+    <Compile Include="..\IndoorNavigation\ViewModels\Exception.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />

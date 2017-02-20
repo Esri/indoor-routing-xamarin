@@ -12,6 +12,7 @@ namespace IndoorRouting
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Mapping;
+    using Esri.ArcGISRuntime.Tasks.Geocoding;
 
     /// <summary>
     /// Map view model handles all business logic to do with the map navigation and layers
@@ -42,19 +43,6 @@ namespace IndoorRouting
         /// The selected floor level.
         /// </summary>
         private string selectedFloorLevel;
-
-        /// <summary>
-        /// The error message to be displayed to the user.
-        /// </summary>
-        private string errorMessage;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.MapViewModel"/> class.
-        /// </summary>
-        internal MapViewModel()
-        {
-            this.InitializeAsync().ConfigureAwait(false);
-        }
 
         /// <summary>
         /// Event handler property changed. 
@@ -126,23 +114,6 @@ namespace IndoorRouting
         }
 
         /// <summary>
-        /// The error message to be displayed to the user.
-        /// </summary>
-        /// <value>The error message.</value>
-        public string ErrorMessage
-        {
-            get
-            {
-                return this.errorMessage;
-            }
-            set
-            {
-                this.errorMessage = value;
-                this.OnPropertyChanged(nameof(this.ErrorMessage));
-            }
-        }
-
-        /// <summary>
         /// Sets the initial view point based on user settings. 
         /// </summary>
         /// <returns>Async task</returns>
@@ -210,8 +181,8 @@ namespace IndoorRouting
         /// <returns>The viewpoint with coordinates for the home location.</returns>
         internal async Task<MapPoint> MoveToHomeLocationAsync()
         {
-        this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
-           
+            this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
+
             double x = 0, y = 0, wkid = 0;
 
             try
@@ -283,29 +254,27 @@ namespace IndoorRouting
         /// Loads the mobile map package and the map 
         /// </summary>
         /// <returns>Async task</returns>
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             // Get Mobile Map Package from the location on device
+            var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
+   
+            // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
+            this.Map = mmpk.Maps[3];
+            await Map.LoadAsync().ConfigureAwait(false);
 
-            try
+            var locator = mmpk.LocatorTask;
+            await locator.LoadAsync().ConfigureAwait(false);
+           
+            if (LocationViewModel.Instance == null)
             {
-                var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
-            
-                LocationViewModel.LocationViewModelInstance.Mmpk = mmpk;
-      
-                // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
-                Map = mmpk.Maps.FirstOrDefault();
-                await Map.LoadAsync().ConfigureAwait(false);
-
-                // Set viewpoint of the map depending on user's setting
-                await this.SetInitialViewPointAsync().ConfigureAwait(false);
-                }
-            catch
-            {
-                ErrorMessage = "An error has occured and map was not loaded. Please restart the app";
+                LocationViewModel.Instance = LocationViewModel.Create(Map, locator);
             }
-        }
 
+            // Set viewpoint of the map depending on user's setting
+            await this.SetInitialViewPointAsync().ConfigureAwait(false);
+        }
+    
         /// <summary>
         /// Loads the MMPK from the location on disk
         /// </summary>

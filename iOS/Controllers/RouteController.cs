@@ -75,7 +75,6 @@ namespace IndoorRouting.iOS
                 StartSearchBar.Text = this.StartLocation;
             }
 
-
             // Set text changed event on the start search bar
             StartSearchBar.TextChanged += async (sender, e) =>
             {
@@ -115,46 +114,44 @@ namespace IndoorRouting.iOS
         {
             base.PrepareForSegue(segue, sender);
 
-            if (segue.Identifier == "BackFromRouteSegue")
+            var mapViewController = segue.DestinationViewController as MapViewController;
+
+            // Geocode the locations selected by the user
+            try
             {
-                var mapViewController = segue.DestinationViewController as MapViewController;
-
-                // Geocode the locations selected by the user
-                try
+                if (this.StartLocation != "Current Location")
                 {
-                    if (this.StartLocation != "Current Location")
-                    {
-                        var fromLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.StartLocation);
-                        var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
+                    var fromLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.StartLocation);
+                    var toLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.EndLocation);
 
-                        var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
-                        var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+                    var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
+                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
 
-                        var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
-                        mapViewController.FromLocationFeature = fromLocationFeature;
-                        mapViewController.ToLocationFeature = toLocationFeature;
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+                    mapViewController.FromLocationFeature = fromLocationFeature;
+                    mapViewController.ToLocationFeature = toLocationFeature;
 
-                        mapViewController.Route = route;
-                    }
-                    else
-                    {
-                        var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
-
-                        var fromLocationPoint = LocationViewModel.LocationViewModelInstance.CurrentLocation;
-                        var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
-
-                        var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
-
-                        mapViewController.ToLocationFeature = toLocationFeature;
-
-                        mapViewController.Route = route;
-                    }
+                    mapViewController.Route = route;
                 }
-                catch
+                else
                 {
-                    mapViewController.Route = null;
+                    var toLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.EndLocation);
+
+                    var fromLocationPoint = LocationViewModel.Instance.CurrentLocation;
+                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+
+                    mapViewController.ToLocationFeature = toLocationFeature;
+
+                    mapViewController.Route = route;
                 }
             }
+            catch
+            {
+                mapViewController.Route = null;
+            }
+
         }
 
         /// <summary>
@@ -166,7 +163,7 @@ namespace IndoorRouting.iOS
         private async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
         {
             this.startSearchBarFlag = startSearchBarFlag;
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(searchText);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(searchText);
 
             if (suggestions == null || suggestions.Count == 0)
             {

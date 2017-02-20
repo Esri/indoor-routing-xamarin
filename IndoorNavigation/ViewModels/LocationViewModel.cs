@@ -4,6 +4,7 @@
 // <author>Mara Stoica</author>
 namespace IndoorRouting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,51 +19,32 @@ namespace IndoorRouting
     /// </summary>
     public sealed class LocationViewModel
     {
-        /// <summary>
-        /// The location view model instance.
-        /// </summary>
-        private static volatile LocationViewModel locationViewModelInstance;
-
-        /// <summary>
-        /// The sync root.
-        /// </summary>
-        private static object syncRoot = new object();
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="LocationViewModel" /> class from being created. (IndoorNavigation)
-        /// </summary>
-        private LocationViewModel()
-        {
-        }
-
-        /// <summary>
-        /// Gets the location view model instance.
-        /// </summary>
-        /// <value>The location view model instance.</value>
-        public static LocationViewModel LocationViewModelInstance
-        {
-            get
-            {
-                if (locationViewModelInstance == null)
-                {
-                    lock (syncRoot)
-                    {
-                        if (locationViewModelInstance == null)
-                        {
-                            locationViewModelInstance = new LocationViewModel();
-                        }
-                    }
-                }
-
-                return locationViewModelInstance;
-            }
-        }
 
         /// <summary>
         /// Gets or sets the mmpk.
         /// </summary>
         /// <value>The mmpk.</value>
-        public MobileMapPackage Mmpk { get; set; }
+        public Map Map { get; set; }
+
+        /// <summary>
+        /// Gets or sets the mmpk.
+        /// </summary>
+        /// <value>The mmpk.</value>
+        public LocatorTask Locator { get; set; }
+
+        /// <summary>
+        /// The location view model instance.
+        /// </summary>
+        public static LocationViewModel Instance { get; set; }
+
+        internal static LocationViewModel Create(Map map, LocatorTask locator)
+        {
+            var locationViewModel = new LocationViewModel();
+            locationViewModel.Map = map;
+            locationViewModel.Locator = locator;
+
+            return locationViewModel;               
+        }
 
         /// <summary>
         /// Gets or sets the user's current location.
@@ -77,12 +59,9 @@ namespace IndoorRouting
         /// <param name="userInput">User input.</param>
         internal async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestionsAsync(string userInput)
         {
-            // Load the locator from the mobile map package
-            var locator = this.Mmpk.LocatorTask;
             try
             {
-                await locator.LoadAsync();
-                var locatorInfo = locator.LocatorInfo;
+                var locatorInfo = this.Locator.LocatorInfo;
 
                 if (locatorInfo.SupportsSuggestions)
                 {
@@ -90,7 +69,7 @@ namespace IndoorRouting
                     var suggestParams = new SuggestParameters { MaxResults = 10 };
 
                     // get suggestions for the text provided by the user
-                    var suggestions = await locator.SuggestAsync(userInput, suggestParams);
+                    var suggestions = await this.Locator.SuggestAsync(userInput, suggestParams);
                     return suggestions;
                 }
             }
@@ -110,7 +89,7 @@ namespace IndoorRouting
         internal async Task<string> GetFloorLevelFromQueryAsync(string searchString)
         {
             // Run query to get the floor of the selected room
-            var roomsLayer = this.Mmpk.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
+            var roomsLayer = this.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
 
             if (roomsLayer != null)
             {
@@ -130,8 +109,16 @@ namespace IndoorRouting
 
                     // Query the feature table 
                     var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
-                    var floorResult = queryResult.FirstOrDefault().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
-                    return floorResult;
+
+                    if (queryResult != null)
+                    {
+                        var floorResult = queryResult.FirstOrDefault().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
+                        return floorResult;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 catch
                 {
@@ -148,17 +135,12 @@ namespace IndoorRouting
         /// <param name="searchString">User input.</param>
         internal async Task<GeocodeResult> GetSearchedLocationAsync(string searchString)
         {
-            // Load the locator from the mobile map package
-            var locator = this.Mmpk.LocatorTask;
-
             try
             {
-                await locator.LoadAsync();
-                var locatorInfo = locator.LocatorInfo;
                 var formattedSearchString = this.FormatStringForQuery(searchString);
 
                 // Geocode location and return the best match from the list
-                var matches = await locator.GeocodeAsync(formattedSearchString);
+                var matches = await Locator.GeocodeAsync(formattedSearchString);
                 var bestMatch = matches.FirstOrDefault();
                 return bestMatch;
             }
@@ -176,7 +158,7 @@ namespace IndoorRouting
         internal async Task<Feature> GetRoomFeatureAsync(string searchString)
         {
             // Run query to get the floor of the selected room
-            var roomsLayer = this.Mmpk.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
+            var roomsLayer = this.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
 
             if (roomsLayer != null)
             {
@@ -213,23 +195,24 @@ namespace IndoorRouting
         /// <param name="toLocation">To location.</param>
         internal async Task<RouteResult> GetRequestedRouteAsync(MapPoint fromLocation, MapPoint toLocation)
         {
-            if (this.Mmpk.Maps[0].LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
+            if (this.Map.LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
             {
                 try
                 {
-                    await this.Mmpk.Maps[0].LoadAsync();
+                    await this.Map.LoadAsync();
                 }
                 catch
                 {
                     return null;
                 }
             }
-
-            var routeTask = await RouteTask.CreateAsync(this.Mmpk.Maps[0].TransportationNetworks[0]);
-            if (routeTask != null)
+            try
             {
-                try
+                var routeTask = await RouteTask.CreateAsync(this.Map.TransportationNetworks[0]);
+
+                if (routeTask != null)
                 {
+
                     // Get the default route parameters
                     var routeParams = await routeTask.CreateDefaultParametersAsync();
 
@@ -250,12 +233,15 @@ namespace IndoorRouting
 
                     return routeResult;
                 }
-                catch
+                else
                 {
                     return null;
                 }
             }
-            return null;
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         /// <summary>

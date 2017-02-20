@@ -42,13 +42,14 @@ namespace IndoorRouting
                     // Query the feature table 
                     var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
 
-                    // Group by floors to get the distinct list of floors in the table selection
-                    var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName])
-                                                    .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
-
-                    var tableItems = new List<string>();
-                    if (distinctFloors != null)
+                    if (queryResult != null)
                     {
+                        // Group by floors to get the distinct list of floors in the table selection
+                        var distinctFloors = queryResult.GroupBy(g => g.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName])
+                                                        .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
+
+                        var tableItems = new List<string>();
+
                         foreach (var item in distinctFloors)
                         {
                             tableItems.Add(item.ToString());
@@ -60,6 +61,7 @@ namespace IndoorRouting
 
                         return tableItems.ToArray();
                     }
+
                     else
                     {
                         return null;

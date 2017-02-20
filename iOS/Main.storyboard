@@ -514,7 +514,7 @@
                                             <color key="titleShadowColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <segue destination="BYZ-38-t0r" kind="show" identifier="BackFromRouteSegue" id="3420"/>
+                                            <segue id="4230" destination="4228" kind="unwind" unwindAction="UnwindToMainViewController:"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -568,8 +568,9 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2091" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="4228" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="691" y="-3"/>
+            <point key="canvasLocation" x="921" y="-192"/>
         </scene>
     </scenes>
     <resources>
