@@ -15,7 +15,7 @@ namespace IndoorRouting.iOS
     internal partial class SettingsController : UITableViewController
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.SettingsController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.SettingsController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private SettingsController(IntPtr handle) : base(handle)
@@ -40,7 +40,10 @@ namespace IndoorRouting.iOS
             base.ViewWillAppear(animated);
         }
 
-
+        /// <summary>
+        /// Handles when user toggles the Current Location switch on/off
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
         partial void CurrentLocationSwitchValueChanged(UISwitch sender)
         {
             AppSettings.CurrentSettings.IsLocationServicesEnabled = ((UISwitch)sender).On;

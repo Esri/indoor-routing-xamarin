@@ -12,7 +12,6 @@ namespace IndoorRouting
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Mapping;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
 
     /// <summary>
     /// Map view model handles all business logic to do with the map navigation and layers
@@ -114,6 +113,31 @@ namespace IndoorRouting
         }
 
         /// <summary>
+        /// Loads the mobile map package and the map 
+        /// </summary>
+        /// <returns>Async task</returns>
+        internal async Task InitializeAsync()
+        {
+            // Get Mobile Map Package from the location on device
+            var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
+
+            // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
+            this.Map = mmpk.Maps.FirstOrDefault();
+            await Map.LoadAsync().ConfigureAwait(false);
+
+            var locator = mmpk.LocatorTask;
+            await locator.LoadAsync().ConfigureAwait(false);
+
+            if (LocationViewModel.Instance == null)
+            {
+                LocationViewModel.Instance = LocationViewModel.Create(Map, locator);
+            }
+
+            // Set viewpoint of the map depending on user's setting
+            await this.SetInitialViewPointAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Sets the initial view point based on user settings. 
         /// </summary>
         /// <returns>Async task</returns>
@@ -156,9 +180,11 @@ namespace IndoorRouting
                     Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference(Convert.ToInt32(wkid))), zoomLevel);
                 }
             }
-
-            catch { }
-
+            catch
+            {
+                // Supress all errors since. 
+                // If initial viewpoint cannot be set, the map will just load to the default extent of the mmpk
+            }
             finally
             {
                 // Set minimum and maximum scale for the map
@@ -248,31 +274,6 @@ namespace IndoorRouting
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// Loads the mobile map package and the map 
-        /// </summary>
-        /// <returns>Async task</returns>
-        public async Task InitializeAsync()
-        {
-            // Get Mobile Map Package from the location on device
-            var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
-   
-            // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
-            this.Map = mmpk.Maps[3];
-            await Map.LoadAsync().ConfigureAwait(false);
-
-            var locator = mmpk.LocatorTask;
-            await locator.LoadAsync().ConfigureAwait(false);
-           
-            if (LocationViewModel.Instance == null)
-            {
-                LocationViewModel.Instance = LocationViewModel.Create(Map, locator);
-            }
-
-            // Set viewpoint of the map depending on user's setting
-            await this.SetInitialViewPointAsync().ConfigureAwait(false);
         }
     
         /// <summary>

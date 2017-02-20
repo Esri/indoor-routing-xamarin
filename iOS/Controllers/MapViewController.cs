@@ -37,7 +37,7 @@ namespace IndoorRouting.iOS
         private RouteResult route;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.MapViewController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.MapViewController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private MapViewController(IntPtr handle) : base(handle)
@@ -105,18 +105,16 @@ namespace IndoorRouting.iOS
 
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
             {
-                MapView.LocationDisplay.IsEnabled = true;
-                MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-                MapView.LocationDisplay.InitialZoomScale = 150;
+                this.MapView.LocationDisplay.IsEnabled = true;
+                this.MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                this.MapView.LocationDisplay.InitialZoomScale = 150;
 
                 // TODO: Set floor when available in the API (Update 2?)
             }
             else
             {
-                MapView.LocationDisplay.IsEnabled = false;
+                this.MapView.LocationDisplay.IsEnabled = false;
             }
-
-
         }
 
         // TODO: implement max size for floor picker 
@@ -245,6 +243,10 @@ namespace IndoorRouting.iOS
             }
         }
 
+        /// <summary>
+        /// Unwinds to main view controller.
+        /// </summary>
+        /// <param name="segue">Unwind Segue name.</param>
         [Action("UnwindToMainViewController:")]
         public void UnwindToMainViewController(UIStoryboardSegue segue)
         {
@@ -378,12 +380,17 @@ namespace IndoorRouting.iOS
         {
             this.InvokeOnMainThread(() =>
             {
-                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                UIView.Animate(
+                    0.2, 
+                    0, 
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
+                    () =>
                 {
                     ContactCardView.Alpha = 0;
                     ButtonBottomConstraint.Constant = 35;
                     FloorPickerBottomConstraint.Constant = 35;
-                }, null);
+                }, 
+                               null);
             });
         }
 
@@ -442,7 +449,6 @@ namespace IndoorRouting.iOS
             {
                 MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
-                    
         }
 
         /// <summary>
@@ -531,6 +537,10 @@ namespace IndoorRouting.iOS
             }
         }
 
+        /// <summary>
+        /// Event handler for user tapping the blue Current Location button
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
         partial void CurrentLocationButton_TouchUpInside(UIButton sender)
         {
             this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
@@ -553,6 +563,11 @@ namespace IndoorRouting.iOS
             // TODO: Make map full screen
         }
 
+        /// <summary>
+        /// Set the current location as user moves around
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
+        /// <param name="e">Event args.</param>
         private void MapView_LocationChanged(object sender, Location e)
         {
             LocationViewModel.Instance.CurrentLocation = e.Position;
@@ -626,7 +641,7 @@ namespace IndoorRouting.iOS
         private async Task DisplayLabelsAsync()
         {
             var labelsViewModel = new LabelsViewModel();
-            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(MapView, ViewModel.SelectedFloorLevel);
+            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(MapView, this.ViewModel.SelectedFloorLevel);
 
             if (labelFeatures != null)
             {
@@ -755,10 +770,11 @@ namespace IndoorRouting.iOS
 
                     this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
                 }
-
             }
             else
+            {
                 this.ShowContactCard(searchText, "Location not found", true);
+            }
         }
 
         /// <summary>

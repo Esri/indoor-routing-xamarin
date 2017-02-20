@@ -26,7 +26,7 @@ namespace IndoorRouting.iOS
         private string floorLevel;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.HomeLocationController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.HomeLocationController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private HomeLocationController(IntPtr handle) : base(handle)

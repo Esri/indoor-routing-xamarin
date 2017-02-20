@@ -61,7 +61,6 @@ namespace IndoorRouting
 
                         return tableItems.ToArray();
                     }
-
                     else
                     {
                         return null;

@@ -19,6 +19,10 @@ namespace IndoorRouting
     /// </summary>
     public sealed class LocationViewModel
     {
+        /// <summary>
+        /// Gets or sets the location view model instance.
+        /// </summary>
+        public static LocationViewModel Instance { get; set; }
 
         /// <summary>
         /// Gets or sets the mmpk.
@@ -33,10 +37,17 @@ namespace IndoorRouting
         public LocatorTask Locator { get; set; }
 
         /// <summary>
-        /// The location view model instance.
+        /// Gets or sets the user's current location.
         /// </summary>
-        public static LocationViewModel Instance { get; set; }
+        /// <value>The current location.</value>
+        public MapPoint CurrentLocation { get; set; }
 
+        /// <summary>
+        /// Creates instance of LocatorViewModel
+        /// </summary>
+        /// <returns>LocatorViewModel instance.</returns>
+        /// <param name="map">Map.</param>
+        /// <param name="locator">Locator.</param>
         internal static LocationViewModel Create(Map map, LocatorTask locator)
         {
             var locationViewModel = new LocationViewModel();
@@ -45,12 +56,6 @@ namespace IndoorRouting
 
             return locationViewModel;               
         }
-
-        /// <summary>
-        /// Gets or sets the user's current location.
-        /// </summary>
-        /// <value>The current location.</value>
-        public MapPoint CurrentLocation { get; set; }
 
         /// <summary>
         /// Gets the location suggestions from the mmpk.
