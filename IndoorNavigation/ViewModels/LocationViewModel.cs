@@ -105,22 +105,34 @@ namespace IndoorNavigation
         {
             // Run query to get the floor of the selected room
             var roomsLayer = this.Mmpk.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
-            var roomsTable = roomsLayer.FeatureTable;
 
-            // Fix the search string if it contains a '
-            var formattedSearchString = this.FormatStringForQuery(searchString);
-
-            // Set query parametersin 
-            var queryParams = new QueryParameters()
+            if (roomsLayer != null)
             {
-                ReturnGeometry = true,
-                WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", formattedSearchString)
-            };
+                try
+                {
+                    var roomsTable = roomsLayer.FeatureTable;
 
-            // Query the feature table 
-            var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
-            var floorResult = queryResult.FirstOrDefault().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
-            return floorResult;
+                    // Fix the search string if it contains a '
+                    var formattedSearchString = this.FormatStringForQuery(searchString);
+
+                    // Set query parametersin 
+                    var queryParams = new QueryParameters()
+                    {
+                        ReturnGeometry = true,
+                        WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", formattedSearchString)
+                    };
+
+                    // Query the feature table 
+                    var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+                    var floorResult = queryResult.FirstOrDefault().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
+                    return floorResult;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -132,12 +144,13 @@ namespace IndoorNavigation
         {
             // Load the locator from the mobile map package
             var locator = this.Mmpk.LocatorTask;
-            await locator.LoadAsync();
-            var locatorInfo = locator.LocatorInfo;
-            var formattedSearchString = this.FormatStringForQuery(searchString);
 
             try
             {
+                await locator.LoadAsync();
+                var locatorInfo = locator.LocatorInfo;
+                var formattedSearchString = this.FormatStringForQuery(searchString);
+
                 // Geocode location and return the best match from the list
                 var matches = await locator.GeocodeAsync(formattedSearchString);
                 var bestMatch = matches.FirstOrDefault();
@@ -158,20 +171,32 @@ namespace IndoorNavigation
         {
             // Run query to get the floor of the selected room
             var roomsLayer = this.Mmpk.Maps[0].OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
-            var roomsTable = roomsLayer.FeatureTable;
 
-            var formattedSearchString = this.FormatStringForQuery(searchString);
-
-            // Set query parametersin 
-            var queryParams = new QueryParameters()
+            if (roomsLayer != null)
             {
-                ReturnGeometry = true,
-                WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", formattedSearchString)
-            };
+                var roomsTable = roomsLayer.FeatureTable;
 
-            // Query the feature table 
-            var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
-            return queryResult.FirstOrDefault();
+                var formattedSearchString = this.FormatStringForQuery(searchString);
+
+                // Set query parametersin 
+                var queryParams = new QueryParameters()
+                {
+                    ReturnGeometry = true,
+                    WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", formattedSearchString)
+                };
+
+                // Query the feature table 
+                try
+                {
+                    var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+                    return queryResult.FirstOrDefault();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -184,30 +209,48 @@ namespace IndoorNavigation
         {
             if (this.Mmpk.Maps[0].LoadStatus != Esri.ArcGISRuntime.LoadStatus.Loaded)
             {
-                await this.Mmpk.Maps[0].LoadAsync();
+                try
+                {
+                    await this.Mmpk.Maps[0].LoadAsync();
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             var routeTask = await RouteTask.CreateAsync(this.Mmpk.Maps[0].TransportationNetworks[0]);
 
-            // Get the default route parameters
-            var routeParams = await routeTask.CreateDefaultParametersAsync();
+            if (routeTask != null)
+            {
+                try
+                {
+                    // Get the default route parameters
+                    var routeParams = await routeTask.CreateDefaultParametersAsync();
 
-            // Explicitly set values for some params
-            // Indoor networks do not support turn by turn navigation
-            routeParams.ReturnRoutes = true;
-            routeParams.ReturnDirections = true;
+                    // Explicitly set values for some params
+                    // Indoor networks do not support turn by turn navigation
+                    routeParams.ReturnRoutes = true;
+                    routeParams.ReturnDirections = true;
 
-            // Create stops
-            var startPoint = new Stop(fromLocation);
-            var endPoint = new Stop(toLocation);
+                    // Create stops
+                    var startPoint = new Stop(fromLocation);
+                    var endPoint = new Stop(toLocation);
 
-            // assign the stops to the route parameters
-            routeParams.SetStops(new List<Stop> { startPoint, endPoint });
+                    // assign the stops to the route parameters
+                    routeParams.SetStops(new List<Stop> { startPoint, endPoint });
 
-            // Execute routing
-            var routeResult = await routeTask.SolveRouteAsync(routeParams);
+                    // Execute routing
+                    var routeResult = await routeTask.SolveRouteAsync(routeParams);
 
-            return routeResult;
+                    return routeResult;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
         }
 
         /// <summary>

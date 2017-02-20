@@ -44,6 +44,11 @@ namespace IndoorNavigation
         private string selectedFloorLevel;
 
         /// <summary>
+        /// The error message to be displayed to the user.
+        /// </summary>
+        private string errorMessage;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="T:IndoorNavigation.MapViewModel"/> class.
         /// </summary>
         internal MapViewModel()
@@ -121,54 +126,74 @@ namespace IndoorNavigation
         }
 
         /// <summary>
+        /// The error message to be displayed to the user.
+        /// </summary>
+        /// <value>The error message.</value>
+        public string ErrorMessage
+        {
+            get
+            {
+                return this.errorMessage;
+            }
+            set
+            {
+                this.errorMessage = value;
+                this.OnPropertyChanged(nameof(this.ErrorMessage));
+            }
+        }
+
+        /// <summary>
         /// Sets the initial view point based on user settings. 
         /// </summary>
         /// <returns>Async task</returns>
         internal async Task SetInitialViewPointAsync()
         {
             // Get initial viewpoint from settings
+            // If error occurs, do not set an initial viewpoint
             double x = 0, y = 0, wkid = 0, zoomLevel = 0;
 
-            for (int i = 0; i < AppSettings.CurrentSettings.InitialViewpointCoordinates.Length; i++)
+            try
             {
-                switch (AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Key)
+                for (int i = 0; i < AppSettings.CurrentSettings.InitialViewpointCoordinates.Length; i++)
                 {
-                    case "X":
-                        x = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
-                        break;
-                    case "Y":
-                        y = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
-                        break;
-                    case "WKID":
-                        wkid = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
-                        break;
-                    case "ZoomLevel":
-                        zoomLevel = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
-                        break;
+                    switch (AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Key)
+                    {
+                        case "X":
+                            x = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            break;
+                        case "Y":
+                            y = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            break;
+                        case "WKID":
+                            wkid = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            break;
+                        case "ZoomLevel":
+                            zoomLevel = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            break;
+                    }
+                }
+
+                // Location based, location services are on
+                // Home settings, location services are off but user has a home set
+                // Default setting, Location services are off and user has no home set
+                if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+                {
+                    this.MoveToCurrentLocation();
+                }
+                else
+                {
+                    Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference(Convert.ToInt32(wkid))), zoomLevel);
                 }
             }
 
-            // Location based, location services are on
-            // Home settings, location services are off but user has a home set
-            // Default setting, Location services are off and user has no home set
-            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
-            {
-                this.MoveToCurrentLocation();
-            }
-            else if (AppSettings.CurrentSettings.HomeLocation != DefaultHomeLocationText)
-            {
-                // move first to the extent of the map, then to the extent of the home location
-                Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference(Convert.ToInt32(wkid))), zoomLevel);
-                await this.MoveToHomeLocationAsync();
-            }
-            else
-            {
-                Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference(Convert.ToInt32(wkid))), zoomLevel);
-            }
+            catch { }
 
-            // Set minimum and maximum scale for the map
-            Map.MaxScale = AppSettings.CurrentSettings.MapViewMinScale;
-            Map.MinScale = AppSettings.CurrentSettings.MapViewMaxScale;
+            finally
+            {
+                // Set minimum and maximum scale for the map
+                Map.MaxScale = AppSettings.CurrentSettings.MapViewMinScale;
+                Map.MinScale = AppSettings.CurrentSettings.MapViewMaxScale;
+            }
         }
 
         /// <summary>
@@ -189,26 +214,33 @@ namespace IndoorNavigation
            
             double x = 0, y = 0, wkid = 0;
 
-            for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
+            try
             {
-                switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
+                for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
                 {
-                    case "X":
-                        x = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    case "Y":
-                        y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    case "WKID":
-                        wkid = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    default:
-                        break;
+                    switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
+                    {
+                        case "X":
+                            x = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "Y":
+                            y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "WKID":
+                            wkid = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
 
-            Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference((int)wkid)), 150);
-            return new MapPoint(x, y);
+                Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference((int)wkid)), 150);
+                return new MapPoint(x, y);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -220,18 +252,21 @@ namespace IndoorNavigation
             for (int i = 1; i < Map.OperationalLayers.Count; i++)
             {
                 var featureLayer = Map.OperationalLayers[i] as FeatureLayer;
-                if (this.SelectedFloorLevel == string.Empty)
+                if (featureLayer != null)
                 {
-                    this.SelectedFloorLevel = DefaultFloorLevel;
-                }
+                    if (this.SelectedFloorLevel == string.Empty)
+                    {
+                        this.SelectedFloorLevel = DefaultFloorLevel;
+                    }
 
-                // select chosen floor
-                featureLayer.DefinitionExpression = string.Format(
-                    "{0} = '{1}'",
-                    AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
-                this.SelectedFloorLevel);
-                
-                Map.OperationalLayers[i].IsVisible = areLayersOn;
+                    // select chosen floor
+                    featureLayer.DefinitionExpression = string.Format(
+                        "{0} = '{1}'",
+                        AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
+                    this.SelectedFloorLevel);
+
+                    Map.OperationalLayers[i].IsVisible = areLayersOn;
+                }
             }
         }
 
@@ -251,15 +286,24 @@ namespace IndoorNavigation
         private async Task InitializeAsync()
         {
             // Get Mobile Map Package from the location on device
-            var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
-            LocationViewModel.LocationViewModelInstance.Mmpk = mmpk;
 
-            // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
-            Map = mmpk.Maps.FirstOrDefault();
-            await Map.LoadAsync().ConfigureAwait(false);
+            try
+            {
+                var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
+            
+                LocationViewModel.LocationViewModelInstance.Mmpk = mmpk;
+      
+                // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
+                Map = mmpk.Maps.FirstOrDefault();
+                await Map.LoadAsync().ConfigureAwait(false);
 
-            // Set viewpoint of the map depending on user's setting
-            await this.SetInitialViewPointAsync().ConfigureAwait(false);
+                // Set viewpoint of the map depending on user's setting
+                await this.SetInitialViewPointAsync().ConfigureAwait(false);
+                }
+            catch
+            {
+                ErrorMessage = "An error has occured and map was not loaded. Please restart the app";
+            }
         }
 
         /// <summary>

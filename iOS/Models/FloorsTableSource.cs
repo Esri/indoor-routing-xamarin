@@ -36,10 +36,6 @@ namespace IndoorNavigation.iOS
                 this.items = items;
                 this.cellIdentifier = "cell_id";
             }
-            else
-            {
-                // TODO: throw null exception
-            }
         }
 
         /// <summary>
@@ -115,10 +111,7 @@ namespace IndoorNavigation.iOS
                 var item = this.items.ElementAt(itemIndexPath.Row);
                 this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item, itemIndexPath));
             }
-            catch
-            {
-                // TODO: figure out how to trigger this catch and what happens
-            }
+            catch { }
         }
     }
 }

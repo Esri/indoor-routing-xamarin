@@ -6,7 +6,6 @@ namespace IndoorNavigation.iOS
 {
     using System;
     using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Foundation;
     using UIKit;
@@ -58,7 +57,10 @@ namespace IndoorNavigation.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            EndSearchBar.Text = this.EndLocation;
+            if (this.EndLocation != null)
+            {
+                EndSearchBar.Text = this.EndLocation;
+            }
 
             // Set start location as home location if available
             if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
