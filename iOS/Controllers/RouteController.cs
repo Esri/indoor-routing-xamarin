@@ -80,6 +80,7 @@ namespace IndoorRouting.iOS
             this.StartSearchBar.TextChanged += async (sender, e) =>
             {
                 // This is the method that is called when the user searchess
+                StartLocation = ((UISearchBar)sender).Text;
                 await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, true);
             };
 
@@ -87,7 +88,7 @@ namespace IndoorRouting.iOS
             {
                 if (this.StartLocation != "Current Location")
                 {
-                    StartLocation = ((UISearchBar)sender).Text;
+                    //StartLocation = ((UISearchBar)sender).Text;
                     AutosuggestionsTableView.Hidden = true;
                 }
             };
@@ -96,12 +97,13 @@ namespace IndoorRouting.iOS
             this.EndSearchBar.TextChanged += async (sender, e) =>
             {
                 // This is the method that is called when the user searches
+                EndLocation = ((UISearchBar)sender).Text;
                 await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, false);
             };
 
             this.EndSearchBar.SearchButtonClicked += (sender, e) =>
             {
-                EndLocation = ((UISearchBar)sender).Text;
+                //EndLocation = ((UISearchBar)sender).Text;
                 AutosuggestionsTableView.Hidden = true;
             };
         }

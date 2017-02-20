@@ -58,11 +58,8 @@ namespace IndoorRouting.iOS
 
             set
             {
-                if (this.route != value && value != null)
-                {
-                    this.route = value;
-                    this.OnRouteChangedAsync();
-                }
+                this.route = value;
+                this.OnRouteChangedAsync();
             }
         }
 
@@ -317,19 +314,24 @@ namespace IndoorRouting.iOS
                     this.MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
+
                     try
                     {
                         await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        var x = ex.StackTrace;
+                        // If panning to the new route fails, just move on
                     }
                 }
                 else
                 {
                     this.ShowContactCard("Routing Error", "Please retry route", true);
                 }
+            }
+            else
+            {
+                this.ShowContactCard("Routing Error", "Please retry route", true);
             }
         }
 
