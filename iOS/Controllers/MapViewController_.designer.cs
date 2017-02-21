@@ -64,6 +64,14 @@ namespace IndoorRouting.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIView RouteCard { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITableView RouteTableView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIToolbar SearchToolbar { get; set; }
 
         [Outlet]
@@ -73,6 +81,10 @@ namespace IndoorRouting.iOS
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem SettingsButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel WalkTimeLabel { get; set; }
 
         [Action ("CurrentLocationButton_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -144,6 +156,16 @@ namespace IndoorRouting.iOS
                 MapView = null;
             }
 
+            if (RouteCard != null) {
+                RouteCard.Dispose ();
+                RouteCard = null;
+            }
+
+            if (RouteTableView != null) {
+                RouteTableView.Dispose ();
+                RouteTableView = null;
+            }
+
             if (SearchToolbar != null) {
                 SearchToolbar.Dispose ();
                 SearchToolbar = null;
@@ -157,6 +179,11 @@ namespace IndoorRouting.iOS
             if (SettingsButton != null) {
                 SettingsButton.Dispose ();
                 SettingsButton = null;
+            }
+
+            if (WalkTimeLabel != null) {
+                WalkTimeLabel.Dispose ();
+                WalkTimeLabel = null;
             }
         }
     }
