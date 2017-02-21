@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
@@ -113,5 +113,6 @@ namespace IndoorNavigation.iOS
                 this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
             }
             catch { }
+        }
     }
 }

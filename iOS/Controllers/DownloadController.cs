@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.ComponentModel;
@@ -26,7 +26,7 @@ namespace IndoorNavigation.iOS
         private NSUrlSession session;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.DownloadController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.DownloadController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private DownloadController(IntPtr handle) : base(handle)
@@ -62,7 +62,7 @@ namespace IndoorNavigation.iOS
         /// <param name="percentage">Percentage progress.</param>
         internal void UpdateProgress(float percentage)
         {
-            progressView.SetProgress(percentage, true);
+            this.progressView.SetProgress(percentage, true);
         }
 
         /// <summary>

@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation
+namespace IndoorRouting
 { 
     using System;
     using System.Collections.Generic;
@@ -86,11 +86,9 @@ namespace IndoorNavigation
 
             private set
             {
-                if (this.isDownloading != value)
-                {
-                    this.isDownloading = value;
-                    this.OnPropertyChanged(nameof(this.IsDownloading));
-                }
+
+                this.isDownloading = value;
+                this.OnPropertyChanged(nameof(this.IsDownloading));
             }
         }
 

@@ -92,6 +92,9 @@
                                     <constraint id="4113" firstItem="1808" firstAttribute="height" constant="45"/>
                                     <constraint id="4114" firstItem="1808" firstAttribute="width" constant="45"/>
                                 </constraints>
+                                <connections>
+                                    <action selector="CurrentLocationButton_TouchUpInside:" destination="BYZ-38-t0r" id="4220" eventType="touchUpInside"/>
+                                </connections>
                             </button>
                             <tableView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1955">
                                 <rect key="frame" x="16" y="106" width="564" height="494"/>
@@ -336,6 +339,9 @@
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="1286">
                                                     <rect key="frame" x="531" y="6.5" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="CurrentLocationSwitchValueChanged:" destination="544" id="4211" eventType="valueChanged"/>
+                                                    </connections>
                                                 </switch>
                                             </subviews>
                                             <constraints>
@@ -346,7 +352,7 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="44" id="891">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="44" id="891" hidden="YES">
                                         <rect key="frame" x="0.0" y="88" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="891" id="892">
@@ -384,6 +390,7 @@
                     </tableView>
                     <connections>
                         <outlet property="HomeLocationLabel" destination="1282" id="name-outlet-1282"/>
+                        <outlet property="CurrentLocationSwitch" destination="1286" id="name-outlet-1286"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="550" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -507,7 +514,7 @@
                                             <color key="titleShadowColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <segue destination="BYZ-38-t0r" kind="show" identifier="BackFromRouteSegue" id="3420"/>
+                                            <segue id="4230" destination="4228" kind="unwind" unwindAction="UnwindToMainViewController:"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -561,8 +568,9 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2091" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="4228" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="691" y="-3"/>
+            <point key="canvasLocation" x="921" y="-192"/>
         </scene>
     </scenes>
     <resources>
@@ -576,5 +584,6 @@
         <image name="Menu" width="31" height="30"/>
         <image name="HomePin" width="19" height="36"/>
         <image name="RouteDetails" width="22" height="22"/>
+        <image name="LaunchPic" width="512" height="512"/>
     </resources>
 </document>

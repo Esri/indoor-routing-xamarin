@@ -9,17 +9,30 @@ using System;
 using System.CodeDom.Compiler;
 using UIKit;
 
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     [Register ("SettingsController")]
     partial class SettingsController
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UISwitch CurrentLocationSwitch { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel HomeLocationLabel { get; set; }
+
+        [Action ("CurrentLocationSwitchValueChanged:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void CurrentLocationSwitchValueChanged (UIKit.UISwitch sender);
 
         void ReleaseDesignerOutlets ()
         {
+            if (CurrentLocationSwitch != null) {
+                CurrentLocationSwitch.Dispose ();
+                CurrentLocationSwitch = null;
+            }
+
             if (HomeLocationLabel != null) {
                 HomeLocationLabel.Dispose ();
                 HomeLocationLabel = null;

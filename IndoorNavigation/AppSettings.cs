@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation
+namespace IndoorRouting
 {
     using System;
     using System.Collections.Generic;
@@ -208,8 +208,8 @@ namespace IndoorNavigation
             if (!files.Contains(filePath))
             {
                 var appSettings = new AppSettings();
-                appSettings.PortalItemID = "df35efe1d4534313a226cf3e1991cbfd";
-                appSettings.PortalItemName = "Campus.mmpk";
+                appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
+                appSettings.PortalItemName = "RedlandsCampus.mmpk";
                 appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
                 appSettings.HomeLocation = "Set home location";
                 appSettings.IsLocationServicesEnabled = false;
@@ -277,7 +277,7 @@ namespace IndoorNavigation
             {
                 var serializer = new XmlSerializer(typeof(AppSettings));
 
-                using (var fileStream = new FileStream(filePath, FileMode.Open))
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     serializer.Serialize(fileStream, CurrentSettings);
                 }

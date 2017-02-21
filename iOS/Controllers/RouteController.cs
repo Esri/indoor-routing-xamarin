@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace IndoorNavigation.iOS
         private bool startSearchBarFlag;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.RouteController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.RouteController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         public RouteController(IntPtr handle) : base(handle)
@@ -59,37 +59,47 @@ namespace IndoorNavigation.iOS
             base.ViewDidLoad();
             if (this.EndLocation != null)
             {
-                EndSearchBar.Text = this.EndLocation;
+                this.EndSearchBar.Text = this.EndLocation;
+            }
+
+            // Set start location as the current location, if available
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            {
+                this.StartLocation = "Current Location";
+                this.StartSearchBar.Text = this.StartLocation;
             }
 
             // Set start location as home location if available
-            if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
+            else if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
                 this.StartLocation = AppSettings.CurrentSettings.HomeLocation;
-                StartSearchBar.Text = this.StartLocation;
+                this.StartSearchBar.Text = this.StartLocation;
             }
 
             // Set text changed event on the start search bar
-            StartSearchBar.TextChanged += async (sender, e) =>
+            this.StartSearchBar.TextChanged += async (sender, e) =>
             {
                 // This is the method that is called when the user searchess
                 await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, true);
             };
 
-            StartSearchBar.SearchButtonClicked += (sender, e) =>
+            this.StartSearchBar.SearchButtonClicked += (sender, e) =>
             {
-                StartLocation = ((UISearchBar)sender).Text;
-                AutosuggestionsTableView.Hidden = true;
+                if (this.StartLocation != "Current Location")
+                {
+                    StartLocation = ((UISearchBar)sender).Text;
+                    AutosuggestionsTableView.Hidden = true;
+                }
             };
 
             // Set text changed event on the end search bar
-            EndSearchBar.TextChanged += async (sender, e) =>
+            this.EndSearchBar.TextChanged += async (sender, e) =>
             {
                 // This is the method that is called when the user searches
                 await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text, false);
             };
 
-            EndSearchBar.SearchButtonClicked += (sender, e) =>
+            this.EndSearchBar.SearchButtonClicked += (sender, e) =>
             {
                 EndLocation = ((UISearchBar)sender).Text;
                 AutosuggestionsTableView.Hidden = true;
@@ -105,29 +115,42 @@ namespace IndoorNavigation.iOS
         {
             base.PrepareForSegue(segue, sender);
 
-            if (segue.Identifier == "BackFromRouteSegue")
-            {
-                var mapViewController = segue.DestinationViewController as MapViewController;
+            var mapViewController = segue.DestinationViewController as MapViewController;
 
-                // Geocode the locations selected by the use
-                try
+            // Geocode the locations selected by the user
+            try
+            {
+                if (this.StartLocation != "Current Location")
                 {
-                    var fromLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.StartLocation);
-                    var toLocationFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(this.EndLocation);
+                    var fromLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.StartLocation);
+                    var toLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.EndLocation);
 
                     var fromLocationPoint = fromLocationFeature.Geometry.Extent.GetCenter();
                     var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
 
-                    var route = await LocationViewModel.LocationViewModelInstance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
                     mapViewController.FromLocationFeature = fromLocationFeature;
                     mapViewController.ToLocationFeature = toLocationFeature;
 
                     mapViewController.Route = route;
                 }
-                catch
+                else
                 {
-                    mapViewController.Route = null;
+                    var toLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(this.EndLocation);
+
+                    var fromLocationPoint = LocationViewModel.Instance.CurrentLocation;
+                    var toLocationPoint = toLocationFeature.Geometry.Extent.GetCenter();
+
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+
+                    mapViewController.ToLocationFeature = toLocationFeature;
+
+                    mapViewController.Route = route;
                 }
+            }
+            catch
+            {
+                mapViewController.Route = null;
             }
         }
 
@@ -140,28 +163,28 @@ namespace IndoorNavigation.iOS
         private async Task GetSuggestionsFromLocatorAsync(string searchText, bool startSearchBarFlag)
         {
             this.startSearchBarFlag = startSearchBarFlag;
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(searchText);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(searchText);
 
             if (suggestions == null || suggestions.Count == 0)
             {
-                AutosuggestionsTableView.Hidden = true;
+                this.AutosuggestionsTableView.Hidden = true;
             }
 
             // Only show the floors tableview if the buildings in view have more than one floor
             if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                AutosuggestionsTableView.Hidden = false;
+                this.AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.TableSource_TableRowSelected;
-                AutosuggestionsTableView.Source = tableSource;
+                this.AutosuggestionsTableView.Source = tableSource;
 
-                AutosuggestionsTableView.ReloadData();
+                this.AutosuggestionsTableView.ReloadData();
 
                 // Auto extend or shrink the tableview based on the content inside
-                var frame = AutosuggestionsTableView.Frame;
-                frame.Height = AutosuggestionsTableView.ContentSize.Height;
-                AutosuggestionsTableView.Frame = frame;
+                var frame = this.AutosuggestionsTableView.Frame;
+                frame.Height = this.AutosuggestionsTableView.ContentSize.Height;
+                this.AutosuggestionsTableView.Frame = frame;
             }
         }
 
@@ -177,19 +200,19 @@ namespace IndoorNavigation.iOS
             // Test which search box the initial request came from
             if (this.startSearchBarFlag == true)
             {
-                StartSearchBar.Text = selectedItem.Label;
+                this.StartSearchBar.Text = selectedItem.Label;
                 this.StartLocation = selectedItem.Label;
-                StartSearchBar.ResignFirstResponder();
+                this.StartSearchBar.ResignFirstResponder();
             }
             else
             {
-                EndSearchBar.Text = selectedItem.Label;
+                this.EndSearchBar.Text = selectedItem.Label;
                 this.EndLocation = selectedItem.Label;
-                EndSearchBar.ResignFirstResponder();
+                this.EndSearchBar.ResignFirstResponder();
             }
 
             // Dismiss autosuggest table and keyboard
-            AutosuggestionsTableView.Hidden = true;
+            this.AutosuggestionsTableView.Hidden = true;
         }
     }
 }

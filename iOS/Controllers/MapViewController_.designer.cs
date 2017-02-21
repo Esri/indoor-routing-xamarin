@@ -9,7 +9,7 @@ using System;
 using System.CodeDom.Compiler;
 using UIKit;
 
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     [Register ("MapViewController")]
     partial class MapViewController
@@ -73,6 +73,10 @@ namespace IndoorNavigation.iOS
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem SettingsButton { get; set; }
+
+        [Action ("CurrentLocationButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void CurrentLocationButton_TouchUpInside (UIKit.UIButton sender);
 
         [Action ("Home_TouchUpInside:")]
         [GeneratedCode ("iOS Designer", "1.0")]

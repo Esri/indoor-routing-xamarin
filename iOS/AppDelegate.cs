@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.IO;
@@ -30,6 +30,22 @@ namespace IndoorNavigation.iOS
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Runs before the app finishes launching.
+        /// </summary>
+        /// <returns><c>true</c>, if finish launching was willed, <c>false</c> otherwise.</returns>
+        /// <param name="application">Application handle.</param>
+        /// <param name="launchOptions">Launch options.</param>
+        public override bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
+        {
+            // Set up your app key here to remove "For developers use only" watermark. 
+            // Go to the documentation for instructions on how to get a license key
+            ////string licenseKey = "runtimelite,1000,rud#########,day-month-year,####################";
+            ////Esri.ArcGISRuntime.ArcGISRuntimeEnvironment.SetLicense(licenseKey);
+
+            return true;
         }
 
         /// <summary>

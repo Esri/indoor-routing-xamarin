@@ -2,7 +2,7 @@
 //     Copyright (c) Esri. All rights reserved.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorNavigation.iOS
+namespace IndoorRouting.iOS
 {
     using System;
     using System.ComponentModel;
@@ -11,6 +11,7 @@ namespace IndoorNavigation.iOS
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
+    using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
@@ -36,13 +37,12 @@ namespace IndoorNavigation.iOS
         private RouteResult route;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorNavigation.iOS.MapViewController"/> class.
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.MapViewController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private MapViewController(IntPtr handle) : base(handle)
         {
             this.ViewModel = new MapViewModel();
-            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
         }
 
         /// <summary>
@@ -101,9 +101,19 @@ namespace IndoorNavigation.iOS
             }
 
             // Show Current Location button if location services is enabled
-            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            this.CurrentLocationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
+
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
             {
-                this.CurrentLocationButton.Hidden = false;
+                this.MapView.LocationDisplay.IsEnabled = true;
+                this.MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                this.MapView.LocationDisplay.InitialZoomScale = 150;
+
+                // TODO: Set floor when available in the API (Update 2?)
+            }
+            else
+            {
+                this.MapView.LocationDisplay.IsEnabled = false;
             }
         }
 
@@ -119,9 +129,35 @@ namespace IndoorNavigation.iOS
         /// <summary>
         /// Overrides default behavior when view has loaded. 
         /// </summary>
-        public override void ViewDidLoad()
+        public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
+
+            try
+            {
+                await this.ViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                var genericError = "An error has occured and map was not loaded. Please restart the app";
+
+                this.InvokeOnMainThread(() =>
+                {
+                    var detailsController = UIAlertController.Create("Error Details", ex.Message, UIAlertControllerStyle.Alert);
+                    detailsController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+
+                    var alertController = UIAlertController.Create("Error", genericError, UIAlertControllerStyle.Alert);
+                    alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                    alertController.AddAction(
+                        UIAlertAction.Create(
+                            "Details",
+                            UIAlertActionStyle.Default,
+                            (obj) => { this.PresentViewController(detailsController, true, null); }));
+                    this.PresentViewController(alertController, true, null);
+                });
+            }
 
             this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
             this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
@@ -152,6 +188,10 @@ namespace IndoorNavigation.iOS
             pinsGraphicOverlay.Id = "PinsGraphicsOverlay";
             this.MapView.GraphicsOverlays.Add(pinsGraphicOverlay);
 
+            var labelsGraphicOverlay = new GraphicsOverlay();
+            labelsGraphicOverlay.Id = "LabelsGraphicsOverlay";
+            this.MapView.GraphicsOverlays.Add(labelsGraphicOverlay);
+
             // TODO: The comments below were added on January 24. Check to see if the last letter disappears. 
             // Handle the user moving the map 
             this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
@@ -164,6 +204,8 @@ namespace IndoorNavigation.iOS
 
             // Handle the user holding tap on the mapp
             this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
+
+            this.MapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
 
             // Handle text changing in the search bar
             this.LocationSearchBar.TextChanged += async (sender, e) =>
@@ -202,6 +244,16 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
+        /// Unwinds to main view controller.
+        /// </summary>
+        /// <param name="segue">Unwind Segue name.</param>
+        [Action("UnwindToMainViewController:")]
+        public void UnwindToMainViewController(UIStoryboardSegue segue)
+        {
+            Console.WriteLine("We've unwinded to Main!");
+        }
+
+        /// <summary>
         /// Fires when a new route is generated
         /// </summary>
         /// <returns>The new route</returns>
@@ -213,12 +265,16 @@ namespace IndoorNavigation.iOS
                 var newRoute = this.Route.Routes.FirstOrDefault();
 
                 // create a picture marker symbol for start pin
-                var startPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
+                var uiImageStartPin = UIImage.FromBundle("StartPin");
+                var startPin = this.ImageToByteArray(uiImageStartPin);
                 var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
+                startMarker.OffsetY = uiImageStartPin.Size.Height * 0.65;
 
                 // create a picture marker symbol for end pin
-                var endPin = this.ImageToByteArray(UIImage.FromBundle("EndPin"));
+                var uiImageEndPin = UIImage.FromBundle("EndPin");
+                var endPin = this.ImageToByteArray(uiImageEndPin);
                 var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
+                endMarker.OffsetY = uiImageEndPin.Size.Height * 0.65;
 
                 if (newRoute != null)
                 {
@@ -261,7 +317,14 @@ namespace IndoorNavigation.iOS
                     this.MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
                     this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
-                    await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                    try
+                    {
+                        await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                    }
+                    catch (Exception ex)
+                    {
+                        var x = ex.StackTrace;
+                    }
                 }
                 else
                 {
@@ -317,12 +380,17 @@ namespace IndoorNavigation.iOS
         {
             this.InvokeOnMainThread(() =>
             {
-                UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, () =>
+                UIView.Animate(
+                    0.2, 
+                    0, 
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
+                    () =>
                 {
                     ContactCardView.Alpha = 0;
                     ButtonBottomConstraint.Constant = 35;
                     FloorPickerBottomConstraint.Constant = 35;
-                }, null);
+                }, 
+                               null);
             });
         }
 
@@ -350,19 +418,6 @@ namespace IndoorNavigation.iOS
                     }
 
                     break;
-                case "ErrorMessage":
-                    if (this.ViewModel.ErrorMessage != null)
-                    {
-                        this.InvokeOnMainThread(() =>
-                        {
-                            var alertController = UIAlertController.Create("Error", this.ViewModel.ErrorMessage, UIAlertControllerStyle.Alert);
-                            alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-
-                            //Present Alert
-                            this.PresentViewController(alertController, true, null);
-                        });
-                    }
-                    break;
             }
         }
 
@@ -383,6 +438,16 @@ namespace IndoorNavigation.iOS
             {
                 FloorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
+            }
+
+            if (MapView.MapScale <= 300)
+            {
+                // Workaround to show labels until core bug is fixed
+                await this.DisplayLabelsAsync();
+            }
+            else
+            {
+                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
         }
 
@@ -419,7 +484,7 @@ namespace IndoorNavigation.iOS
                 var tapScreenPoint = e.Position;
 
                 var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-                var pixelTolerance = 30;
+                var pixelTolerance = 10;
                 var returnPopupsOnly = false;
                 var maxResults = 1;
 
@@ -429,8 +494,10 @@ namespace IndoorNavigation.iOS
                     IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
                     // create a picture marker symbol
-                    var mapPin = this.ImageToByteArray(UIImage.FromBundle("EndPin"));
+                    var uiImagePin = UIImage.FromBundle("EndPin");
+                    var mapPin = this.ImageToByteArray(uiImagePin);
                     var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                    roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                     // Create graphic
                     var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
@@ -471,6 +538,19 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
+        /// Event handler for user tapping the blue Current Location button
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
+        partial void CurrentLocationButton_TouchUpInside(UIButton sender)
+        {
+            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
+            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
+            this.MapView.LocationDisplay.IsEnabled = true;
+
+            // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
+        }
+
+        /// <summary>
         /// When user holds tap on a room, the information about the room is displayed
         /// </summary>
         /// <param name="sender">Sender element.</param>
@@ -481,6 +561,16 @@ namespace IndoorNavigation.iOS
             e.Handled = true;
 
             // TODO: Make map full screen
+        }
+
+        /// <summary>
+        /// Set the current location as user moves around
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
+        /// <param name="e">Event args.</param>
+        private void MapView_LocationChanged(object sender, Location e)
+        {
+            LocationViewModel.Instance.CurrentLocation = e.Position;
         }
 
         /// <summary>
@@ -544,6 +634,44 @@ namespace IndoorNavigation.iOS
         }
 
         /// <summary>
+        /// Gets the labels for the current extent in a graphics overlay
+        /// This is a temporary workaround until the labeling bug in core gets fixed
+        /// </summary>
+        /// <returns>The labels in a graphics overlay</returns>
+        private async Task DisplayLabelsAsync()
+        {
+            var labelsViewModel = new LabelsViewModel();
+            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(MapView, this.ViewModel.SelectedFloorLevel);
+
+            if (labelFeatures != null)
+            {
+                var graphicsOverlay = MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
+                graphicsOverlay.Graphics.Clear();
+
+                // Run garbage collector manually to prevent System.ArgumentException bug
+                // TODO: Remove the manual garbage collection when bug is fixed
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                foreach (var feature in labelFeatures)
+                {
+                    var centerPoint = feature.Geometry.Extent.GetCenter();
+                    var label = feature.Attributes["LONGNAME"];
+
+                    if (label != null)
+                    {
+                        // Create graphic
+                        var labelText = new TextSymbol(label.ToString(), System.Drawing.Color.Black, 10, HorizontalAlignment.Center, VerticalAlignment.Middle);
+                        var labelGraphic = new Graphic(centerPoint, labelText);
+
+                        // Add label to map
+                        graphicsOverlay.Graphics.Add(labelGraphic);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the index of the table view row.
         /// </summary>
         /// <returns>The table view row index.</returns>
@@ -562,13 +690,12 @@ namespace IndoorNavigation.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.LocationViewModelInstance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
                 AutosuggestionsTableView.Hidden = true;
             }
-
-            if (suggestions.Count > 0)
+            else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
                 AutosuggestionsTableView.Hidden = false;
@@ -606,14 +733,16 @@ namespace IndoorNavigation.iOS
         /// <returns>The searched feature</returns>
         private async Task GetSearchedFeatureAsync(string searchText)
         {
-            var geocodeResult = await LocationViewModel.LocationViewModelInstance.GetSearchedLocationAsync(searchText);
-            this.ViewModel.SelectedFloorLevel = await LocationViewModel.LocationViewModelInstance.GetFloorLevelFromQueryAsync(searchText);
+            var geocodeResult = await LocationViewModel.Instance.GetSearchedLocationAsync(searchText);
+            this.ViewModel.SelectedFloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(searchText);
 
             if (geocodeResult != null)
             {
                 // create a picture marker symbol
-                var mapPin = this.ImageToByteArray(UIImage.FromBundle("StartPin"));
+                var uiImagePin = UIImage.FromBundle("EndPin");
+                var mapPin = this.ImageToByteArray(uiImagePin);
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                 // Create graphic
                 var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
@@ -626,7 +755,7 @@ namespace IndoorNavigation.iOS
                 this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
                 // Get the feature to populate the Contact Card
-                var roomFeature = await LocationViewModel.LocationViewModelInstance.GetRoomFeatureAsync(searchText);
+                var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(searchText);
 
                 if (roomFeature != null)
                 {
@@ -641,10 +770,11 @@ namespace IndoorNavigation.iOS
 
                     this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
                 }
-
             }
             else
+            {
                 this.ShowContactCard(searchText, "Location not found", true);
+            }
         }
 
         /// <summary>
@@ -675,10 +805,20 @@ namespace IndoorNavigation.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
+        private async void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
+
+            if (MapView.MapScale <= 300)
+            {
+                // Workaround to show labels until core bug is fixed
+                await this.DisplayLabelsAsync();
+            }
+            else
+            {
+                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
+            }
         }
 
         /// <summary>
@@ -692,8 +832,10 @@ namespace IndoorNavigation.iOS
             if (homeLocation != null)
             {
                 // create a picture marker symbol
-                var mapPin = this.ImageToByteArray(UIImage.FromBundle("HomePin"));
+                var uiImagePin = UIImage.FromBundle("HomePin");
+                var mapPin = this.ImageToByteArray(uiImagePin);
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                 // Create graphic
                 var mapPinGraphic = new Graphic(homeLocation, roomMarker);
