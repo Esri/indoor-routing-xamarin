@@ -71,15 +71,29 @@ namespace IndoorRouting.iOS
             }
             try
             {
-                var item = this.items.ElementAt(indexPath.Row);
-                cell.TextLabel.Text = item.Attributes[AppSettings.CurrentSettings.LocatorFields[0]].ToString();
-                cell.DetailTextLabel.Text = string.Format("Floor {0}", item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
+                if (this.items.ElementAt(indexPath.Row) != null)
+                {
+                    var item = this.items.ElementAt(indexPath.Row);
+                    cell.TextLabel.Text = item.Attributes[AppSettings.CurrentSettings.LocatorFields[0]].ToString();
+                    cell.DetailTextLabel.Text = string.Format("Floor {0}", item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
 
-                return cell;
+                    return cell;
+                }
+                else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+                {
+                    cell.TextLabel.Text = "Current Location";
+                    return cell;
+                }
+                else
+                {
+                    cell.TextLabel.Text = "Unknown Location";
+                    return cell;
+                }
             }
             catch
             {
-                return null;
+                cell.TextLabel.Text = "Unknown Location";
+                return cell;
             }
         }
     } 

@@ -100,6 +100,14 @@ namespace IndoorRouting.iOS
         {
             this.OnTableRowSelected(indexPath);
         }
+        /// <summary>
+        /// Override ScrollView behavior to dismiss keyboard on scroll
+        /// </summary>
+        /// <param name="scrollView">Scroll view.</param>
+        public override void Scrolled(UIScrollView scrollView)
+        {
+            scrollView.KeyboardDismissMode = UIScrollViewKeyboardDismissMode.OnDrag;
+        }
 
         /// <summary>
         /// Handle the table row selection.
