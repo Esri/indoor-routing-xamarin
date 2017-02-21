@@ -52,7 +52,7 @@ namespace IndoorRouting.iOS
         /// <param name="launchOptions">Launch options.</param>
         public override bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
         {
-            // Set up your app key here to remove "For developers use only" watermark. 
+            // TODO: Set up your app key here to remove "For developers use only" watermark. 
             // Go to the documentation for instructions on how to get a license key
             ////string licenseKey = "runtimelite,1000,rud#########,day-month-year,####################";
             ////Esri.ArcGISRuntime.ArcGISRuntimeEnvironment.SetLicense(licenseKey);
