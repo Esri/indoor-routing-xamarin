@@ -1,5 +1,17 @@
 // <copyright file="MapViewController.cs" company="Esri, Inc">
-//     Copyright (c) Esri. All rights reserved.
+//      Copyright 2017 Esri.
+//
+//      Licensed under the Apache License, Version 2.0 (the "License");
+//      you may not use this file except in compliance with the License.
+//      You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//      Unless required by applicable law or agreed to in writing, software
+//      distributed under the License is distributed on an "AS IS" BASIS,
+//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//      See the License for the specific language governing permissions and
+//      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
 namespace IndoorRouting.iOS
@@ -289,7 +301,7 @@ namespace IndoorRouting.iOS
                         walkTimeStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
                     }
 
-                    var tableSource = new List<Feature>() { FromLocationFeature, ToLocationFeature };
+                    var tableSource = new List<Feature>() { this.FromLocationFeature, this.ToLocationFeature };
                     this.ShowRouteCard(tableSource, walkTimeStringBuilder.ToString());
 
                     // Create point graphics
@@ -330,6 +342,11 @@ namespace IndoorRouting.iOS
             }
         }
 
+        /// <summary>
+        /// Shows the route card.
+        /// </summary>
+        /// <param name="items">List of stops.</param>
+        /// <param name="walkTime">Walk time.</param>
         private void ShowRouteCard(List<Feature> items, string walkTime)
         {
             this.InvokeOnMainThread(() =>
@@ -430,14 +447,14 @@ namespace IndoorRouting.iOS
                     if (this.ViewModel.Map != null)
                     {
                         // Add the map to the MapView to be displayedd
-                        MapView.Map = this.ViewModel.Map;
+                        this.MapView.Map = this.ViewModel.Map;
                     }
 
                     break;
                 case "Viewpoint":
                     if (this.ViewModel.Viewpoint != null)
                     {
-                        await MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
+                        await this.MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
                     }
 
                     break;
@@ -453,24 +470,24 @@ namespace IndoorRouting.iOS
         {
             // Display floors and level if user is zoomed in 
             // If user is zoomed out, only show the base layer
-            if (MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+            if (this.MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
             {
                 await this.DisplayFloorLevelsAsync();
             }
             else
             {
-                FloorsTableView.Hidden = true;
+                this.FloorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
             }
 
-            if (MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= 300)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
             }
             else
             {
-                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
+                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
         }
 
@@ -504,7 +521,7 @@ namespace IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (RouteCard.Alpha == 1)
+                if (this.RouteCard.Alpha == 1)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
@@ -526,7 +543,6 @@ namespace IndoorRouting.iOS
                     // Display the alert
                     this.PresentViewController(actionSheetAlert, true, null);
                 }
-
                 else
                 {
                     // get the tap location in screen unit
@@ -569,13 +585,13 @@ namespace IndoorRouting.iOS
                         }
                         else
                         {
-                            MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
+                            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                             this.HideContactCard();
                         }
                     }
                     catch
                     {
-                        MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
+                        this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
                     }
 
@@ -592,7 +608,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         private void ClearRoute()
         {
-            MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+            this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
             this.RouteCard.Alpha = 0;
         }
 
@@ -614,7 +630,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Eevent args.</param>
-        private async void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
+        private void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
         {
             // Override default behavior
             e.Handled = true;
@@ -638,12 +654,12 @@ namespace IndoorRouting.iOS
         /// <returns>The floor levels.</returns>
         private async Task DisplayFloorLevelsAsync()
         {
-            if (MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
+            if (this.MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
             {
                 try
                 {
                     var floorsViewModel = new FloorSelectorViewModel();
-                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(MapView);
+                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(this.MapView);
 
                     this.InvokeOnMainThread(() =>
                     {
@@ -700,11 +716,11 @@ namespace IndoorRouting.iOS
         private async Task DisplayLabelsAsync()
         {
             var labelsViewModel = new LabelsViewModel();
-            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(MapView, this.ViewModel.SelectedFloorLevel);
+            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(this.MapView, this.ViewModel.SelectedFloorLevel);
 
             if (labelFeatures != null)
             {
-                var graphicsOverlay = MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
 
                 // Run garbage collector manually to prevent System.ArgumentException bug
@@ -749,25 +765,25 @@ namespace IndoorRouting.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.LocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                AutosuggestionsTableView.Hidden = true;
+                this.AutosuggestionsTableView.Hidden = true;
             }
             else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                AutosuggestionsTableView.Hidden = false;
+                this.AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
-                AutosuggestionsTableView.Source = tableSource;
+                this.AutosuggestionsTableView.Source = tableSource;
 
-                AutosuggestionsTableView.ReloadData();
+                this.AutosuggestionsTableView.ReloadData();
 
                 // Auto extend or shrink the tableview based on the content inside
-                var frame = AutosuggestionsTableView.Frame;
-                frame.Height = AutosuggestionsTableView.ContentSize.Height;
-                AutosuggestionsTableView.Frame = frame;
+                var frame = this.AutosuggestionsTableView.Frame;
+                frame.Height = this.AutosuggestionsTableView.ContentSize.Height;
+                this.AutosuggestionsTableView.Frame = frame;
             }
         }
 
@@ -779,9 +795,9 @@ namespace IndoorRouting.iOS
         private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            LocationSearchBar.Text = selectedItem.Label;
-            LocationSearchBar.ResignFirstResponder();
-            AutosuggestionsTableView.Hidden = true;
+            this.LocationSearchBar.Text = selectedItem.Label;
+            this.LocationSearchBar.ResignFirstResponder();
+            this.AutosuggestionsTableView.Hidden = true;
             await this.GetSearchedFeatureAsync(selectedItem.Label);
         }
 
@@ -807,7 +823,7 @@ namespace IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
 
@@ -856,7 +872,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         private void DismissFloorsTableView()
         {
-            this.InvokeOnMainThread(() => FloorsTableView.Hidden = true);
+            this.InvokeOnMainThread(() => this.FloorsTableView.Hidden = true);
         }
 
         /// <summary>
@@ -869,14 +885,14 @@ namespace IndoorRouting.iOS
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
 
-            if (MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= 300)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
             }
             else
             {
-                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
+                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
         }
 
@@ -900,7 +916,7 @@ namespace IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(homeLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
                 this.HideContactCard();

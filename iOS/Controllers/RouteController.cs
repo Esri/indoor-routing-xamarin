@@ -1,5 +1,17 @@
 // <copyright file="RouteController.cs" company="Esri, Inc">
-//     Copyright (c) Esri. All rights reserved.
+//      Copyright 2017 Esri.
+//
+//      Licensed under the Apache License, Version 2.0 (the "License");
+//      you may not use this file except in compliance with the License.
+//      You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//      Unless required by applicable law or agreed to in writing, software
+//      distributed under the License is distributed on an "AS IS" BASIS,
+//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//      See the License for the specific language governing permissions and
+//      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
 namespace IndoorRouting.iOS
@@ -63,13 +75,12 @@ namespace IndoorRouting.iOS
             }
 
             // Set start location as the current location, if available
+            // Set start location as home location if available
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
                 this.StartLocation = "Current Location";
                 this.StartSearchBar.Text = this.StartLocation;
             }
-
-            // Set start location as home location if available
             else if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
                 this.StartLocation = AppSettings.CurrentSettings.HomeLocation;
@@ -88,7 +99,6 @@ namespace IndoorRouting.iOS
             {
                 if (this.StartLocation != "Current Location")
                 {
-                    //StartLocation = ((UISearchBar)sender).Text;
                     AutosuggestionsTableView.Hidden = true;
                 }
             };
@@ -103,7 +113,6 @@ namespace IndoorRouting.iOS
 
             this.EndSearchBar.SearchButtonClicked += (sender, e) =>
             {
-                //EndLocation = ((UISearchBar)sender).Text;
                 AutosuggestionsTableView.Hidden = true;
             };
         }

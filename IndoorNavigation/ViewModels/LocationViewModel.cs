@@ -1,5 +1,17 @@
 ﻿// <copyright file="LocationViewModel.cs" company="Esri, Inc">
-//     Copyright (c) Esri. All rights reserved.
+//      Copyright 2017 Esri.
+//
+//      Licensed under the Apache License, Version 2.0 (the "License");
+//      you may not use this file except in compliance with the License.
+//      You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//      Unless required by applicable law or agreed to in writing, software
+//      distributed under the License is distributed on an "AS IS" BASIS,
+//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//      See the License for the specific language governing permissions and
+//      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
 namespace IndoorRouting
@@ -46,8 +58,8 @@ namespace IndoorRouting
         /// Creates instance of LocatorViewModel
         /// </summary>
         /// <returns>LocatorViewModel instance.</returns>
-        /// <param name="map">Map.</param>
-        /// <param name="locator">Locator.</param>
+        /// <param name="map">Current Map .</param>
+        /// <param name="locator">Locator task.</param>
         internal static LocationViewModel Create(Map map, LocatorTask locator)
         {
             var locationViewModel = new LocationViewModel();
@@ -130,6 +142,7 @@ namespace IndoorRouting
                     return null;
                 }
             }
+
             return null;
         }
 
@@ -145,7 +158,7 @@ namespace IndoorRouting
                 var formattedSearchString = this.FormatStringForQuery(searchString);
 
                 // Geocode location and return the best match from the list
-                var matches = await Locator.GeocodeAsync(formattedSearchString);
+                var matches = await this.Locator.GeocodeAsync(formattedSearchString);
                 var bestMatch = matches.FirstOrDefault();
                 return bestMatch;
             }
@@ -189,6 +202,7 @@ namespace IndoorRouting
                     return null;
                 }
             }
+
             return null;
         }
 
@@ -211,13 +225,13 @@ namespace IndoorRouting
                     return null;
                 }
             }
+
             try
             {
                 var routeTask = await RouteTask.CreateAsync(this.Map.TransportationNetworks[0]);
 
                 if (routeTask != null)
                 {
-
                     // Get the default route parameters
                     var routeParams = await routeTask.CreateDefaultParametersAsync();
 
@@ -243,7 +257,7 @@ namespace IndoorRouting
                     return null;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }

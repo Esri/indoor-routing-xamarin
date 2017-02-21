@@ -104,10 +104,6 @@
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings30.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings60.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings90.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer30.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer60.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer90.png" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home30.png" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home60.png" />
@@ -134,10 +130,6 @@
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo26.png" />
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo52.png" />
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo78.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute22.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute44.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute66.png" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-512.png" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-1024.png" />
