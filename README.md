@@ -73,8 +73,7 @@ else
     this.IsReady = true;
 }
  ```
-
-![Checking for Map Updates](https://github.com/ArcGIS/indoor-routing-xamarin/blob/ui-and-docs/Assets/AppStartCheck.PNG)
+<center><img src="Assets/AppStartCheck.PNG" width="300"  /></center>
 
 If a download is needed, the app uses the iOS [NSUrlSessionDownloadTask](https://github.com/xamarin/ios-samples/blob/master/SimpleBackgroundTransfer/SimpleBackgroundTransfer/SimpleBackgroundTransferViewController.cs) to download the mmpk. This insures that the mmpk is downloaded even if the user switches away from the app during the download.
 
@@ -85,8 +84,7 @@ var downloadTask = this.session.CreateDownloadTask(NSUrl.FromString(downloadUrl)
 Both the mmpk and the app settings files are stored on the device and once downloaded, the app can work in a fully disconnected environment.
 
 ### Loading the Map
-
-[Image here]
+<center><img src="Assets/InitialExtent.PNG" width="300" /></center>
 
 Once everything is downloaded, the mmpk and all of its contents are loaded inside the Initialize method of the Main View Model.
 ```csharp
@@ -116,9 +114,10 @@ internal async Task InitializeAsync()
 The Initial Viewpoint is the initial extent that the map is loaded to when the application starts. This extent is configured in the settings. If the initial extent is not set, the map will display the full extent of the mmpk.
 
 ### Navigating the Map
-[Image Here]
 
 There are three ways to move around the map: pan, zoom and floor change. The floor picker is displayed only when the map is zoomed in past a certain extent. This extent is also defined in the settings and can be easily changed. When the floor picker is activated, the app applies [definition expressions](https://developers.arcgis.com/net/latest/ios/api-reference/) on the rooms and walls layers to only display the selected floor.
+
+<center><img src="Assets/ManualZoomIn.PNG" width="300" /></center>
 
 ```csharp
 for (int i = 1; i < Map.OperationalLayers.Count; i++)
@@ -136,7 +135,7 @@ for (int i = 1; i < Map.OperationalLayers.Count; i++)
 
 The mmpk locator is used to search for offices or employees. When user starts entering text, the locator is used to provide suggestions.
 
-[Insert Image]
+<center><img src="Assets/AutocompleteOffice.PNG" width="300" /> <img src="Assets/AutocompleteName.PNG" width="300" /></center>
 
 ```csharp
 internal async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestionsAsync(string userInput)
@@ -157,8 +156,6 @@ internal async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestionsAsync(st
 ```
 When a suggestion is selected, the selection is then passed to the locator again, this time to retrieve the actual location
 
-[Insert Image]
-
 ```csharp
 internal async Task<GeocodeResult> GetSearchedLocationAsync(string searchString)
 {
@@ -173,7 +170,7 @@ Several matches are returned, with corresponding accuracy scores. This app makes
 
 The resulting location is then added to the map inside a [Graphics Overlay](https://developers.arcgis.com/net/latest/wpf/guide/add-graphics-overlays-to-your-app.htm)
 
-[Insert Image]
+<center><img src="Assets/SearchUsingSearchBar.PNG" width="300" /></center>
 
 ```csharp
 if (geocodeResult != null)
@@ -223,7 +220,7 @@ if (roomsLayer != null)
 ### Setting a Home Location
 The app offers the option to set a Home Location. This location is used to pre-populate the starting point of routes, and the user can easily get back Home by tapping the Home button to the right of the search bar. The same locator is used to generate the suggestions and retrieve the selected location. Once set, the Home location is written to the AppSettings file and persists between app sessions.
 
-[Insert Image]
+<center><img src="Assets/SettingsWithHome.PNG" width="300" /> <img src="Assets/GoToHome.PNG" width="300" /></center>
 
 ### Routing
 Once search is complete and a feature is selected on the map, the route icon appears on the bottom card. Tapping that navigates the app to the routing page, where user is prompted to add a Start and End location. The End location is always pre-populated with the feature selected on the map. The Start location is only pre-populated if Location Services is enabled or if the user has a Home Location set. When the user hits Route Me, the app navigates back to the map and the route is generated using the TransportationNetwork that was packaged in the mmpk. [Read more about routing and how to create routes using transportation networks](https://developers.arcgis.com/net/latest/ios/guide/find-a-route.htm)
@@ -255,7 +252,11 @@ if (routeTask != null)
 }
 ```
 
+<center><img src="Assets/SearchFromLocation.PNG" width="300" /></center>
+
 The route is then displayed on the map using a GraphicsOverlay
+
+<center><img src="Assets/FullRoute.PNG" width="300" /></center>
 
 ```csharp
 // get the route from the results
@@ -288,7 +289,13 @@ this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
 // Pan to the new route
 await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
 ```
-Zooming, panning and switching floors are enabled during routing, and so is searching or moving to user's Home location. To clear the Route, simply tap on the map and select the Clear Route option.
+Zooming, panning and switching floors are enabled during routing, and so is searching or moving to user's Home location.
+
+<center><img src="Assets/RouteFloor1.PNG" width="300" /> <img src="Assets/RouteFloor3.PNG" width="300" /></center>
+
+To clear the Route, simply tap on the map and select the Clear Route option.
+
+<center><img src="Assets/ClearRoute.PNG" width="300" /></center>
 
 ### Using Location Services
 
