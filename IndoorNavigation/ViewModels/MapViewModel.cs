@@ -183,11 +183,7 @@ namespace IndoorRouting
                 // Location based, location services are on
                 // Home settings, location services are off but user has a home set
                 // Default setting, Location services are off and user has no home set
-                if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
-                {
-                    this.MoveToCurrentLocation();
-                }
-                else
+                if (!AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
                     Viewpoint = new Viewpoint(new MapPoint(x, y, new SpatialReference(Convert.ToInt32(wkid))), zoomLevel);
                 }
@@ -203,14 +199,6 @@ namespace IndoorRouting
                 Map.MaxScale = AppSettings.CurrentSettings.MapViewMinScale;
                 Map.MinScale = AppSettings.CurrentSettings.MapViewMaxScale;
             }
-        }
-
-        /// <summary>
-        /// Moves to current location of the user .
-        /// </summary>
-        internal void MoveToCurrentLocation()
-        {
-            // TODO: Implement when current location is available
         }
 
         /// <summary>
