@@ -74,7 +74,7 @@ else
 }
  ```
 
-[App Start Image here]
+![Checking for Map Updates](https://github.com/ArcGIS/indoor-routing-xamarin/blob/ui-and-docs/Assets/AppStartCheck.PNG)
 
 If a download is needed, the app uses the iOS [NSUrlSessionDownloadTask](https://github.com/xamarin/ios-samples/blob/master/SimpleBackgroundTransfer/SimpleBackgroundTransfer/SimpleBackgroundTransferViewController.cs) to download the mmpk. This insures that the mmpk is downloaded even if the user switches away from the app during the download.
 
