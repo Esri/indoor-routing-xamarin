@@ -37,7 +37,7 @@ The Indoor Routing is currently a Xamarin iOS app. The business logic is separat
 ## The App in Action
 
 ### App Settings
-Since this is a multi-platform application, the app settings are stored inside an xml that is created when the app is first installed and updated throughout the app's usage. AppSetting can be changed to include additional settings per developer requirements. Through the factory pattern, a static instance of CurrentSettings is available throughout the application.
+Since this is a multi-platform application, the app settings are stored inside an xml that is created when the app is first installed and updated throughout the app's usage. AppSetting can be changed to include additional settings per developer requirements. Using the factory pattern, a static instance of CurrentSettings is made available throughout the application.
 
 ```csharp
 internal static async Task<AppSettings> CreateAsync(string filePath)
@@ -81,4 +81,224 @@ If a download is needed, the app uses the iOS [NSUrlSessionDownloadTask](https:/
 ```csharp
 // Create a new download task.
 var downloadTask = this.session.CreateDownloadTask(NSUrl.FromString(downloadUrl));
+```
+Both the mmpk and the app settings files are stored on the device and once downloaded, the app can work in a fully disconnected environment.
+
+### Loading the Map
+
+[Image here]
+
+Once everything is downloaded, the mmpk and all of its contents are loaded inside the Initialize method of the Main View Model.
+```csharp
+internal async Task InitializeAsync()
+{
+    // Load mmpk from device and load it
+    var mmpk = await this.LoadMMPKAsync().ConfigureAwait(false);
+
+    // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
+    this.Map = mmpk.Maps.FirstOrDefault();
+    await Map.LoadAsync().ConfigureAwait(false);
+
+    // Set the locator to be used in the app
+    var locator = mmpk.LocatorTask;
+    await locator.LoadAsync().ConfigureAwait(false);
+
+    // Create instance of the Location View Model
+    if (LocationViewModel.Instance == null)
+    {
+        LocationViewModel.Instance = LocationViewModel.Create(Map, locator);
+    }
+
+    // Set viewpoint of the map depending on user's setting
+    await this.SetInitialViewPointAsync().ConfigureAwait(false);
+}
+```
+The Initial Viewpoint is the initial extent that the map is loaded to when the application starts. This extent is configured in the settings. If the initial extent is not set, the map will display the full extent of the mmpk.
+
+### Navigating the Map
+[Image Here]
+
+There are three ways to move around the map: pan, zoom and floor change. The floor picker is displayed only when the map is zoomed in past a certain extent. This extent is also defined in the settings and can be easily changed. When the floor picker is activated, the app applies [definition expressions](https://developers.arcgis.com/net/latest/ios/api-reference/) on the rooms and walls layers to only display the selected floor.
+
+```csharp
+for (int i = 1; i < Map.OperationalLayers.Count; i++)
+{
+    ...
+    // select chosen floor
+    featureLayer.DefinitionExpression = string.Format(
+                        "{0} = '{1}'",
+                        AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
+                    this.SelectedFloorLevel);
+    ...
+}
+```
+### Search Functionality
+
+The mmpk locator is used to search for offices or employees. When user starts entering text, the locator is used to provide suggestions.
+
+[Insert Image]
+
+```csharp
+internal async Task<IReadOnlyList<SuggestResult>> GetLocationSuggestionsAsync(string userInput)
+{
+    var locatorInfo = this.Locator.LocatorInfo;
+
+    if (locatorInfo.SupportsSuggestions)
+    {
+        // restrict the search to return no more than 10 suggestions
+        var suggestParams = new SuggestParameters { MaxResults = 10 };
+
+        // get suggestions for the text provided by the user
+        var suggestions = await this.Locator.SuggestAsync(userInput, suggestParams);
+        return suggestions;
+    }
+    return null;
+}
+```
+When a suggestion is selected, the selection is then passed to the locator again, this time to retrieve the actual location
+
+[Insert Image]
+
+```csharp
+internal async Task<GeocodeResult> GetSearchedLocationAsync(string searchString)
+{
+    // Geocode location and return the best match from the list
+    var matches = await this.Locator.GeocodeAsync(searchString);
+    var bestMatch = matches.FirstOrDefault();
+    return bestMatch;
+}
+```
+Several matches are returned, with corresponding accuracy scores. This app makes the assumption that the first match is the best, but it could be changed so users see more than one of the returned matches.
+[Read more about locators](https://developers.arcgis.com/net/latest/wpf/guide/search-for-places-geocoding-.htm).
+
+The resulting location is then added to the map inside a [Graphics Overlay](https://developers.arcgis.com/net/latest/wpf/guide/add-graphics-overlays-to-your-app.htm)
+
+[Insert Image]
+
+```csharp
+if (geocodeResult != null)
+{
+    // create a picture marker symbol and offset it
+    var uiImagePin = UIImage.FromBundle("MapPin");
+    var mapPin = this.ImageToByteArray(uiImagePin);
+    var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+    roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
+
+    // Create graphic
+    var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
+
+    // Add pin to map
+    var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+    graphicsOverlay.Graphics.Clear();
+    graphicsOverlay.Graphics.Add(mapPinGraphic);
+    this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
+}
+```
+
+### Querying Data
+The locator provides a map location for the searched feature, but does not provide any attribute data. To populate the card at the bottom of the map and select the appropriate floor, the data is queried
+
+```csharp
+// Run query to get attributes of the selected room
+var roomsLayer = this.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
+
+if (roomsLayer != null)
+{
+    // Get feature table to be queried
+    var roomsTable = roomsLayer.FeatureTable;
+
+    // Set query parameters
+    var queryParams = new QueryParameters()
+    {
+        ReturnGeometry = true,
+        WhereClause = string.Format(string.Join(" = '{0}' OR ", AppSettings.CurrentSettings.LocatorFields) + " = '{0}'", searchString)
+    };
+
+    // Query the feature table
+    var queryResult = await roomsTable.QueryFeaturesAsync(queryParams);
+        return queryResult.FirstOrDefault();
+    }
+}
+```
+### Setting a Home Location
+The app offers the option to set a Home Location. This location is used to pre-populate the starting point of routes, and the user can easily get back Home by tapping the Home button to the right of the search bar. The same locator is used to generate the suggestions and retrieve the selected location. Once set, the Home location is written to the AppSettings file and persists between app sessions.
+
+[Insert Image]
+
+### Routing
+Once search is complete and a feature is selected on the map, the route icon appears on the bottom card. Tapping that navigates the app to the routing page, where user is prompted to add a Start and End location. The End location is always pre-populated with the feature selected on the map. The Start location is only pre-populated if Location Services is enabled or if the user has a Home Location set. When the user hits Route Me, the app navigates back to the map and the route is generated using the TransportationNetwork that was packaged in the mmpk. [Read more about routing and how to create routes using transportation networks](https://developers.arcgis.com/net/latest/ios/guide/find-a-route.htm)
+
+```csharp
+var routeTask = await RouteTask.CreateAsync(this.Map.TransportationNetworks[0]);
+
+if (routeTask != null)
+{
+    // Get the default route parameters
+    var routeParams = await routeTask.CreateDefaultParametersAsync();
+
+    // Explicitly set values for some params
+    // Indoor networks do not support turn by turn navigation
+    routeParams.ReturnRoutes = true;
+    routeParams.ReturnDirections = true;
+
+    // Create stops
+    var startPoint = new Stop(fromLocation);
+    var endPoint = new Stop(toLocation);
+
+    // assign the stops to the route parameters
+    routeParams.SetStops(new List<Stop> { startPoint, endPoint });
+
+    // Execute routing
+    var routeResult = await routeTask.SolveRouteAsync(routeParams);
+
+    return routeResult;
+}
+```
+
+The route is then displayed on the map using a GraphicsOverlay
+
+```csharp
+// get the route from the results
+var newRoute = this.Route.Routes.FirstOrDefault();
+
+// create a picture marker symbol for start pin
+var uiImageStartPin = UIImage.FromBundle("StartCircle");
+var startPin = this.ImageToByteArray(uiImageStartPin);
+var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
+
+// create a picture marker symbol for end pin
+var uiImageEndPin = UIImage.FromBundle("EndCircle");
+var endPin = this.ImageToByteArray(uiImageEndPin);
+var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
+
+// create a graphic to represent the route
+var routeSymbol = new SimpleLineSymbol();
+routeSymbol.Width = 5;
+routeSymbol.Style = SimpleLineSymbolStyle.Solid;
+routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
+
+var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
+
+// Add graphics to overlay
+this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
+this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
+this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
+
+// Pan to the new route
+await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+```
+Zooming, panning and switching floors are enabled during routing, and so is searching or moving to user's Home location. To clear the Route, simply tap on the map and select the Clear Route option.
+
+### Using Location Services
+
+The app is written to allow using device location for tracking. However, this should be used with caution, as it does not work properly indoors. There are several businesses that offer indoor positioning devices, but Esri does not endorse any of them so it is up to the developer to do their research and find the best option for them.
+
+```csharp
+if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
+{
+    this.MapView.LocationDisplay.IsEnabled = true;
+    this.MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+    this.MapView.LocationDisplay.InitialZoomScale = 150;
+}
 ```
