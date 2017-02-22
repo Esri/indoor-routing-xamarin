@@ -137,9 +137,11 @@ namespace IndoorRouting
             this.Map = mmpk.Maps.FirstOrDefault();
             await Map.LoadAsync().ConfigureAwait(false);
 
+            // Get the locator to be used in the app
             var locator = mmpk.LocatorTask;
             await locator.LoadAsync().ConfigureAwait(false);
 
+            // Create instance of the Location View Model
             if (LocationViewModel.Instance == null)
             {
                 LocationViewModel.Instance = LocationViewModel.Create(Map, locator);

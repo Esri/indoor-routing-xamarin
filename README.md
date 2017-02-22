@@ -292,7 +292,7 @@ Zooming, panning and switching floors are enabled during routing, and so is sear
 
 ### Using Location Services
 
-The app is written to allow using device location for tracking. However, this should be used with caution, as it does not work properly indoors. There are several businesses that offer indoor positioning devices, but Esri does not endorse any of them so it is up to the developer to do their research and find the best option for them.
+The app is written to allow using device location for tracking. However, this should be used with caution, as it does not work properly indoors. There are several options available for indoor positioning devices, and developers should to do their research to find the best option for their needs.
 
 ```csharp
 if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
