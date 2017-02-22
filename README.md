@@ -6,10 +6,6 @@ Route and track indoors using custom building data, indoor network and locators.
 
 The example application is open source and available on GitHub. Developers can modify it to use their own data and custom locators.
 
-## The App in Action
-
-
-
 ## Preparing the Data
 A large portion of getting this application off the ground is gathering and preparing the data. The app uses a [Mobile Map Package](http://pro.arcgis.com/en/pro-app/help/sharing/overview/mobile-map-package.htm) (mmpk) which contains all the needed base data, feature data, network data and locators.
 
@@ -36,4 +32,53 @@ The [Network Dataset](http://support.esri.com/sitecore/content/support/Home/othe
 Locators provide the ability to find a location based on an address (geocode). In the case of indoor data, the address is an office or an employee's name. To accommodate searching for both office number and employee name, two separate [Single Field Locators](http://pro.arcgis.com/en/pro-app/help/data/geocoding/create-a-locator.htm) were created and then merged into a [Composite Locator](http://pro.arcgis.com/en/pro-app/help/data/geocoding/create-a-composite-locator.htm). The Composite Locator was then added to the mmpk.
 
 ## App Architecture
-The Indoor Routing is currently a Xamarin iOS app. The business logic is separate from the UI and is stored in a set of ViewModels in the shared part of the solution. This will make it relatively easy to add an Android or UWP UI to it later on. The native architecture was preferred over using Xamarin Forms due to stability concerns and the desire to have a native looking UI. 
+The Indoor Routing is currently a Xamarin iOS app. The business logic is separate from the UI and is stored in a set of ViewModels in the shared part of the solution. This will make it relatively easy to add an Android or UWP UI to it later on. The native architecture was preferred over using Xamarin Forms due to stability concerns and the desire to have a native looking UI. For more information on Xamarin, including how to get started, please see [Microsoft's website](https://developer.xamarin.com/guides/cross-platform/getting_started/).
+
+## The App in Action
+
+### App Settings
+Since this is a multi-platform application, the app settings are stored inside an xml that is created when the app is first installed and updated throughout the app's usage. AppSetting can be changed to include additional settings per developer requirements. Through the factory pattern, a static instance of CurrentSettings is available throughout the application.
+
+```csharp
+internal static async Task<AppSettings> CreateAsync(string filePath)
+{
+    var appSettings = new AppSettings();
+    appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
+    appSettings.PortalItemName = "RedlandsCampus.mmpk";
+    appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
+
+    ...
+
+    return appSettings;
+}
+```
+
+
+### Mobile Map Package Download
+ When the app first starts, it checks to see if an mmpk has been downloaded, or if there's an updated version to be downloaded from Portal.
+ ```csharp
+ // Get portal item
+var portal = await ArcGISPortal.CreateAsync().ConfigureAwait(false);
+var item = await PortalItem.CreateAsync(portal, AppSettings.CurrentSettings.PortalItemID).ConfigureAwait(false);
+
+// Test if mmpk is not already downloaded or is older than current portal version
+if (!this.Files.Contains(this.TargetFileName) ||
+    item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDownloadDate)
+{
+    this.IsDownloading = true;
+    this.DownloadURL = item.Url.AbsoluteUri + "/data";
+}
+else
+{
+    this.IsReady = true;
+}
+ ```
+
+[App Start Image here]
+
+If a download is needed, the app uses the iOS [NSUrlSessionDownloadTask](https://github.com/xamarin/ios-samples/blob/master/SimpleBackgroundTransfer/SimpleBackgroundTransfer/SimpleBackgroundTransferViewController.cs) to download the mmpk. This insures that the mmpk is downloaded even if the user switches away from the app during the download.
+
+```csharp
+// Create a new download task.
+var downloadTask = this.session.CreateDownloadTask(NSUrl.FromString(downloadUrl));
+```

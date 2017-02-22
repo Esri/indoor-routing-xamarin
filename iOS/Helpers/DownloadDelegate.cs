@@ -121,7 +121,7 @@ namespace IndoorRouting.iOS
                     // Bring up a local notification to take the user back to our app.
                     var notif = new UILocalNotification
                     {
-                        AlertBody = "Indoor Navigation: Mobile Map Package has been downloaded successfully."
+                        AlertBody = "Indoor Routing: Map has been downloaded successfully."
                     };
                     UIApplication.SharedApplication.PresentLocalNotificationNow(notif);
 
