@@ -1,4 +1,4 @@
-﻿// <copyright file="FloorsTableSource.cs" company="Esri, Inc">
+﻿// <copyright file="RouteTableSource.cs" company="Esri, Inc">
 //      Copyright 2017 Esri.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,41 +19,43 @@ namespace IndoorRouting.iOS
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Esri.ArcGISRuntime.Data;
     using Foundation;
     using UIKit;
 
     /// <summary>
-    /// Class handling the source data for the floors TableView 
+    /// Route table source.
     /// </summary>
-    internal class FloorsTableSource : UITableViewSource
+    public class RouteTableSource : UITableViewSource
     {
         /// <summary>
         /// The items in the table.
         /// </summary>
-        private readonly IEnumerable<string> items;
+        private readonly IEnumerable<Feature> items;
 
         /// <summary>
-        /// The cell identifier.
+        /// The cell identifier for the start cell.
         /// </summary>
-        private readonly string cellIdentifier;
+        private readonly string startCellIdentifier;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.FloorsTableSource"/> class.
+        /// The end cell identifier for the end cell.
+        /// </summary>
+        private readonly string endCellIdentifier;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.RouteTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal FloorsTableSource(IEnumerable<string> items)
+        internal RouteTableSource(List<Feature> items)
         {
             if (items != null)
             {
                 this.items = items;
-                this.cellIdentifier = "cell_id";
+                this.startCellIdentifier = "startCellID";
+                this.endCellIdentifier = "endCellID";
             }
         }
-
-        /// <summary>
-        /// Occurs when table row selected.
-        /// </summary>
-        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -81,51 +83,42 @@ namespace IndoorRouting.iOS
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(this.cellIdentifier);
-
-            // If there are no cells to reuse, create a new one
-            if (cell == null)
+            UITableViewCell cell;
+            if (indexPath.Row % 2 == 1)
             {
-                cell = new UITableViewCell(UITableViewCellStyle.Default, this.cellIdentifier);
+                cell = tableView.DequeueReusableCell(this.endCellIdentifier);
+            }
+            else
+            {
+                cell = tableView.DequeueReusableCell(this.startCellIdentifier);
             }
 
             try
             {
-                var item = this.items.ElementAt(indexPath.Row);
-                cell.TextLabel.Text = item;
+                if (this.items.ElementAt(indexPath.Row) != null)
+                {
+                    var item = this.items.ElementAt(indexPath.Row);
+                    cell.TextLabel.Text = item.Attributes[AppSettings.CurrentSettings.LocatorFields[0]].ToString();
+                    cell.DetailTextLabel.Text = string.Format("Floor {0}", item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
 
-                return cell;
+                    return cell;
+                }
+                else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+                {
+                    cell.TextLabel.Text = "Current Location";
+                    return cell;
+                }
+                else
+                {
+                    cell.TextLabel.Text = "Unknown Location";
+                    return cell;
+                }
             }
             catch
             {
-                return null;
+                cell.TextLabel.Text = "Unknown Location";
+                return cell;
             }
         }
-
-        /// <summary>
-        /// Event for user selecting a floor level
-        /// </summary>
-        /// <param name="tableView">Table view.</param>
-        /// <param name="indexPath">Index path.</param>
-        public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-        {
-            this.OnTableRowSelected(indexPath);
-        }
-
-        /// <summary>
-        /// Get the tableview item the user selected and call event handler
-        /// </summary>
-        /// <param name="itemIndexPath">Item index path.</param>
-        private void OnTableRowSelected(NSIndexPath itemIndexPath)
-        {
-            try
-            {
-                var item = this.items.ElementAt(itemIndexPath.Row);
-                this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item, itemIndexPath));
-            }
-            catch 
-            { 
-            }
-        }
-    }
+    } 
 }

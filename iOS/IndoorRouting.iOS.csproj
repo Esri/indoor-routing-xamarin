@@ -104,10 +104,6 @@
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings30.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings60.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings90.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer30.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer60.png" />
-    <ImageAsset Include="Assets.xcassets\Maps.imageset\iOS8_TabBar_MapServiceLayer90.png" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home30.png" />
     <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home60.png" />
@@ -117,19 +113,7 @@
     <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation60.png" />
     <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation90.png" />
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\EndPin.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\StartPin.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Menu.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Menu.imageset\menu30.png" />
-    <ImageAsset Include="Assets.xcassets\Menu.imageset\menu60.png" />
-    <ImageAsset Include="Assets.xcassets\Menu.imageset\menu90.png" />
-    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_Start36.png" />
-    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_Start72.png" />
-    <ImageAsset Include="Assets.xcassets\EndPin.imageset\iOS8_MapPin_Start108.png" />
-    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_GreenCircle36.png" />
-    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_GreenCircle72.png" />
-    <ImageAsset Include="Assets.xcassets\StartPin.imageset\iOS8_MapPin_GreenCircle108.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-29.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-58.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-80.png" />
@@ -146,13 +130,25 @@
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo26.png" />
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo52.png" />
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo78.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute22.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute44.png" />
-    <ImageAsset Include="Assets.xcassets\RouteDetails.imageset\SearchAlongRoute66.png" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-512.png" />
     <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-1024.png" />
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot108.png" />
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot36.png" />
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot72.png" />
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot108.png" />
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot36.png" />
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot72.png" />
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End36.png" />
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End72.png" />
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End108.png" />
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %284%29.png" />
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %285%29.png" />
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %286%29.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -161,8 +157,6 @@
     <Folder Include="Assets.xcassets\Maps.imageset\" />
     <Folder Include="Assets.xcassets\Home.imageset\" />
     <Folder Include="Assets.xcassets\CurrentLocation.imageset\" />
-    <Folder Include="Assets.xcassets\EndPin.imageset\" />
-    <Folder Include="Assets.xcassets\StartPin.imageset\" />
     <Folder Include="Assets.xcassets\Navigation.imageset\" />
     <Folder Include="Controllers\" />
     <Folder Include="Helpers\" />
@@ -171,6 +165,11 @@
     <Folder Include="Assets.xcassets\HomePin.imageset\" />
     <Folder Include="Assets.xcassets\RouteDetails.imageset\" />
     <Folder Include="Assets.xcassets\LaunchPic.imageset\" />
+    <Folder Include="Assets.xcassets\StartCircle.imageset\" />
+    <Folder Include="Assets.xcassets\EndCircle.imageset\" />
+    <Folder Include="Assets.xcassets\MapPin.imageset\" />
+    <Folder Include="Assets.xcassets\Close.imageset\" />
+    <Folder Include="Assets.xcassets\Walk.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -210,6 +209,7 @@
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="..\IndoorNavigation\ViewModels\Exception.cs" />
+    <Compile Include="Models\RouteTableSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />

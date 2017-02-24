@@ -1,10 +1,23 @@
 // <copyright file="MapViewController.cs" company="Esri, Inc">
-//     Copyright (c) Esri. All rights reserved.
+//      Copyright 2017 Esri.
+//
+//      Licensed under the Apache License, Version 2.0 (the "License");
+//      you may not use this file except in compliance with the License.
+//      You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//      Unless required by applicable law or agreed to in writing, software
+//      distributed under the License is distributed on an "AS IS" BASIS,
+//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//      See the License for the specific language governing permissions and
+//      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
 namespace IndoorRouting.iOS
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
     using System.Text;
@@ -58,11 +71,8 @@ namespace IndoorRouting.iOS
 
             set
             {
-                if (this.route != value && value != null)
-                {
-                    this.route = value;
-                    this.OnRouteChangedAsync();
-                }
+                this.route = value;
+                this.OnRouteChangedAsync();
             }
         }
 
@@ -192,6 +202,10 @@ namespace IndoorRouting.iOS
             labelsGraphicOverlay.Id = "LabelsGraphicsOverlay";
             this.MapView.GraphicsOverlays.Add(labelsGraphicOverlay);
 
+            var routeGraphicsOverlay = new GraphicsOverlay();
+            routeGraphicsOverlay.Id = "RouteGraphicsOverlay";
+            this.MapView.GraphicsOverlays.Add(routeGraphicsOverlay);
+
             // TODO: The comments below were added on January 24. Check to see if the last letter disappears. 
             // Handle the user moving the map 
             this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
@@ -250,7 +264,6 @@ namespace IndoorRouting.iOS
         [Action("UnwindToMainViewController:")]
         public void UnwindToMainViewController(UIStoryboardSegue segue)
         {
-            Console.WriteLine("We've unwinded to Main!");
         }
 
         /// <summary>
@@ -265,48 +278,37 @@ namespace IndoorRouting.iOS
                 var newRoute = this.Route.Routes.FirstOrDefault();
 
                 // create a picture marker symbol for start pin
-                var uiImageStartPin = UIImage.FromBundle("StartPin");
+                var uiImageStartPin = UIImage.FromBundle("StartCircle");
                 var startPin = this.ImageToByteArray(uiImageStartPin);
                 var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
-                startMarker.OffsetY = uiImageStartPin.Size.Height * 0.65;
 
                 // create a picture marker symbol for end pin
-                var uiImageEndPin = UIImage.FromBundle("EndPin");
+                var uiImageEndPin = UIImage.FromBundle("EndCircle");
                 var endPin = this.ImageToByteArray(uiImageEndPin);
                 var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
-                endMarker.OffsetY = uiImageEndPin.Size.Height * 0.65;
 
                 if (newRoute != null)
                 {
-                    var labelStringBuilder = new StringBuilder("Walk time: ");
+                    StringBuilder walkTimeStringBuilder = new StringBuilder();
 
                     // Add walk time and distance label
                     if (newRoute.TotalTime.Hours > 0)
                     {
-                        labelStringBuilder.Append(string.Format("{0} hr {1} min", newRoute.TotalTime.Hours, newRoute.TotalTime.Minutes));
+                        walkTimeStringBuilder.Append(string.Format("{0} h {1} m", newRoute.TotalTime.Hours, newRoute.TotalTime.Minutes));
                     }
                     else
                     {
-                        labelStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
+                        walkTimeStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
                     }
 
-                    var floorStringBuilder = new StringBuilder("Floor changes: ");
+                    var tableSource = new List<Feature>() { this.FromLocationFeature, this.ToLocationFeature };
+                    this.ShowRouteCard(tableSource, walkTimeStringBuilder.ToString());
 
-                    if (this.FromLocationFeature != null && this.ToLocationFeature != null)
-                    {
-                        floorStringBuilder.Append(string.Format(
-                            "{0} to {1}",
-                            this.FromLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName],
-                            this.ToLocationFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]));
-                    }
-
-                    this.ShowContactCard(labelStringBuilder.ToString(), floorStringBuilder.ToString(), true);
-
-                    // Create graphics
+                    // Create point graphics
                     var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
                     var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
 
-                    // create a graphic (with a dashed line symbol) to represent the routee
+                    // create a graphic to represent the routee
                     var routeSymbol = new SimpleLineSymbol();
                     routeSymbol.Width = 5;
                     routeSymbol.Style = SimpleLineSymbolStyle.Solid;
@@ -314,23 +316,61 @@ namespace IndoorRouting.iOS
 
                     var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
 
-                    this.MapView.GraphicsOverlays[0].Graphics.Add(routeGraphic);
-                    this.MapView.GraphicsOverlays[0].Graphics.Add(startGraphic);
-                    this.MapView.GraphicsOverlays[0].Graphics.Add(endGraphic);
+                    // Add graphics to overlay
+                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
+                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
+                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
+
                     try
                     {
                         await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        var x = ex.StackTrace;
+                        // If panning to the new route fails, just move on
                     }
                 }
                 else
                 {
-                    this.ShowContactCard("Routing Error", "Please retry route", true);
+                    this.ShowBottomCard("Routing Error", "Please retry route", true);
                 }
             }
+            else
+            {
+                this.ShowBottomCard("Routing Error", "Please retry route", true);
+            }
+        }
+
+        /// <summary>
+        /// Shows the route card.
+        /// </summary>
+        /// <param name="items">List of stops.</param>
+        /// <param name="walkTime">Walk time.</param>
+        private void ShowRouteCard(List<Feature> items, string walkTime)
+        {
+            this.InvokeOnMainThread(() =>
+            {
+                // Show the tableview and populate it
+                RouteTableView.Source = new RouteTableSource(items);
+                RouteTableView.ReloadData();
+
+                WalkTimeLabel.Text = walkTime;
+
+                UIView.Transition(
+                    RouteCard,
+                    0.2,
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
+                    () =>
+                    {
+                        RouteCard.Alpha = 1;
+                    },
+                    null);
+
+                var buttonConstraint = 35 + RouteCard.Frame.Height;
+                ButtonBottomConstraint.Constant = buttonConstraint;
+                FloorPickerBottomConstraint.Constant = buttonConstraint;
+            });
         }
 
         /// <summary>
@@ -339,7 +379,7 @@ namespace IndoorRouting.iOS
         /// <param name="mainLabel">Main label.</param>
         /// <param name="secondaryLabel">Secondary label.</param>
         /// <param name="isRoute">If set to <c>true</c> is route.</param>
-        private void ShowContactCard(string mainLabel, string secondaryLabel, bool isRoute)
+        private void ShowBottomCard(string mainLabel, string secondaryLabel, bool isRoute)
         {
             this.InvokeOnMainThread(() =>
             {
@@ -407,14 +447,14 @@ namespace IndoorRouting.iOS
                     if (this.ViewModel.Map != null)
                     {
                         // Add the map to the MapView to be displayedd
-                        MapView.Map = this.ViewModel.Map;
+                        this.MapView.Map = this.ViewModel.Map;
                     }
 
                     break;
                 case "Viewpoint":
                     if (this.ViewModel.Viewpoint != null)
                     {
-                        await MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
+                        await this.MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
                     }
 
                     break;
@@ -430,24 +470,24 @@ namespace IndoorRouting.iOS
         {
             // Display floors and level if user is zoomed in 
             // If user is zoomed out, only show the base layer
-            if (MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+            if (this.MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
             {
                 await this.DisplayFloorLevelsAsync();
             }
             else
             {
-                FloorsTableView.Hidden = true;
+                this.FloorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
             }
 
-            if (MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= 300)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
             }
             else
             {
-                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
+                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
         }
 
@@ -477,64 +517,99 @@ namespace IndoorRouting.iOS
             {
                 e.Handled = true;
                 this.isViewDoubleTapped = false;
-            }    
+            }
             else
             {
-                // get the tap location in screen unit
-                var tapScreenPoint = e.Position;
-
-                var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-                var pixelTolerance = 10;
-                var returnPopupsOnly = false;
-                var maxResults = 1;
-
-                try
+                // If route card is visible, do not dismiss route
+                if (this.RouteCard.Alpha == 1)
                 {
-                    // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
-                    IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+                    // Create a new Alert Controller
+                    UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
-                    // create a picture marker symbol
-                    var uiImagePin = UIImage.FromBundle("EndPin");
-                    var mapPin = this.ImageToByteArray(uiImagePin);
-                    var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-                    roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
+                    // Add Actions
+                    actionSheetAlert.AddAction(UIAlertAction.Create("Clear Route", UIAlertActionStyle.Destructive, (action) => this.ClearRoute()));
 
-                    // Create graphic
-                    var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+                    actionSheetAlert.AddAction(UIAlertAction.Create("Keep Route", UIAlertActionStyle.Default, null));
 
-                    // Add pin to mapview
-                    var graphicsOverlay = this.MapView.GraphicsOverlays[0];
-                    graphicsOverlay.Graphics.Clear();
-                    graphicsOverlay.Graphics.Add(mapPinGraphic);
-
-                    // Get room attribute from the settings. First attribute should be set as the searcheable one
-                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                    var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
-                    var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
-
-                    if (roomNumber != null)
+                    // Required for iPad - You must specify a source for the Action Sheet since it is
+                    // displayed as a popover
+                    UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
+                    if (presentationPopover != null)
                     {
-                        var employeeNameLabel = employeeName ?? string.Empty;
-                        this.ShowContactCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
+                        presentationPopover.SourceView = this.View;
+                        presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
                     }
-                    else
+
+                    // Display the alert
+                    this.PresentViewController(actionSheetAlert, true, null);
+                }
+                else
+                {
+                    // get the tap location in screen unit
+                    var tapScreenPoint = e.Position;
+
+                    var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
+                    var pixelTolerance = 10;
+                    var returnPopupsOnly = false;
+                    var maxResults = 1;
+
+                    try
                     {
-                        MapView.GraphicsOverlays[0].Graphics.Clear();
+                        // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
+                        IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                        // create a picture marker symbol
+                        var uiImagePin = UIImage.FromBundle("MapPin");
+                        var mapPin = this.ImageToByteArray(uiImagePin);
+                        var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                        roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
+
+                        // Create graphic
+                        var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+
+                        // Add pin to mapview
+                        var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                        graphicsOverlay.Graphics.Clear();
+                        graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+                        // Get room attribute from the settings. First attribute should be set as the searcheable one
+                        var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+                        var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                        var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
+                        var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
+
+                        if (roomNumber != null)
+                        {
+                            var employeeNameLabel = employeeName ?? string.Empty;
+                            this.ShowBottomCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
+                        }
+                        else
+                        {
+                            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
+                            this.HideContactCard();
+                        }
+                    }
+                    catch
+                    {
+                        this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
                     }
-                }
-                catch
-                {
-                    MapView.GraphicsOverlays[0].Graphics.Clear();
-                    this.HideContactCard();
-                }
 
-                if (this.LocationSearchBar.IsFirstResponder == true)
-                {
-                    this.LocationSearchBar.ResignFirstResponder();
+                    if (this.LocationSearchBar.IsFirstResponder == true)
+                    {
+                        this.LocationSearchBar.ResignFirstResponder();
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// Clears the route and hides route card.
+        /// </summary>
+        private void ClearRoute()
+        {
+            this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+            this.RouteCard.Alpha = 0;
         }
 
         /// <summary>
@@ -555,7 +630,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Eevent args.</param>
-        private async void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
+        private void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
         {
             // Override default behavior
             e.Handled = true;
@@ -579,12 +654,12 @@ namespace IndoorRouting.iOS
         /// <returns>The floor levels.</returns>
         private async Task DisplayFloorLevelsAsync()
         {
-            if (MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
+            if (this.MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
             {
                 try
                 {
                     var floorsViewModel = new FloorSelectorViewModel();
-                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(MapView);
+                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(this.MapView);
 
                     this.InvokeOnMainThread(() =>
                     {
@@ -641,11 +716,11 @@ namespace IndoorRouting.iOS
         private async Task DisplayLabelsAsync()
         {
             var labelsViewModel = new LabelsViewModel();
-            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(MapView, this.ViewModel.SelectedFloorLevel);
+            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(this.MapView, this.ViewModel.SelectedFloorLevel);
 
             if (labelFeatures != null)
             {
-                var graphicsOverlay = MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
 
                 // Run garbage collector manually to prevent System.ArgumentException bug
@@ -690,25 +765,25 @@ namespace IndoorRouting.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.LocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                AutosuggestionsTableView.Hidden = true;
+                this.AutosuggestionsTableView.Hidden = true;
             }
             else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                AutosuggestionsTableView.Hidden = false;
+                this.AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
-                AutosuggestionsTableView.Source = tableSource;
+                this.AutosuggestionsTableView.Source = tableSource;
 
-                AutosuggestionsTableView.ReloadData();
+                this.AutosuggestionsTableView.ReloadData();
 
                 // Auto extend or shrink the tableview based on the content inside
-                var frame = AutosuggestionsTableView.Frame;
-                frame.Height = AutosuggestionsTableView.ContentSize.Height;
-                AutosuggestionsTableView.Frame = frame;
+                var frame = this.AutosuggestionsTableView.Frame;
+                frame.Height = this.AutosuggestionsTableView.ContentSize.Height;
+                this.AutosuggestionsTableView.Frame = frame;
             }
         }
 
@@ -720,9 +795,9 @@ namespace IndoorRouting.iOS
         private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            LocationSearchBar.Text = selectedItem.Label;
-            LocationSearchBar.ResignFirstResponder();
-            AutosuggestionsTableView.Hidden = true;
+            this.LocationSearchBar.Text = selectedItem.Label;
+            this.LocationSearchBar.ResignFirstResponder();
+            this.AutosuggestionsTableView.Hidden = true;
             await this.GetSearchedFeatureAsync(selectedItem.Label);
         }
 
@@ -739,7 +814,7 @@ namespace IndoorRouting.iOS
             if (geocodeResult != null)
             {
                 // create a picture marker symbol
-                var uiImagePin = UIImage.FromBundle("EndPin");
+                var uiImagePin = UIImage.FromBundle("MapPin");
                 var mapPin = this.ImageToByteArray(uiImagePin);
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
                 roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
@@ -748,7 +823,7 @@ namespace IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = MapView.GraphicsOverlays[0];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
 
@@ -768,12 +843,12 @@ namespace IndoorRouting.iOS
                     var roomNumberLabel = roomNumber ?? string.Empty;
                     var employeeNameLabel = employeeName ?? string.Empty;
 
-                    this.ShowContactCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                    this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
                 }
             }
             else
             {
-                this.ShowContactCard(searchText, "Location not found", true);
+                this.ShowBottomCard(searchText, "Location not found", true);
             }
         }
 
@@ -797,7 +872,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         private void DismissFloorsTableView()
         {
-            this.InvokeOnMainThread(() => FloorsTableView.Hidden = true);
+            this.InvokeOnMainThread(() => this.FloorsTableView.Hidden = true);
         }
 
         /// <summary>
@@ -810,14 +885,14 @@ namespace IndoorRouting.iOS
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
 
-            if (MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= 300)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
             }
             else
             {
-                MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
+                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
             }
         }
 
@@ -841,10 +916,27 @@ namespace IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(homeLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = MapView.GraphicsOverlays[0];
+                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
                 this.HideContactCard();
+            }
+
+            // Get the feature to populate the Contact Card
+            var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(AppSettings.CurrentSettings.HomeLocation);
+
+            if (roomFeature != null)
+            {
+                // Get room attribute from the settings. First attribute should be set as the searcheable one
+                var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                var roomNumber = roomFeature.Attributes[roomAttribute];
+                var employeeName = roomFeature.Attributes[employeeNameAttribute];
+
+                var roomNumberLabel = roomNumber ?? string.Empty;
+                var employeeNameLabel = employeeName ?? string.Empty;
+
+                this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
             }
         }
     }
