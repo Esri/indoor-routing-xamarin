@@ -65,14 +65,7 @@ namespace IndoorRouting.iOS
         /// <param name="section">Specific Section.</param>
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            try
-            {
-                return this.items.Count();
-            }
-            catch
-            {
-                return 0;
-            }
+            return this.items?.Count() ?? 0;
         }
 
         /// <summary>
@@ -83,15 +76,10 @@ namespace IndoorRouting.iOS
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            UITableViewCell cell;
-            if (indexPath.Row % 2 == 1)
-            {
-                cell = tableView.DequeueReusableCell(this.endCellIdentifier);
-            }
-            else
-            {
-                cell = tableView.DequeueReusableCell(this.startCellIdentifier);
-            }
+            // Used to create the 2 route card cells
+            // Zero base index, even cell is the start location odd cell is the end location
+            var cellIdentifier = indexPath.Row % 2 == 1 ? this.endCellIdentifier : this.startCellIdentifier;
+            var cell = tableView.DequeueReusableCell(cellIdentifier);
 
             try
             {
