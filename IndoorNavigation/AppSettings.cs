@@ -237,7 +237,7 @@ namespace IndoorRouting
                     new CoordinatesKeyValuePair<string, double>("X", -13046209),
                     new CoordinatesKeyValuePair<string, double>("Y", 4036456),
                     new CoordinatesKeyValuePair<string, double>("WKID", 3857),
-                    new CoordinatesKeyValuePair<string, double>("ZoomLevel", 1600),
+                    new CoordinatesKeyValuePair<string, double>("ZoomLevel", 13000),
                 };
                 appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
 

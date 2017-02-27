@@ -322,6 +322,9 @@ namespace IndoorRouting.iOS
                     this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
                     this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
 
+                    // Hide the pins graphics overlay
+                    this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
+
                     try
                     {
                         await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
@@ -609,6 +612,7 @@ namespace IndoorRouting.iOS
         private void ClearRoute()
         {
             this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
             this.RouteCard.Alpha = 0;
         }
 
@@ -826,6 +830,7 @@ namespace IndoorRouting.iOS
                 var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
+                this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
 
                 this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
@@ -919,6 +924,7 @@ namespace IndoorRouting.iOS
                 var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
+                this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
                 this.HideContactCard();
             }
 

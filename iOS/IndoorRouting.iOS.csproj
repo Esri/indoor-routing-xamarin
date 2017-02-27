@@ -208,7 +208,6 @@
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
-    <Compile Include="..\IndoorNavigation\ViewModels\Exception.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
   </ItemGroup>
   <ItemGroup>

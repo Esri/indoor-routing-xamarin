@@ -28,6 +28,10 @@ namespace IndoorRouting.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIView RouteView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISearchBar StartSearchBar { get; set; }
 
         void ReleaseDesignerOutlets ()
@@ -45,6 +49,11 @@ namespace IndoorRouting.iOS
             if (RouteButton != null) {
                 RouteButton.Dispose ();
                 RouteButton = null;
+            }
+
+            if (RouteView != null) {
+                RouteView.Dispose ();
+                RouteView = null;
             }
 
             if (StartSearchBar != null) {
