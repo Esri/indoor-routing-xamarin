@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IndoorRouting", "IndoorNavigation\IndoorRouting.shproj", "{C74E25B9-776D-4522-891F-660D1A128785}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IndoorRouting", "IndoorRouting\IndoorRouting.shproj", "{C74E25B9-776D-4522-891F-660D1A128785}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndoorRouting.iOS", "iOS\IndoorRouting.iOS.csproj", "{7955C133-DC15-4F9C-BC27-60E14C6A6509}"
 EndProject
