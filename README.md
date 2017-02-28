@@ -1,6 +1,6 @@
 # Indoor Routing Xamarin
 
-This repo provides an example app called Indoor Routing for iOS devices built with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators.
+This repo provides an example app called Indoor Routing for iOS devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found in the [Wiki](https://github.com/Esri/indoor-routing-xamarin/wiki/Indoor-Routing-with-Xamarin-for-iOS)
 ## Features
  * Geocoding
  * Locators with Autosuggestions
@@ -15,7 +15,7 @@ This repo provides an example app called Indoor Routing for iOS devices built wi
 
 
 ## Development Instructions
-This Indoor Routing repo is an Xamarin Studio Project that can be directly cloned and imported into Xamarin Studio or Visual Studio.
+This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned and imported into Xamarin Studio or Visual Studio.
 
 ### Fork the repo
 **Fork** the [Indoor Routing Xamarin](https://github.com/Esri/indoor-routing-xamarin/fork) repo.
@@ -46,7 +46,7 @@ If there are changes made in the Original repository, you can sync the fork to k
 * [Xamarin Studio](https://www.xamarin.com/studio)
 
 ## Resources
-* [Indoor Routing](indoor-routing-xamarin/wiki)
+* [Indoor Routing](https://github.com/Esri/indoor-routing-xamarin/wiki/Indoor-Routing-with-Xamarin-for-iOS)
 * [ArcGIS Runtime SDK for .NET Developers Site](https://developers.arcgis.com/net/)
 * [ArcGIS Mobile Blog](http://blogs.esri.com/esri/arcgis/category/mobile/)
 * [ArcGIS Developer Blog](http://blogs.esri.com/esri/arcgis/category/developer/)
@@ -76,7 +76,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 A copy of the license is available in the repository's [LICENSE](LICENSE) file.
 
-For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/android/guide/license-your-app.htm).
+For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/net/latest/ios/guide/license-your-app.htm).
 
-[](Esri Tags: ArcGIS Xamarin Mobile)
+[](Esri Tags: ArcGIS Xamarin iOS Mobile)
 [](Esri Language: C#)​
