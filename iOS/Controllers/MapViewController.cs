@@ -724,32 +724,37 @@ namespace IndoorRouting.iOS
 
             if (labelFeatures != null)
             {
-                var graphicsOverlay = this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
-                graphicsOverlay.Graphics.Clear();
-
-                // Run garbage collector manually to prevent System.ArgumentException bug
-                // TODO: Remove the manual garbage collection when bug is fixed
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                foreach (var feature in labelFeatures)
+                try
                 {
-                    var centerPoint = feature.Geometry.Extent.GetCenter();
-                    var label = feature.Attributes["LONGNAME"];
+                    var graphicsOverlay = this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
+                    graphicsOverlay.Graphics.Clear();
 
-                    if (label != null)
+                    // Run garbage collector manually to prevent System.ArgumentException bug
+                    // TODO: Remove the manual garbage collection when bug is fixed
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    foreach (var feature in labelFeatures)
                     {
-                        // Create graphic
-                        var labelText = new TextSymbol(label.ToString(), System.Drawing.Color.Black, 10, HorizontalAlignment.Center, VerticalAlignment.Middle);
-                        var labelGraphic = new Graphic(centerPoint, labelText);
+                        var centerPoint = feature.Geometry.Extent.GetCenter();
+                        var label = feature.Attributes["LONGNAME"];
 
-                        // Add label to map
-                        graphicsOverlay.Graphics.Add(labelGraphic);
+                        if (label != null)
+                        {
+                            // Create graphic
+                            var labelText = new TextSymbol(label.ToString(), System.Drawing.Color.Black, 10, HorizontalAlignment.Center, VerticalAlignment.Middle);
+                            var labelGraphic = new Graphic(centerPoint, labelText);
+
+                            // Add label to map
+                            graphicsOverlay.Graphics.Add(labelGraphic);
+                        }
                     }
+                }
+                catch 
+                {
                 }
             }
         }
-
         /// <summary>
         /// Gets the index of the table view row.
         /// </summary>
@@ -830,7 +835,7 @@ namespace IndoorRouting.iOS
                 var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
-                this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
+                graphicsOverlay.IsVisible = true;
 
                 this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
@@ -924,7 +929,7 @@ namespace IndoorRouting.iOS
                 var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
-                this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
+                graphicsOverlay.IsVisible = true;
                 this.HideContactCard();
             }
 
