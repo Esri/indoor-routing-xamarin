@@ -169,6 +169,7 @@ namespace IndoorRouting.iOS
                 });
             }
 
+            // Set borders and shadows on controls
             this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
             this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
             this.CurrentLocationButton.Layer.ShadowRadius = 6.0f;
@@ -192,6 +193,10 @@ namespace IndoorRouting.iOS
             this.SearchToolbar.Layer.ShadowRadius = 6.0f;
             this.SearchToolbar.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
             this.SearchToolbar.Layer.MasksToBounds = false;
+
+            // Remove mapview grid and set its background
+            this.MapView.BackgroundGrid.GridLineWidth = 0;
+            this.MapView.BackgroundGrid.Color = System.Drawing.Color.WhiteSmoke;
 
             // Add a graphics overlay to hold the pins and route graphics
             var pinsGraphicOverlay = new GraphicsOverlay();
@@ -483,7 +488,7 @@ namespace IndoorRouting.iOS
                 this.ViewModel.SetFloorVisibility(false);
             }
 
-            if (this.MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= AppSettings.CurrentSettings.LabelsWorkaroundScale)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
@@ -568,7 +573,7 @@ namespace IndoorRouting.iOS
                         roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                         // Create graphic
-                        var mapPinGraphic = new Graphic(GeometryEngine.LabelPoint(idResults.GeoElements.First().Geometry as Polygon), roomMarker);
+                        var mapPinGraphic = new Graphic(idResults.GeoElements.FirstOrDefault().Geometry.Extent.GetCenter(), roomMarker);
 
                         // Add pin to mapview
                         var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
@@ -577,13 +582,19 @@ namespace IndoorRouting.iOS
 
                         // Get room attribute from the settings. First attribute should be set as the searcheable one
                         var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                        var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
                         var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
-                        var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
 
                         if (roomNumber != null)
                         {
-                            var employeeNameLabel = employeeName ?? string.Empty;
+                            var employeeNameLabel = string.Empty;
+                            if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
+                            {
+
+                                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                                var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
+                                employeeNameLabel = employeeName as string ?? string.Empty;
+                            }
+                            
                             this.ShowBottomCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
                         }
                         else
@@ -592,7 +603,7 @@ namespace IndoorRouting.iOS
                             this.HideContactCard();
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
@@ -846,12 +857,16 @@ namespace IndoorRouting.iOS
                 {
                     // Get room attribute from the settings. First attribute should be set as the searcheable one
                     var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
                     var roomNumber = roomFeature.Attributes[roomAttribute];
-                    var employeeName = roomFeature.Attributes[employeeNameAttribute];
-
                     var roomNumberLabel = roomNumber ?? string.Empty;
-                    var employeeNameLabel = employeeName ?? string.Empty;
+
+                    var employeeNameLabel = string.Empty;
+                    if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
+                    {
+                        var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                        var employeeName = roomFeature.Attributes[employeeNameAttribute];
+                        employeeNameLabel = employeeName as string ?? string.Empty;
+                    }
 
                     this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
                 }
@@ -895,7 +910,7 @@ namespace IndoorRouting.iOS
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
 
-            if (this.MapView.MapScale <= 300)
+            if (this.MapView.MapScale <= AppSettings.CurrentSettings.LabelsWorkaroundScale)
             {
                 // Workaround to show labels until core bug is fixed
                 await this.DisplayLabelsAsync();
@@ -940,13 +955,16 @@ namespace IndoorRouting.iOS
             {
                 // Get room attribute from the settings. First attribute should be set as the searcheable one
                 var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
                 var roomNumber = roomFeature.Attributes[roomAttribute];
-                var employeeName = roomFeature.Attributes[employeeNameAttribute];
-
                 var roomNumberLabel = roomNumber ?? string.Empty;
-                var employeeNameLabel = employeeName ?? string.Empty;
 
+                var employeeNameLabel = string.Empty;
+                if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
+                {
+                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
+                    var employeeName = roomFeature.Attributes[employeeNameAttribute];
+                    employeeNameLabel = employeeName as string ?? string.Empty;
+                }
                 this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
             }
         }

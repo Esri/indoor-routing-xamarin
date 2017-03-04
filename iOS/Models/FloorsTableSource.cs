@@ -93,6 +93,9 @@ namespace IndoorRouting.iOS
             {
                 var item = this.items.ElementAt(indexPath.Row);
                 cell.TextLabel.Text = item;
+                cell.SelectedBackgroundView = new UIView();
+                cell.SelectedBackgroundView.BackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
+                cell.TextLabel.HighlightedTextColor = UIColor.White;
 
                 return cell;
             }

@@ -204,6 +204,22 @@ namespace IndoorRouting
             get; set;
         }
 
+        [XmlElement]
+        public bool UseOnlineBasemap
+        {
+            get; set;
+        }
+
+        /// <summary>
+        /// Gets or sets the scale for the labels workaround.
+        /// </summary>
+        /// <value>The labels workaround scale.</value>
+        [XmlElement]
+        public int LabelsWorkaroundScale
+        {
+            get; set;
+        }
+
         /// <summary>
         /// Loads the app settings if the file exists, otherwise it creates default settings. 
         /// </summary>
@@ -232,6 +248,9 @@ namespace IndoorRouting
                 appSettings.RoomsLayerFloorColumnName = "FLOOR";
                 appSettings.MapViewMinScale = 100;
                 appSettings.MapViewMaxScale = 13000;
+                appSettings.LabelsWorkaroundScale = 300;
+                appSettings.UseOnlineBasemap = false;
+
                 CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
                 {
                     new CoordinatesKeyValuePair<string, double>("X", -13046209),
@@ -241,11 +260,11 @@ namespace IndoorRouting
                 };
                 appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
 
-                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
+                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
 
                 // Information in these fields gets displayed in the contact card
                 // List the Item you want searcheable and in bold to be first
-                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N" };
+                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
 
                 var serializer = new XmlSerializer(appSettings.GetType());
 

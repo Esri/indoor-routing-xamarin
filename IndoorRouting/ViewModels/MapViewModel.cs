@@ -135,6 +135,16 @@ namespace IndoorRouting
 
             // Display map from the mmpk. Assumption is made that the first map of the mmpk is the one used
             this.Map = mmpk.Maps.FirstOrDefault();
+
+            // Sets a basemap from ArcGIS Online if specified
+            // Replace basemap with any online basemap 
+            if (AppSettings.CurrentSettings.UseOnlineBasemap == true)
+            {
+                var basemap = Basemap.CreateLightGrayCanvasVector();
+                this.Map.Basemap = basemap;
+            }
+
+            // Load map
             await Map.LoadAsync().ConfigureAwait(false);
 
             // Get the locator to be used in the app
@@ -244,15 +254,17 @@ namespace IndoorRouting
 
         /// <summary>
         /// Changes the visibility of the rooms and walls layers based on floor selected
+        /// TODO: Modify this if any other layer's visibility is desired to be controlled
         /// </summary>
         /// <param name="areLayersOn">If set to <c>true</c> operational layers are turned on</param>
         internal void SetFloorVisibility(bool areLayersOn)
         {
-            for (int i = 1; i < Map.OperationalLayers.Count; i++)
+            foreach (var opLayer in this.Map.OperationalLayers)
             {
-                var featureLayer = Map.OperationalLayers[i] as FeatureLayer;
-                if (featureLayer != null)
+                if (opLayer is FeatureLayer)
                 {
+                    var featureLayer = opLayer as FeatureLayer;
+
                     if (this.SelectedFloorLevel == string.Empty)
                     {
                         this.SelectedFloorLevel = DefaultFloorLevel;
@@ -264,7 +276,7 @@ namespace IndoorRouting
                         AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
                     this.SelectedFloorLevel);
 
-                    Map.OperationalLayers[i].IsVisible = areLayersOn;
+                    opLayer.IsVisible = areLayersOn;
                 }
             }
         }
