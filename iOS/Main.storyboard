@@ -198,7 +198,6 @@
                             </button>
                             <tableView hidden="YES" autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="58">
                                 <rect key="frame" x="15" y="499" width="44" height="66"/>
-                                <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedRGB" red="0.10588235294117647" green="0.44313725490196076" blue="0.9882352941176471" alpha="1"/>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="cell_id" rowHeight="34" id="97">

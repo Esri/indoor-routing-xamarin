@@ -253,3 +253,7 @@ paket-files/
 
 # StyleCop Files
 *.StyleCop
+
+#iOS Files
+*.ipa
+*.ipa.zip
