@@ -235,22 +235,29 @@ namespace IndoorRouting
             // If settings file is invalid, delete it and recreate it
             if (!files.Contains(filePath))
             {
-                var appSettings = new AppSettings();
+               var appSettings = new AppSettings();
+
+                // Change the Portal Item
                 appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
                 appSettings.PortalItemName = "RedlandsCampus.mmpk";
-                appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
-                appSettings.HomeLocation = "Set home location";
-                appSettings.IsLocationServicesEnabled = false;
-                appSettings.IsPreferElevatorsEnabled = false;
+
+                // Change the room and walls layers
                 appSettings.RoomsLayerIndex = 1;
                 appSettings.FloorplanLinesLayerIndex = 2;
-                appSettings.RoomsLayerMinimumZoomLevel = 750;
+
+                //Change the floor column name
                 appSettings.RoomsLayerFloorColumnName = "FLOOR";
-                appSettings.MapViewMinScale = 100;
-                appSettings.MapViewMaxScale = 13000;
-                appSettings.LabelsWorkaroundScale = 300;
+
+                // Decide if you want to use online basemap or not
                 appSettings.UseOnlineBasemap = false;
 
+                // Change fields used by the locator
+                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
+
+                // Change fields displayed in the bottom card
+                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
+
+                // Change initial viewpoint
                 CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
                 {
                     new CoordinatesKeyValuePair<string, double>("X", -13046209),
@@ -260,13 +267,22 @@ namespace IndoorRouting
                 };
                 appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
 
-                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
+                // Change at what zoom levels the room data becomes visible
+                appSettings.RoomsLayerMinimumZoomLevel = 750;
 
-                // Information in these fields gets displayed in the contact card
-                // List the Item you want searcheable and in bold to be first
-                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
+                // Change map scales
+                appSettings.MapViewMinScale = 100;
+                appSettings.MapViewMaxScale = 13000;
+
+
+                appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
+                appSettings.HomeLocation = "Set home location";
+                appSettings.IsLocationServicesEnabled = false;
+                appSettings.IsPreferElevatorsEnabled = false;
+                appSettings.LabelsWorkaroundScale = 300;
 
                 var serializer = new XmlSerializer(appSettings.GetType());
+
 
                 // Create settings file on a separate thread
                 // this does not need to be awaited since the return is already set
