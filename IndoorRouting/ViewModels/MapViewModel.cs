@@ -138,7 +138,7 @@ namespace IndoorRouting
 
             // Sets a basemap from ArcGIS Online if specified
             // Replace basemap with any online basemap 
-            if (AppSettings.CurrentSettings.UseOnlineBasemap == true)
+            if (AppSettings.CurrentSettings.UseOnlineBasemap)
             {
                 var basemap = Basemap.CreateLightGrayCanvasVector();
                 this.Map.Basemap = basemap;
@@ -259,10 +259,8 @@ namespace IndoorRouting
         /// <param name="areLayersOn">If set to <c>true</c> operational layers are turned on</param>
         internal void SetFloorVisibility(bool areLayersOn)
         {
-            foreach (var opLayer in this.Map.OperationalLayers)
+            foreach (var opLayer in this.Map.OperationalLayers.OfType<FeatureLayer>())
             {
-                if (opLayer is FeatureLayer)
-                {
                     var featureLayer = opLayer as FeatureLayer;
 
                     if (this.SelectedFloorLevel == string.Empty)
@@ -277,7 +275,6 @@ namespace IndoorRouting
                     this.SelectedFloorLevel);
 
                     opLayer.IsVisible = areLayersOn;
-                }
             }
         }
 

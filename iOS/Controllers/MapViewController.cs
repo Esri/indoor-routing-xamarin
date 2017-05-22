@@ -169,6 +169,13 @@ namespace IndoorRouting.iOS
                 });
             }
 
+            // If the map does not have transportation networks, hide the directions button
+            if (!this.MapView.Map.TransportationNetworks.Any())
+            {
+                this.DirectionsButton.Enabled = false;
+                this.DirectionsButton.TintColor = UIColor.White;
+            }
+
             // Set borders and shadows on controls
             this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
             this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
@@ -572,8 +579,10 @@ namespace IndoorRouting.iOS
                         var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
                         roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
+                        var identifiedResult = idResults.GeoElements.First();
+
                         // Create graphic
-                        var mapPinGraphic = new Graphic(idResults.GeoElements.FirstOrDefault().Geometry.Extent.GetCenter(), roomMarker);
+                        var mapPinGraphic = new Graphic(identifiedResult.Geometry.Extent.GetCenter(), roomMarker);
 
                         // Add pin to mapview
                         var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
@@ -582,7 +591,7 @@ namespace IndoorRouting.iOS
 
                         // Get room attribute from the settings. First attribute should be set as the searcheable one
                         var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                        var roomNumber = idResults.GeoElements.First().Attributes[roomAttribute];
+                        var roomNumber = identifiedResult.Attributes[roomAttribute];
 
                         if (roomNumber != null)
                         {
@@ -591,7 +600,7 @@ namespace IndoorRouting.iOS
                             {
 
                                 var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                                var employeeName = idResults.GeoElements.First().Attributes[employeeNameAttribute];
+                                var employeeName = identifiedResult.Attributes[employeeNameAttribute];
                                 employeeNameLabel = employeeName as string ?? string.Empty;
                             }
                             
