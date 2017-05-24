@@ -125,6 +125,19 @@ namespace IndoorRouting.iOS
             {
                 this.MapView.LocationDisplay.IsEnabled = false;
             }
+
+            // If the routing is disabled, hide the directions button
+            if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
+            {
+                this.DirectionsButton.Enabled = false;
+                this.DirectionsButton.TintColor = UIColor.White;
+
+			}
+            else
+            {
+				this.DirectionsButton.Enabled = true;
+                this.DirectionsButton.TintColor = UIColor.Blue;
+            }
         }
 
         // TODO: implement max size for floor picker 
@@ -167,13 +180,6 @@ namespace IndoorRouting.iOS
                             (obj) => { this.PresentViewController(detailsController, true, null); }));
                     this.PresentViewController(alertController, true, null);
                 });
-            }
-
-            // If the map does not have transportation networks, hide the directions button
-            if (!this.MapView.Map.TransportationNetworks.Any())
-            {
-                this.DirectionsButton.Enabled = false;
-                this.DirectionsButton.TintColor = UIColor.White;
             }
 
             // Set borders and shadows on controls

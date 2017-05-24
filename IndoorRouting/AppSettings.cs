@@ -85,6 +85,16 @@ namespace IndoorRouting
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:IndoorNavigation.AppSettings"/> is routing enabled.
+        /// </summary>
+        /// <value><c>true</c> if is routing switch enabled; otherwise, <c>false</c>.</value>
+        [XmlElement]
+        public bool IsRoutingEnabled
+        {
+        	get; set;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="T:IndoorNavigation.AppSettings"/> is prefer elevators enabled.
         /// </summary>
         /// <value><c>true</c> if is prefer elevators switch is enabled; otherwise, <c>false</c>.</value>
@@ -278,6 +288,7 @@ namespace IndoorRouting
                 appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
                 appSettings.HomeLocation = "Set home location";
                 appSettings.IsLocationServicesEnabled = false;
+                appSettings.IsRoutingEnabled = false;
                 appSettings.IsPreferElevatorsEnabled = false;
                 appSettings.LabelsWorkaroundScale = 300;
 

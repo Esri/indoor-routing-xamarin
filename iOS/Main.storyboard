@@ -446,6 +446,37 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="4361">
+                                        <rect key="frame" x="0.0" y="88" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="4361" id="4362">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4363" translatesAutoresizingMaskIntoConstraints="NO" text="Enable Routing">
+                                                    <rect key="frame" x="17" y="11" width="127" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                    <constraints>
+                                                        <constraint id="4366" firstItem="4363" firstAttribute="width" constant="127"/>
+                                                    </constraints>
+                                                </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="4367" translatesAutoresizingMaskIntoConstraints="NO">
+                                                    <rect key="frame" x="531" y="6" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="EnableRoutingSwitchValueChanged:" destination="544" id="4370" eventType="valueChanged"/>
+                                                    </connections>
+                                                </switch>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint id="4364" firstItem="4363" firstAttribute="leading" secondItem="4362" secondAttribute="leading" constant="17"/>
+                                                <constraint id="4365" firstItem="4363" firstAttribute="top" secondItem="4362" secondAttribute="top" constant="11"/>
+                                                <constraint id="4368" firstItem="4362" firstAttribute="trailing" secondItem="4367" secondAttribute="trailing" constant="20"/>
+                                                <constraint id="4369" firstItem="4367" firstAttribute="top" secondItem="4362" secondAttribute="top" constant="6"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -457,6 +488,8 @@
                     <connections>
                         <outlet property="CurrentLocationSwitch" destination="1286" id="name-outlet-1286"/>
                         <outlet property="HomeLocationLabel" destination="1282" id="name-outlet-1282"/>
+                        <outlet property="SettingsTableView" destination="545" id="name-outlet-545"/>
+                        <outlet property="EnableRoutingSwitch" destination="4367" id="name-outlet-4367"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="550" userLabel="First Responder" sceneMemberID="firstResponder"/>
