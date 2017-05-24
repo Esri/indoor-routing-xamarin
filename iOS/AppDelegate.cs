@@ -54,8 +54,8 @@ namespace IndoorRouting.iOS
         {
             // TODO: Set up your app key here to remove "For developers use only" watermark. 
             // Go to the documentation for instructions on how to get a license key
-            string licenseKey = "runtimelite,1000,rud2672252234,none,D7MFA0PL4P2SPF002031";
-            Esri.ArcGISRuntime.ArcGISRuntimeEnvironment.SetLicense(licenseKey);
+            ////string licenseKey = "runtimelite,1000,rud#########,day-month-year,####################";
+            ////Esri.ArcGISRuntime.ArcGISRuntimeEnvironment.SetLicense(licenseKey);
 
             return true;
         }
