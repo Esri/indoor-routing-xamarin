@@ -221,16 +221,6 @@ namespace IndoorRouting
         }
 
         /// <summary>
-        /// Gets or sets the scale for the labels workaround.
-        /// </summary>
-        /// <value>The labels workaround scale.</value>
-        [XmlElement]
-        public int LabelsWorkaroundScale
-        {
-            get; set;
-        }
-
-        /// <summary>
         /// Loads the app settings if the file exists, otherwise it creates default settings. 
         /// </summary>
         /// <returns>The app settings.</returns>
@@ -290,7 +280,6 @@ namespace IndoorRouting
                 appSettings.IsLocationServicesEnabled = false;
                 appSettings.IsRoutingEnabled = false;
                 appSettings.IsPreferElevatorsEnabled = false;
-                appSettings.LabelsWorkaroundScale = 300;
 
                 var serializer = new XmlSerializer(appSettings.GetType());
 
