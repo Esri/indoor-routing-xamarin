@@ -18,6 +18,7 @@ namespace IndoorRouting.iOS
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using UIKit;
 
@@ -32,6 +33,11 @@ namespace IndoorRouting.iOS
         /// <param name="handle">Controller Handle.</param>
         private SettingsController(IntPtr handle) : base(handle)
         {
+        }
+
+        public override void ViewDidLoad()
+        {
+            base.ViewDidLoad();
         }
 
         /// <summary>
@@ -49,6 +55,14 @@ namespace IndoorRouting.iOS
             // Set the current location switch
             this.CurrentLocationSwitch.On = AppSettings.CurrentSettings.IsLocationServicesEnabled;
 
+            // Set the enable routing switch based on network availability
+            if (!LocationViewModel.Instance.Map.TransportationNetworks.Any())
+            {
+                this.EnableRoutingSwitch.Enabled = false;
+            }
+
+            this.EnableRoutingSwitch.On = AppSettings.CurrentSettings.IsRoutingEnabled;
+
             base.ViewWillAppear(animated);
         }
 
@@ -60,6 +74,16 @@ namespace IndoorRouting.iOS
         {
             AppSettings.CurrentSettings.IsLocationServicesEnabled = ((UISwitch)sender).On;
             Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+        }
+
+        /// <summary>
+        /// Handles when user toggles the Enable Routing switch on/off
+        /// </summary>
+        /// <param name="sender">Sender control.</param>
+        partial void EnableRoutingSwitchValueChanged(UISwitch sender)
+        {
+        	AppSettings.CurrentSettings.IsRoutingEnabled = ((UISwitch)sender).On;
+        	Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
         }
     }
 }

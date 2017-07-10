@@ -125,6 +125,19 @@ namespace IndoorRouting.iOS
             {
                 this.MapView.LocationDisplay.IsEnabled = false;
             }
+
+            // If the routing is disabled, hide the directions button
+            if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
+            {
+                this.DirectionsButton.Enabled = false;
+                this.DirectionsButton.TintColor = UIColor.White;
+
+			}
+            else
+            {
+				this.DirectionsButton.Enabled = true;
+                this.DirectionsButton.TintColor = UIColor.Blue;
+            }
         }
 
         // TODO: implement max size for floor picker 
@@ -169,13 +182,6 @@ namespace IndoorRouting.iOS
                 });
             }
 
-            // If the map does not have transportation networks, hide the directions button
-            if (!this.MapView.Map.TransportationNetworks.Any())
-            {
-                this.DirectionsButton.Enabled = false;
-                this.DirectionsButton.TintColor = UIColor.White;
-            }
-
             // Set borders and shadows on controls
             this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
             this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
@@ -218,7 +224,6 @@ namespace IndoorRouting.iOS
             routeGraphicsOverlay.Id = "RouteGraphicsOverlay";
             this.MapView.GraphicsOverlays.Add(routeGraphicsOverlay);
 
-            // TODO: The comments below were added on January 24. Check to see if the last letter disappears. 
             // Handle the user moving the map 
             this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
 
@@ -228,7 +233,7 @@ namespace IndoorRouting.iOS
             // Handle the user double tapping on the map
             this.MapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
 
-            // Handle the user holding tap on the mapp
+            // Handle the user holding tap on the map
             this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
 
             this.MapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
@@ -494,16 +499,6 @@ namespace IndoorRouting.iOS
                 this.FloorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
             }
-
-            if (this.MapView.MapScale <= AppSettings.CurrentSettings.LabelsWorkaroundScale)
-            {
-                // Workaround to show labels until core bug is fixed
-                await this.DisplayLabelsAsync();
-            }
-            else
-            {
-                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
-            }
         }
 
         /// <summary>
@@ -733,49 +728,6 @@ namespace IndoorRouting.iOS
         }
 
         /// <summary>
-        /// Gets the labels for the current extent in a graphics overlay
-        /// This is a temporary workaround until the labeling bug in core gets fixed
-        /// </summary>
-        /// <returns>The labels in a graphics overlay</returns>
-        private async Task DisplayLabelsAsync()
-        {
-            var labelsViewModel = new LabelsViewModel();
-            var labelFeatures = await labelsViewModel.GetLabelsInVisibleAreaAsync(this.MapView, this.ViewModel.SelectedFloorLevel);
-
-            if (labelFeatures != null)
-            {
-                try
-                {
-                    var graphicsOverlay = this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"];
-                    graphicsOverlay.Graphics.Clear();
-
-                    // Run garbage collector manually to prevent System.ArgumentException bug
-                    // TODO: Remove the manual garbage collection when bug is fixed
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-
-                    foreach (var feature in labelFeatures)
-                    {
-                        var centerPoint = feature.Geometry.Extent.GetCenter();
-                        var label = feature.Attributes["LONGNAME"];
-
-                        if (label != null)
-                        {
-                            // Create graphic
-                            var labelText = new TextSymbol(label.ToString(), System.Drawing.Color.Black, 10, HorizontalAlignment.Center, VerticalAlignment.Middle);
-                            var labelGraphic = new Graphic(centerPoint, labelText);
-
-                            // Add label to map
-                            graphicsOverlay.Graphics.Add(labelGraphic);
-                        }
-                    }
-                }
-                catch 
-                {
-                }
-            }
-        }
-        /// <summary>
         /// Gets the index of the table view row.
         /// </summary>
         /// <returns>The table view row index.</returns>
@@ -918,16 +870,6 @@ namespace IndoorRouting.iOS
         {
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
-
-            if (this.MapView.MapScale <= AppSettings.CurrentSettings.LabelsWorkaroundScale)
-            {
-                // Workaround to show labels until core bug is fixed
-                await this.DisplayLabelsAsync();
-            }
-            else
-            {
-                this.MapView.GraphicsOverlays["LabelsGraphicsOverlay"].Graphics.Clear();
-            }
         }
 
         /// <summary>

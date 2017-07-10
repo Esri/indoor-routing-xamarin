@@ -20,11 +20,23 @@ namespace IndoorRouting.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UISwitch EnableRoutingSwitch { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel HomeLocationLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITableView SettingsTableView { get; set; }
 
         [Action ("CurrentLocationSwitchValueChanged:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void CurrentLocationSwitchValueChanged (UIKit.UISwitch sender);
+
+        [Action ("EnableRoutingSwitchValueChanged:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void EnableRoutingSwitchValueChanged (UIKit.UISwitch sender);
 
         void ReleaseDesignerOutlets ()
         {
@@ -33,9 +45,19 @@ namespace IndoorRouting.iOS
                 CurrentLocationSwitch = null;
             }
 
+            if (EnableRoutingSwitch != null) {
+                EnableRoutingSwitch.Dispose ();
+                EnableRoutingSwitch = null;
+            }
+
             if (HomeLocationLabel != null) {
                 HomeLocationLabel.Dispose ();
                 HomeLocationLabel = null;
+            }
+
+            if (SettingsTableView != null) {
+                SettingsTableView.Dispose ();
+                SettingsTableView = null;
             }
         }
     }
