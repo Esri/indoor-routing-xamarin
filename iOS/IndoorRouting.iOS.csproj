@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,6 +9,8 @@
     <RootNamespace>IndoorRouting.iOS</RootNamespace>
     <AssemblyName>IndoorNavigation.iOS</AssemblyName>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,7 +28,8 @@
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <PlatformTarget>x86</PlatformTarget>
-    <MtouchExtraArgs></MtouchExtraArgs>
+    <MtouchExtraArgs>
+    </MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>pdbonly</DebugType>
@@ -77,91 +80,182 @@
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <PlatformTarget>x86</PlatformTarget>
     <AssemblyName>IndoorRouting.iOS</AssemblyName>
-<BuildIpa>true</BuildIpa>
+    <BuildIpa>true</BuildIpa>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <AppExtensionDebugBundleId />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Esri.ArcGISRuntime, Version=100.2.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
+      <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.2.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
     <Reference Include="OpenTK-1.0" />
-    <Reference Include="Esri.ArcGISRuntime">
-      <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.1.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings30.png" />
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings60.png" />
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings90.png" />
-    <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home30.png" />
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home60.png" />
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home90.png" />
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation30.png" />
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation60.png" />
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation90.png" />
-    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-29.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-58.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-80.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-120.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-40.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-152.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-76.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-1024.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-512.png" />
-    <ImageAsset Include="Assets.xcassets\HomePin.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home36.png" />
-    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home72.png" />
-    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home108.png" />
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo26.png" />
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo52.png" />
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo78.png" />
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-512.png" />
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-1024.png" />
-    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot108.png" />
-    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot36.png" />
-    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot72.png" />
-    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot108.png" />
-    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot36.png" />
-    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot72.png" />
-    <ImageAsset Include="Assets.xcassets\MapPin.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End36.png" />
-    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End72.png" />
-    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End108.png" />
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %284%29.png" />
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %285%29.png" />
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %286%29.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Settings.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings30.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings90.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home30.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home90.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation30.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation90.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-58.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-80.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-120.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-40.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-152.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-76.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-1024.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\IND_App_Icon_iOS-512.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\HomePin.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home36.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home72.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\HomePin.imageset\home108.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo26.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo52.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo78.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-512.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-1024.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot108.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot36.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\StartCircle.imageset\GreenDot72.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot108.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot36.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\EndCircle.imageset\RedDot72.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End36.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End72.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End108.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %284%29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %285%29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk %286%29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
-    <Folder Include="Assets.xcassets\Settings.imageset\" />
-    <Folder Include="Assets.xcassets\Settings.imageset\" />
-    <Folder Include="Assets.xcassets\Maps.imageset\" />
-    <Folder Include="Assets.xcassets\Home.imageset\" />
-    <Folder Include="Assets.xcassets\CurrentLocation.imageset\" />
-    <Folder Include="Assets.xcassets\Navigation.imageset\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Models\" />
-    <Folder Include="Assets.xcassets\Menu.imageset\" />
-    <Folder Include="Assets.xcassets\HomePin.imageset\" />
-    <Folder Include="Assets.xcassets\RouteDetails.imageset\" />
-    <Folder Include="Assets.xcassets\LaunchPic.imageset\" />
-    <Folder Include="Assets.xcassets\StartCircle.imageset\" />
-    <Folder Include="Assets.xcassets\EndCircle.imageset\" />
-    <Folder Include="Assets.xcassets\MapPin.imageset\" />
     <Folder Include="Assets.xcassets\Close.imageset\" />
-    <Folder Include="Assets.xcassets\Walk.imageset\" />
+    <Folder Include="Assets.xcassets\Maps.imageset\" />
+    <Folder Include="Assets.xcassets\Menu.imageset\" />
+    <Folder Include="Assets.xcassets\RouteDetails.imageset\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -218,5 +312,11 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <Import Project="..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.1.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets" Condition="Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.1.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" />
+  <Import Project="..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.2.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets" Condition="Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.2.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.2.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.2.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets'))" />
+  </Target>
 </Project>

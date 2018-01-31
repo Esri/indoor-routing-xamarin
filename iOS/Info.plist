@@ -5,7 +5,7 @@
 	<key>CFBundleName</key>
 	<string>Indoor Routing</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.esri.indoorrouting</string>
+	<string>com.esri.arcgisruntime.exampleapps.indoorrouting</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -40,8 +40,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
