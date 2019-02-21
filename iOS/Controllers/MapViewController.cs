@@ -607,7 +607,7 @@ namespace IndoorRouting.iOS
                             this.HideContactCard();
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
@@ -866,7 +866,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
+        private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 

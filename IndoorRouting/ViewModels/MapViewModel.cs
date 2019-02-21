@@ -217,7 +217,7 @@ namespace IndoorRouting
         /// Moves map to home location.
         /// </summary>
         /// <returns>The viewpoint with coordinates for the home location.</returns>
-        internal async Task<MapPoint> MoveToHomeLocationAsync()
+        internal MapPoint MoveToHomeLocationAsync()
         {
             this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
 
