@@ -1,6 +1,6 @@
 # Indoor Routing Xamarin
 
-This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found in the [Wiki](https://github.com/Esri/indoor-routing-xamarin/wiki/Indoor-Routing-with-Xamarin-for-iOS)
+This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/)
 ## Features
  * Geocoding
  * Locators with Autosuggestions
@@ -42,11 +42,11 @@ If there are changes made in the Original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
-* [XCode 8 or higher](https://developer.apple.com/xcode/downloads/)
-* [Xamarin Studio](https://www.xamarin.com/studio)
+* [ArcGIS Runtime SDK for .NET 100.5 or higher](https://developers.arcgis.com/net/latest/)
+* [XCode 10.2 or higher](https://developer.apple.com/xcode/downloads/)
+* [Visual Studio for Mac 8.0.2 or higher](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 
 ## Resources
-* [Indoor Routing](https://github.com/Esri/indoor-routing-xamarin/wiki/Indoor-Routing-with-Xamarin-for-iOS)
 * [ArcGIS Runtime SDK for .NET Developers Site](https://developers.arcgis.com/net/)
 * [ArcGIS Mobile Blog](http://blogs.esri.com/esri/arcgis/category/mobile/)
 * [ArcGIS Developer Blog](http://blogs.esri.com/esri/arcgis/category/developer/)
@@ -66,7 +66,7 @@ Anyone and everyone is welcome to [contribute](CONTRIBUTING.md). We do accept pu
 4. Improve documentation
 
 ## Licensing
-Copyright 2017 Esri
+Copyright 2017-2019 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
