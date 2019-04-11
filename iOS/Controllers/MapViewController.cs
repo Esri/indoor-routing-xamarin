@@ -878,7 +878,7 @@ namespace IndoorRouting.iOS
         /// <param name="sender">Home button</param>
         async partial void Home_TouchUpInside(UIBarButtonItem sender)
         {
-            var homeLocation = await this.ViewModel.MoveToHomeLocationAsync().ConfigureAwait(false);
+            var homeLocation = this.ViewModel.MoveToHomeLocation();
 
             if (homeLocation != null)
             {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="6">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="6">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -289,7 +289,7 @@
                             <constraint firstItem="4238" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="4246"/>
                             <constraint firstItem="4238" firstAttribute="leading" secondItem="49" secondAttribute="leading" id="4247"/>
                             <constraint firstItem="4238" firstAttribute="trailing" secondItem="49" secondAttribute="trailing" id="4248"/>
-                            <constraint id="5000" firstItem="1955" firstAttribute="top" secondItem="3829" secondAttribute="bottom" constant="2"/>
+                            <constraint firstItem="1955" firstAttribute="top" secondItem="3829" secondAttribute="bottom" constant="2" id="5000"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
@@ -589,11 +589,11 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <searchBar contentMode="redraw" searchBarStyle="minimal" placeholder="Enter start location" translatesAutoresizingMaskIntoConstraints="NO" id="3172" misplaced="YES" ambiguous="YES">
+                                    <searchBar contentMode="redraw" ambiguous="YES" misplaced="YES" searchBarStyle="minimal" placeholder="Enter start location" translatesAutoresizingMaskIntoConstraints="NO" id="3172">
                                         <rect key="frame" x="57" y="0.0" width="347" height="44"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </searchBar>
-                                    <searchBar contentMode="redraw" searchBarStyle="minimal" placeholder="Enter end location" translatesAutoresizingMaskIntoConstraints="NO" id="3214" misplaced="YES" ambiguous="YES">
+                                    <searchBar contentMode="redraw" ambiguous="YES" misplaced="YES" searchBarStyle="minimal" placeholder="Enter end location" translatesAutoresizingMaskIntoConstraints="NO" id="3214">
                                         <rect key="frame" x="56.5" y="43" width="347.5" height="44"/>
                                         <color key="barTintColor" red="0.66666666666666663" green="0.66666666666666663" blue="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <textInputTraits key="textInputTraits"/>
