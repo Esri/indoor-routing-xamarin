@@ -262,7 +262,7 @@
                                 <color key="barTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </toolbar>
                             <searchBar opaque="NO" tag="2" contentMode="redraw" searchBarStyle="minimal" placeholder="Search rooms or people" translatesAutoresizingMaskIntoConstraints="NO" id="1981">
-                                <rect key="frame" x="55" y="70" width="304" height="56"/>
+                                <rect key="frame" x="55" y="67" width="304" height="56"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
                         </subviews>
@@ -273,7 +273,6 @@
                             <constraint firstItem="3829" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="3840"/>
                             <constraint firstItem="1981" firstAttribute="leading" secondItem="3829" secondAttribute="leading" constant="55" id="3841"/>
                             <constraint firstItem="3829" firstAttribute="trailing" secondItem="1981" secondAttribute="trailing" constant="55" id="3842"/>
-                            <constraint firstItem="1981" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="3843"/>
                             <constraint firstItem="49" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="42" id="3847"/>
                             <constraint firstItem="49" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing" id="3848"/>
                             <constraint firstItem="49" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="3849"/>
@@ -290,6 +289,7 @@
                             <constraint firstItem="4238" firstAttribute="leading" secondItem="49" secondAttribute="leading" id="4247"/>
                             <constraint firstItem="4238" firstAttribute="trailing" secondItem="49" secondAttribute="trailing" id="4248"/>
                             <constraint firstItem="1955" firstAttribute="top" secondItem="3829" secondAttribute="bottom" constant="2" id="5000"/>
+                            <constraint id="7410" firstItem="1981" firstAttribute="centerY" secondItem="3829" secondAttribute="centerY"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1194"/>
