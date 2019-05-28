@@ -607,7 +607,7 @@ namespace IndoorRouting.iOS
                             this.HideContactCard();
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
@@ -866,7 +866,7 @@ namespace IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
+        private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
             this.ViewModel.SetFloorVisibility(true); 
@@ -878,7 +878,7 @@ namespace IndoorRouting.iOS
         /// <param name="sender">Home button</param>
         async partial void Home_TouchUpInside(UIBarButtonItem sender)
         {
-            var homeLocation = await this.ViewModel.MoveToHomeLocationAsync().ConfigureAwait(false);
+            var homeLocation = this.ViewModel.MoveToHomeLocation();
 
             if (homeLocation != null)
             {
