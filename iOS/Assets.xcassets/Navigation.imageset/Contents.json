@@ -4,38 +4,38 @@
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_Toolbar_RouteTo26.png",
       "scale": "1x",
-      "idiom": "universal"
-    },
-    {
-      "filename": "iOS8_Toolbar_RouteTo52.png",
-      "scale": "2x",
-      "idiom": "universal"
-    },
-    {
-      "filename": "iOS8_Toolbar_RouteTo78.png",
-      "scale": "3x",
-      "idiom": "universal"
-    },
-    {
-      "idiom": "iphone"
-    },
-    {
-      "scale": "1x",
-      "idiom": "iphone"
+      "idiom": "universal",
+      "filename": "iOS8_Toolbar_RouteTo26.png"
     },
     {
       "scale": "2x",
-      "idiom": "iphone"
-    },
-    {
-      "subtype": "retina4",
-      "scale": "2x",
-      "idiom": "iphone"
+      "idiom": "universal",
+      "filename": "iOS8_Toolbar_RouteTo52.png"
     },
     {
       "scale": "3x",
+      "idiom": "universal",
+      "filename": "iOS8_Toolbar_RouteTo78.png"
+    },
+    {
+      "idiom": "iphone"
+    },
+    {
+      "scale": "1x",
+      "idiom": "iphone"
+    },
+    {
+      "scale": "2x",
+      "idiom": "iphone"
+    },
+    {
+      "scale": "2x",
+      "idiom": "iphone",
+      "subtype": "retina4"
+    },
+    {
+      "scale": "3x",
       "idiom": "iphone"
     },
     {
@@ -50,34 +50,11 @@
       "idiom": "ipad"
     },
     {
-      "idiom": "watch"
-    },
-    {
-      "scale": "2x",
-      "idiom": "watch"
-    },
-    {
-      "screenWidth": "{130,145}",
-      "scale": "2x",
-      "idiom": "watch"
-    },
-    {
-      "screenWidth": "{146,165}",
-      "scale": "2x",
-      "idiom": "watch"
-    },
-    {
-      "idiom": "mac"
-    },
-    {
-      "scale": "1x",
-      "idiom": "mac"
-    },
-    {
-      "scale": "2x",
-      "idiom": "mac"
+      "scale": "3x",
+      "idiom": "ipad"
     }
   ],
+  "properties": {},
   "info": {
     "version": 1,
     "author": "xcode"
