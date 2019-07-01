@@ -191,15 +191,6 @@
     <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo78.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-512.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\LaunchPic.imageset\IND_App_Icon_iOS-1024.png">
-      <Visible>false</Visible>
-    </ImageAsset>
     <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
