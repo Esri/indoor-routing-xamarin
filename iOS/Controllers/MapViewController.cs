@@ -182,31 +182,6 @@ namespace IndoorRouting.iOS
                 });
             }
 
-            // Set borders and shadows on controls
-            this.CurrentLocationButton.Layer.ShadowColor = UIColor.Gray.CGColor;
-            this.CurrentLocationButton.Layer.ShadowOpacity = 1.0f;
-            this.CurrentLocationButton.Layer.ShadowRadius = 6.0f;
-            this.CurrentLocationButton.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            this.CurrentLocationButton.Layer.MasksToBounds = false;
-
-            this.FloorsTableView.Layer.ShadowColor = UIColor.Gray.CGColor;
-            this.FloorsTableView.Layer.ShadowOpacity = 1.0f;
-            this.FloorsTableView.Layer.ShadowRadius = 6.0f;
-            this.FloorsTableView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            this.FloorsTableView.Layer.MasksToBounds = false;
-
-            this.ContactCardView.Layer.ShadowColor = UIColor.Gray.CGColor;
-            this.ContactCardView.Layer.ShadowOpacity = 1.0f;
-            this.ContactCardView.Layer.ShadowRadius = 6.0f;
-            this.ContactCardView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            this.ContactCardView.Layer.MasksToBounds = false;
-
-            this.SearchToolbar.Layer.ShadowColor = UIColor.Gray.CGColor;
-            this.SearchToolbar.Layer.ShadowOpacity = 1.0f;
-            this.SearchToolbar.Layer.ShadowRadius = 6.0f;
-            this.SearchToolbar.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            this.SearchToolbar.Layer.MasksToBounds = false;
-
             // Remove mapview grid and set its background
             this.MapView.BackgroundGrid.GridLineWidth = 0;
             this.MapView.BackgroundGrid.Color = System.Drawing.Color.WhiteSmoke;
@@ -388,7 +363,6 @@ namespace IndoorRouting.iOS
                     null);
 
                 var buttonConstraint = 35 + RouteCard.Frame.Height;
-                ButtonBottomConstraint.Constant = buttonConstraint;
                 FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
         }
@@ -428,7 +402,6 @@ namespace IndoorRouting.iOS
                     null);
 
                 var buttonConstraint = 35 + ContactCardView.Frame.Height;
-                ButtonBottomConstraint.Constant = buttonConstraint;
                 FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
         }
@@ -447,7 +420,6 @@ namespace IndoorRouting.iOS
                     () =>
                 {
                     ContactCardView.Alpha = 0;
-                    ButtonBottomConstraint.Constant = 35;
                     FloorPickerBottomConstraint.Constant = 35;
                 }, 
                                null);
