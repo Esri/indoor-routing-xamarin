@@ -20,10 +20,6 @@ namespace IndoorRouting.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.NSLayoutConstraint ButtonBottomConstraint { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIView ContactCardView { get; set; }
 
         [Outlet]
@@ -99,11 +95,6 @@ namespace IndoorRouting.iOS
             if (AutosuggestionsTableView != null) {
                 AutosuggestionsTableView.Dispose ();
                 AutosuggestionsTableView = null;
-            }
-
-            if (ButtonBottomConstraint != null) {
-                ButtonBottomConstraint.Dispose ();
-                ButtonBottomConstraint = null;
             }
 
             if (ContactCardView != null) {

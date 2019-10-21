@@ -70,12 +70,6 @@ namespace IndoorRouting.iOS
         {
             base.ViewDidLoad();
 
-            this.RouteView.Layer.ShadowColor = UIColor.Gray.CGColor;
-            this.RouteView.Layer.ShadowOpacity = 1.0f;
-            this.RouteView.Layer.ShadowRadius = 3.0f;
-            this.RouteView.Layer.ShadowOffset = new System.Drawing.SizeF(0f, 3f);
-            this.RouteView.Layer.MasksToBounds = false;
-
             if (this.EndLocation != null)
             {
                 this.EndSearchBar.Text = this.EndLocation;
