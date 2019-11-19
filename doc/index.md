@@ -2,7 +2,7 @@
 
 Route and track indoors using custom building data, indoor network, and locators. Indoor Routing uses Esri's Redlands Campus data, indoor network, and locators to find offices or employees and route between indoor spaces.
 
-The example application is open source and available on GitHub. Developers can modify it to use their own data and custom locators.
+Modify this app to use your own data and custom locators.
 
 ## Preparing the data
 
