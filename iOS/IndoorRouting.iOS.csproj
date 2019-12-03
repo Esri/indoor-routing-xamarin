@@ -83,12 +83,10 @@
     <PlatformTarget>x86</PlatformTarget>
     <AssemblyName>IndoorRouting.iOS</AssemblyName>
     <BuildIpa>true</BuildIpa>
-    <MtouchExtraArgs></MtouchExtraArgs>
+    <MtouchExtraArgs>
+    </MtouchExtraArgs>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Esri.ArcGISRuntime, Version=100.6.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <HintPath>..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.6.0\lib\Xamarin.iOS10\Esri.ArcGISRuntime.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -258,7 +256,6 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -294,6 +291,11 @@
     <ITunesArtwork Include="iTunesArtwork" />
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Esri.ArcGISRuntime.Xamarin.iOS">
+      <Version>100.7.0</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="..\IndoorRouting\IndoorRouting.projitems" Label="Shared" Condition="Exists('..\IndoorRouting\IndoorRouting.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ProjectExtensions>
@@ -306,11 +308,4 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <Import Project="..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.6.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets" Condition="Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.6.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.6.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Esri.ArcGISRuntime.Xamarin.iOS.100.6.0\build\Xamarin.iOS10\Esri.ArcGISRuntime.Xamarin.iOS.targets'))" />
-  </Target>
 </Project>
