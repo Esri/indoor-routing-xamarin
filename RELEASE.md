@@ -1,6 +1,15 @@
-# Release 1.0.1
+# Release notes
 
-## Features
+## Release 1.0.2
+
+Changes:
+
+* Migrated from Packages.config to PackageReference
+* Updated to ArcGIS Runtime 100.7
+
+## Release 1.0.1
+
+Features:
 
 * Geocoding
 * Locators with Autosuggestions
