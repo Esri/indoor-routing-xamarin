@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.IO;
@@ -33,7 +33,7 @@ namespace IndoorRouting.iOS
         private readonly DownloadController controller;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.DownloadDelegate"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.DownloadDelegate"/> class.
         /// </summary>
         /// <param name="controller">Download Controller.</param>
         internal DownloadDelegate(DownloadController controller) : base()

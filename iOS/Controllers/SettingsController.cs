@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.IO;
@@ -28,7 +28,7 @@ namespace IndoorRouting.iOS
     internal partial class SettingsController : UITableViewController
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.SettingsController"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.SettingsController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         private SettingsController(IntPtr handle) : base(handle)

@@ -14,8 +14,8 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting
-{ 
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
+{
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;

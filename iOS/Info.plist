@@ -5,7 +5,7 @@
 	<key>CFBundleName</key>
 	<string>Indoor Routing</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.esri.indoorrouting</string>
+	<string>com.esri.arcgisruntime.opensourceapps.indoorrouting.xamarin</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>

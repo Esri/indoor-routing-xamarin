@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Threading.Tasks;
@@ -33,7 +33,6 @@ namespace IndoorRouting.iOS
         private bool startSearchBarFlag;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.RouteController"/> class.
         /// </summary>
         /// <param name="handle">Controller Handle.</param>
         public RouteController(IntPtr handle) : base(handle)
@@ -44,6 +43,7 @@ namespace IndoorRouting.iOS
         /// Gets or sets the end location.
         /// </summary>
         /// <value>The end location.</value>
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.RouteController"/> class.
         public string EndLocation { get; set; }
 
         /// <summary>

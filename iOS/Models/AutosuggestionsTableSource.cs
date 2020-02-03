@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
@@ -39,7 +39,7 @@ namespace IndoorRouting.iOS
         private readonly string cellIdentifier;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.AutosuggestionsTableSource"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.AutosuggestionsTableSource"/> class.
         /// </summary>
         /// <param name="items">table items.</param>
         internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items)

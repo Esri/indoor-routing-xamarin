@@ -6,8 +6,8 @@
     <ProjectGuid>{7955C133-DC15-4F9C-BC27-60E14C6A6509}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>IndoorRouting.iOS</RootNamespace>
-    <AssemblyName>IndoorNavigation.iOS</AssemblyName>
+    <RootNamespace>Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS</RootNamespace>
+    <AssemblyName>Esri.ArcGISRuntime.OpenSourceApps.IndoorNavigation.iOS</AssemblyName>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -46,7 +46,7 @@
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <PlatformTarget>x86</PlatformTarget>
-    <AssemblyName>IndoorRouting.iOS</AssemblyName>
+    <AssemblyName>Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -81,7 +81,7 @@
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <PlatformTarget>x86</PlatformTarget>
-    <AssemblyName>IndoorRouting.iOS</AssemblyName>
+    <AssemblyName>Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS</AssemblyName>
     <BuildIpa>true</BuildIpa>
     <MtouchExtraArgs>
     </MtouchExtraArgs>
