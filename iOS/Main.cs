@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using UIKit;
 

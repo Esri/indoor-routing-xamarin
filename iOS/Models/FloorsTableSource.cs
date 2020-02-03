@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting.iOS
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace IndoorRouting.iOS
         private readonly string cellIdentifier;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.FloorsTableSource"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
         internal FloorsTableSource(IEnumerable<string> items)

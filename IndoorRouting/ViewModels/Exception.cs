@@ -14,7 +14,7 @@
 //      limitations under the License.
 // </copyright>
 // <author>Mara Stoica</author>
-namespace IndoorRouting
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     using System;
     using System.Runtime.Serialization;
@@ -26,14 +26,14 @@ namespace IndoorRouting
     public class Exception : System.Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.Exception"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Exception"/> class.
         /// </summary>
         public Exception()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.Exception"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Exception"/> class.
         /// </summary>
         /// <param name="message">Exception Message.</param>
         public Exception(string message) : base(message)
@@ -41,7 +41,7 @@ namespace IndoorRouting
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.Exception"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Exception"/> class.
         /// </summary>
         /// <param name="message">Exception Message.</param>
         /// <param name="innerException">Inner exception.</param>
@@ -50,7 +50,7 @@ namespace IndoorRouting
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.Exception"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Exception"/> class.
         /// </summary>
         /// <param name="info">Serialization Info.</param>
         /// <param name="context">Context param.</param>
