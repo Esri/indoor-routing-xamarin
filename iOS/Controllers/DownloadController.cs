@@ -37,20 +37,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private NSUrlSession session;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.DownloadController"/> class.
-        /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private DownloadController(IntPtr handle) : base(handle)
+        public DownloadController()
         {
-            this.ViewModel = new DownloadViewModel();
             this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
         }
 
         /// <summary>
         /// Gets or sets  the download view model containing the common logic for setting up the download
         /// </summary>
-        public DownloadViewModel ViewModel { get; set; }
+        public DownloadViewModel ViewModel { get; set; } = new DownloadViewModel();
 
         /// <summary>
         /// Overrides the behavior when view is loaded
@@ -175,7 +170,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // Create a session delegate and the session itself
                 // Initialize the session itself with the configuration and a session delegate.
                 var sessionDelegate = new DownloadDelegate(this);
-                this.session = NSUrlSession.FromConfiguration(sessionConfig, sessionDelegate, null);
+                this.session = NSUrlSession.FromConfiguration(sessionConfig, (INSUrlSessionDelegate)sessionDelegate, null);
             }
         }
 

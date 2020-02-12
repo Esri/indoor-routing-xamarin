@@ -25,7 +25,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// <summary>
     /// Download delegate handles logic of the background download.
     /// </summary>
-    internal class DownloadDelegate : NSUrlSessionDownloadDelegate
+    internal class DownloadDelegate : NSUrlSessionDownloadDelegate, INSUrlSessionDelegate
     {
         /// <summary>
         /// Reference to the download controller 
