@@ -95,31 +95,43 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_1024.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_167.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_180.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_120.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_167.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_152.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_180.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_120.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_40.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_120-1.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_58.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_60.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_87.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_80.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_87.png">
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_80-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_58.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_58-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_40.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\ArcGIS_Open_Source_Apps_40-1.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">

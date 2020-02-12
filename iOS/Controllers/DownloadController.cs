@@ -37,7 +37,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private NSUrlSession session;
 
-        public DownloadController()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.DownloadController"/> class.
+        /// </summary>
+        /// <param name="handle">Controller Handle.</param>
+        private DownloadController(IntPtr handle) : base(handle)
         {
             this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
         }
