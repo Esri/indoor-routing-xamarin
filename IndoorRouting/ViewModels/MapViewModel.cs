@@ -158,14 +158,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
 
             // Set viewpoint of the map depending on user's setting
-            await this.SetInitialViewPointAsync().ConfigureAwait(false);
+            SetInitialViewpoint();
         }
 
         /// <summary>
         /// Sets the initial view point based on user settings. 
         /// </summary>
         /// <returns>Async task</returns>
-        internal async Task SetInitialViewPointAsync()
+        internal void SetInitialViewpoint()
         {
             // Get initial viewpoint from settings
             // If error occurs, do not set an initial viewpoint

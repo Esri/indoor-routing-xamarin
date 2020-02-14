@@ -42,12 +42,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// Flag used to determine if the view was single or double tapped
         /// </summary>
-        private bool isViewDoubleTapped;
+        private bool _isViewDoubleTapped;
 
         /// <summary>
         /// The route.
         /// </summary>
-        private RouteResult route;
+        private RouteResult _route;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.MapViewController"/> class.
@@ -66,13 +66,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             get 
             { 
-                return this.route; 
+                return _route; 
             }
 
             set
             {
-                this.route = value;
-                this.OnRouteChangedAsync();
+                _route = value;
+                _ = OnRouteChangedAsync();
             }
         }
 
@@ -480,7 +480,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="e">Eevent args.</param>
         private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e)
         {
-            this.isViewDoubleTapped = true;
+            this._isViewDoubleTapped = true;
         }
 
         /// <summary>
@@ -495,10 +495,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // If view has been double tapped, set tapped to handled and flag back to false
             // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
-            if (this.isViewDoubleTapped == true)
+            if (this._isViewDoubleTapped == true)
             {
                 e.Handled = true;
-                this.isViewDoubleTapped = false;
+                this._isViewDoubleTapped = false;
             }
             else
             {

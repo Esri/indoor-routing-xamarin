@@ -6,52 +6,17 @@
     {
       "scale": "1x",
       "idiom": "universal",
-      "filename": "iOS8_MapPin_End36.png"
+      "filename": "iOS8_MapPin_End@1x.png"
     },
     {
       "scale": "2x",
       "idiom": "universal",
-      "filename": "iOS8_MapPin_End72.png"
+      "filename": "iOS8_MapPin_End@2x.png"
     },
     {
       "scale": "3x",
       "idiom": "universal",
-      "filename": "iOS8_MapPin_End108.png"
-    },
-    {
-      "idiom": "iphone"
-    },
-    {
-      "scale": "1x",
-      "idiom": "iphone"
-    },
-    {
-      "scale": "2x",
-      "idiom": "iphone"
-    },
-    {
-      "scale": "2x",
-      "idiom": "iphone",
-      "subtype": "retina4"
-    },
-    {
-      "scale": "3x",
-      "idiom": "iphone"
-    },
-    {
-      "idiom": "ipad"
-    },
-    {
-      "scale": "1x",
-      "idiom": "ipad"
-    },
-    {
-      "scale": "2x",
-      "idiom": "ipad"
-    },
-    {
-      "scale": "3x",
-      "idiom": "ipad"
+      "filename": "iOS8_MapPin_End@3x.png"
     }
   ],
   "properties": {},
