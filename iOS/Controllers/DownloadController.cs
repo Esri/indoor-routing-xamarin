@@ -25,8 +25,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// <summary>
     /// Download controller contains the UI and logic for the download screen.
     /// </summary>
-    internal partial class DownloadController : UIViewController
+    internal class DownloadController : UIViewController
     {
+        private UIProgressView _progressView;
+
+        private UIButton _retryButton;
+
+        private UILabel _statusLabel;
+
         /// <summary>
         /// Unique identifier for the download session.
         /// </summary>
@@ -40,16 +46,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.DownloadController"/> class.
         /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private DownloadController(IntPtr handle) : base(handle)
-        {
-            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
-        }
+        public DownloadController() { }
 
         /// <summary>
         /// Gets or sets  the download view model containing the common logic for setting up the download
         /// </summary>
-        public DownloadViewModel ViewModel { get; set; } = new DownloadViewModel();
+        public DownloadViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Overrides the behavior when view is loaded
@@ -73,7 +75,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="percentage">Percentage progress.</param>
         internal void UpdateProgress(float percentage)
         {
-            this.progressView.SetProgress(percentage, true);
+            _progressView.SetProgress(percentage, true);
         }
 
         /// <summary>
@@ -81,7 +83,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         internal void LoadMapView()
         {
-            var navController = Storyboard.InstantiateViewController("NavController");
+            var s = UIStoryboard.FromName("Main", null);
+
+            var navController = s.InstantiateViewController("NavController");
 
             // KeyWindow only works if the application loaded fully. If key window is null, use the first available windowo
             try
@@ -98,7 +102,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// Handles button to reload the view 
         /// </summary>
         /// <param name="sender">Sender element.</param>
-        partial void RetryButton_TouchUpInside(UIButton sender)
+        private void RetryButton_TouchUpInside(object sender, EventArgs e)
         {
             // Call GetData to download or load the mmpk
             this.ViewModel.GetDataAsync().ConfigureAwait(false);
@@ -123,22 +127,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         this.InvokeOnMainThread(() =>
                         {
                             this.ViewModel.Status = "Downloading Map...";
-                            progressView.Hidden = false;
-                            RetryButton.Hidden = true;
+                            _progressView.Hidden = false;
+                            _retryButton.Hidden = true;
                         });
                     }
                     else
                     {
                         this.InvokeOnMainThread(() =>
                         {
-                            progressView.Hidden = true;
-                            RetryButton.Hidden = false;
+                            _progressView.Hidden = true;
+                            _retryButton.Hidden = false;
                         });
                     }
 
                     this.InvokeOnMainThread(() =>
                     {
-                        statusLabel.Text = this.ViewModel.Status;
+                        _statusLabel.Text = this.ViewModel.Status;
                     });
                     break;
 
@@ -201,6 +205,52 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // Resume / start the download.
             downloadTask.Resume();
+        }
+
+        public override void LoadView()
+        {
+            base.LoadView();
+
+            ViewModel = new DownloadViewModel();
+
+            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+
+            _progressView = new UIProgressView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _statusLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            _statusLabel.TextAlignment = UITextAlignment.Center;
+
+            View.AddSubviews(_progressView, _retryButton, _statusLabel);
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            _retryButton.TouchUpInside += RetryButton_TouchUpInside;
+            ViewModel.PropertyChanged += ViewModelPropertyChanged;
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _statusLabel.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _progressView.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _retryButton.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _progressView.CenterYAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterYAnchor),
+                _statusLabel.BottomAnchor.ConstraintEqualTo(_progressView.TopAnchor, -16),
+                _retryButton.TopAnchor.ConstraintEqualTo(_progressView.BottomAnchor, 16),
+                _progressView.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor, 0.5f),
+                _retryButton.WidthAnchor.ConstraintEqualTo(_progressView.WidthAnchor),
+                _statusLabel.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor)
+            });
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            _retryButton.TouchUpInside -= RetryButton_TouchUpInside;
+            ViewModel.PropertyChanged -= ViewModelPropertyChanged;
         }
     }
 }
