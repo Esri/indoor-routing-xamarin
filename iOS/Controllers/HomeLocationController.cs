@@ -44,7 +44,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private HomeLocationController(IntPtr handle) : base(handle)
         {
         }
-        
+
         /// <summary>
         /// Gets the coordinates for the home location
         /// </summary>

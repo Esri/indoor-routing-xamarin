@@ -19,18 +19,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
 
     /// <summary>
     /// Class handling the source data for the floors TableView 
     /// </summary>
-    internal class FloorsTableSource : UITableViewSource
+    internal class AccessoryTableSource : UITableViewSource
     {
         /// <summary>
         /// The items in the table.
         /// </summary>
-        private readonly IEnumerable<string> items;
+        private readonly IEnumerable<UIImage> items;
 
         /// <summary>
         /// The cell identifier.
@@ -41,7 +42,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal FloorsTableSource(IEnumerable<string> items)
+        internal AccessoryTableSource(IEnumerable<UIImage> items)
         {
             if (items != null)
             {
@@ -53,7 +54,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// Occurs when table row selected.
         /// </summary>
-        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
+        public event EventHandler<NSIndexPath> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -81,28 +82,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(this.cellIdentifier);
+            var cell = tableView.DequeueReusableCell(this.cellIdentifier) as AccessoryViewCell;
 
             // If there are no cells to reuse, create a new one
             if (cell == null)
             {
-                cell = new UITableViewCell(UITableViewCellStyle.Default, this.cellIdentifier);
+                cell = new AccessoryViewCell();
             }
 
             try
             {
                 var item = this.items.ElementAt(indexPath.Row);
-                cell.TextLabel.Text = item;
-                cell.BackgroundColor = UIColor.Clear;
-                cell.SelectedBackgroundView = new UIView();
-                cell.SelectedBackgroundView.BackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
-                cell.TextLabel.HighlightedTextColor = UIColor.White;
-                cell.TextLabel.TextAlignment = UITextAlignment.Center;
+                cell.SetImage(item);
 
                 // show separator full width
-                cell.SeparatorInset = UIEdgeInsets.Zero;
+                
                 cell.LayoutMargins = UIEdgeInsets.Zero;
                 cell.PreservesSuperviewLayoutMargins = false;
+
+                cell.SeparatorInset = UIEdgeInsets.Zero;
 
                 return cell;
             }
@@ -120,6 +118,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
             this.OnTableRowSelected(indexPath);
+            tableView.DeselectRow(indexPath, false);
         }
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             try
             {
                 var item = this.items.ElementAt(itemIndexPath.Row);
-                this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item, itemIndexPath));
+                this.TableRowSelected?.Invoke(this, itemIndexPath);
             }
             catch 
             { 

@@ -83,9 +83,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         internal void LoadMapView()
         {
-            var s = UIStoryboard.FromName("Main", null);
-
-            var navController = s.InstantiateViewController("NavController");
+            var navController = new UINavigationController();
+            navController.PushViewController(new BottomSheetTestingController(), false);
 
             // KeyWindow only works if the application loaded fully. If key window is null, use the first available windowo
             try
@@ -220,16 +219,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _statusLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _statusLabel.TextAlignment = UITextAlignment.Center;
+            _statusLabel.Text = "Downloading Map...";
 
             View.AddSubviews(_progressView, _retryButton, _statusLabel);
-        }
-
-        public override void ViewWillAppear(bool animated)
-        {
-            base.ViewWillAppear(animated);
-
-            _retryButton.TouchUpInside += RetryButton_TouchUpInside;
-            ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
@@ -243,6 +235,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _retryButton.WidthAnchor.ConstraintEqualTo(_progressView.WidthAnchor),
                 _statusLabel.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor)
             });
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            _retryButton.TouchUpInside += RetryButton_TouchUpInside;
+            ViewModel.PropertyChanged += ViewModelPropertyChanged;
         }
 
         public override void ViewDidDisappear(bool animated)

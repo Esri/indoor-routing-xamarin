@@ -251,6 +251,7 @@
     <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AccessoryButtonColor.colorset\Contents.json" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -264,9 +265,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
-    <Compile Include="Controllers\DownloadController.designer.cs">
-      <DependentUpon>DownloadController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\SettingsController.designer.cs">
       <DependentUpon>SettingsController.cs</DependentUpon>
@@ -276,9 +274,6 @@
       <DependentUpon>RouteController.cs</DependentUpon>
     </Compile>
     <Compile Include="Controllers\MapViewController.cs" />
-    <Compile Include="Controllers\MapViewController_.designer.cs">
-      <DependentUpon>MapViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\HomeLocationController.cs" />
     <Compile Include="Controllers\HomeLocationController.designer.cs">
       <DependentUpon>HomeLocationController.cs</DependentUpon>
@@ -289,6 +284,14 @@
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
+    <Compile Include="Helpers\SelfSizedTableView.cs" />
+    <Compile Include="Controllers\ImitationMapViewController.cs" />
+    <Compile Include="Helpers\ImageExtensions.cs" />
+    <Compile Include="Helpers\AccessoryTableView.cs" />
+    <Compile Include="Helpers\AccessoryTableSource.cs" />
+    <Compile Include="Helpers\AccessoryViewCell.cs" />
+    <Compile Include="Controllers\BottomSheetTestingController.cs" />
+    <Compile Include="Controllers\BottomSheetViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
@@ -298,6 +301,13 @@
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.iOS">
       <Version>100.7.0</Version>
     </PackageReference>
+    <PackageReference Include="Esri.ArcGISRuntime.Toolkit">
+      <Version>100.7.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
+    <Folder Include="Assets.xcassets\AccessoryButtonColor.colorset\" />
   </ItemGroup>
   <Import Project="..\IndoorRouting\IndoorRouting.projitems" Label="Shared" Condition="Exists('..\IndoorRouting\IndoorRouting.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

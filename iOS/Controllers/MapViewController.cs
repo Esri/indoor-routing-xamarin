@@ -26,6 +26,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
@@ -39,6 +40,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// </summary>
     public partial class MapViewController : UIViewController
     {
+        // top right buttons
+        private UIButton _settingsButton;
+        private UIButton _homeButton;
+        private UIButton _locationButton;
+        private UIStackView _accessoryButtonStack;
+        private UIView _accessoryButtonContainer;
+        private UITableView _autoSuggestionsTableView;
+        private UIView _contactCardView;
+        private UIButton _directionsButton;
+        private SelfSizedTableView _floorsTableView;
+        private UISearchBar _locationBar;
+        private MapView _mapView;
+        private UIView _routeCard;
+        private UITableView _routeTableView;
+        private UILabel _secondaryLabel;
+        private UILabel _walkTimeLabel;
+        private UIView _cardSheetView;
+
         /// <summary>
         /// Flag used to determine if the view was single or double tapped
         /// </summary>
@@ -50,23 +69,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private RouteResult _route;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.MapViewController"/> class.
-        /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private MapViewController(IntPtr handle) : base(handle)
-        {
-            this.ViewModel = new MapViewModel();
-        }
-
-        /// <summary>
         /// Gets or sets the route.
         /// </summary>
         /// <value>The route.</value>
         public RouteResult Route
         {
-            get 
-            { 
-                return _route; 
+            get
+            {
+                return _route;
             }
 
             set
@@ -101,53 +111,222 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             base.ViewWillAppear(animated);
 
+            // set up events
+            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
+
+            // Handle the user moving the map 
+            this._mapView.NavigationCompleted += this.MapView_NavigationCompleted;
+
+            // Handle the user tapping on the map
+            this._mapView.GeoViewTapped += this.MapView_GeoViewTapped;
+
+            // Handle the user double tapping on the map
+            this._mapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
+
+            // Handle the user holding tap on the map
+            this._mapView.GeoViewHolding += this.MapView_GeoViewHolding;
+
+            this._mapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
+
+            // Handle text changing in the search bar
+            this._locationBar.TextChanged += LocationSearch_TextChanged;
+
+            this._locationBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = true;
 
             // Show home button if user has home location enabled (not set as default value)
             if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
             {
-                this.HomeButton.Enabled = true;
+                _homeButton.Enabled = true;
             }
 
             // Show Current Location button if location services is enabled
-            this.CurrentLocationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
+            _locationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
 
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
             {
-                this.MapView.LocationDisplay.IsEnabled = true;
-                this.MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-                this.MapView.LocationDisplay.InitialZoomScale = 150;
+                this._mapView.LocationDisplay.IsEnabled = true;
+                this._mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                this._mapView.LocationDisplay.InitialZoomScale = 150;
 
                 // TODO: Set floor when available in the API (Update 2?)
             }
             else
             {
-                this.MapView.LocationDisplay.IsEnabled = false;
+                this._mapView.LocationDisplay.IsEnabled = false;
             }
 
             // If the routing is disabled, hide the directions button
             if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
             {
-                this.DirectionsButton.Enabled = false;
-                this.DirectionsButton.TintColor = UIColor.White;
+                this._directionsButton.Enabled = false;
+                this._directionsButton.TintColor = UIColor.White;
 
-			}
+            }
             else
             {
-				this.DirectionsButton.Enabled = true;
-                this.DirectionsButton.TintColor = UIColor.Blue;
+                this._directionsButton.Enabled = true;
+                this._directionsButton.TintColor = UIColor.Blue;
             }
         }
 
-        // TODO: implement max size for floor picker 
-        ////public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
-        ////{
-        ////    base.ViewWillTransitionToSize(toSize, coordinator);
-        ////        if (UIDevice.CurrentDevice.Orientation.IsLandscape())
-        ////    {         
-        ////    }
-        ////}
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            // set up events
+            this.ViewModel.PropertyChanged -= this.ViewModelPropertyChanged;
+
+            // Handle the user moving the map 
+            this._mapView.NavigationCompleted -= this.MapView_NavigationCompleted;
+
+            // Handle the user tapping on the map
+            this._mapView.GeoViewTapped -= this.MapView_GeoViewTapped;
+
+            // Handle the user double tapping on the map
+            this._mapView.GeoViewDoubleTapped -= this.MapView_GeoViewDoubleTapped;
+
+            // Handle the user holding tap on the map
+            this._mapView.GeoViewHolding -= this.MapView_GeoViewHolding;
+
+            this._mapView.LocationDisplay.LocationChanged -= this.MapView_LocationChanged;
+
+            // Handle text changing in the search bar
+            this._locationBar.TextChanged -= LocationSearch_TextChanged;
+
+            this._locationBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
+
+            // Hide the navigation bar on the main screen 
+            NavigationController.NavigationBarHidden = false;
+        }
+
+        public override void LoadView()
+        {
+            base.LoadView();
+            this.ViewModel = new MapViewModel();
+
+            this.View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+
+            _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _accessoryButtonContainer = new UIView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                BackgroundColor = UIColor.SystemBackgroundColor,
+            };
+            _accessoryButtonContainer.Layer.CornerRadius = 8;
+            _accessoryButtonStack = new UIStackView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Axis = UILayoutConstraintAxis.Vertical,
+                Distribution = UIStackViewDistribution.EqualSpacing,
+                Alignment = UIStackViewAlignment.Center,
+                Spacing = 8
+            };
+
+            _autoSuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _contactCardView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _directionsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _floorsTableView = new SelfSizedTableView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Hidden = true
+            };
+            _floorsTableView.Layer.CornerRadius = 8;
+
+            _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            _locationBar.Placeholder = "Search for a place or address";
+            _locationBar.UserInteractionEnabled = true;
+            _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
+
+            _routeCard = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _routeTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _secondaryLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _walkTimeLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+
+            _cardSheetView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _cardSheetView.BackgroundColor = UIColor.SystemBackgroundColor;
+            _cardSheetView.Layer.CornerRadius = 8;
+            _cardSheetView.UserInteractionEnabled = true;
+            _cardSheetView.Opaque = true;
+            _cardSheetView.Alpha = 1;
+
+            _homeButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
+            _directionsButton.SetImage(UIImage.FromBundle("Navigation"), UIControlState.Normal);
+            _locationButton.SetImage(UIImage.FromBundle("CurrentLocation"), UIControlState.Normal);
+            _settingsButton.SetImage(UIImage.FromBundle("Settings"), UIControlState.Normal);
+
+            _homeButton.SetTitleColor(UIColor.LabelColor, UIControlState.Normal);
+
+            View.AddSubviews(_mapView, _accessoryButtonContainer, _autoSuggestionsTableView, _contactCardView, _floorsTableView, _routeCard, _cardSheetView, _locationBar);
+
+
+            _accessoryButtonStack.AddArrangedSubview(_homeButton);
+            _accessoryButtonStack.AddArrangedSubview(_settingsButton);
+            _accessoryButtonStack.AddArrangedSubview(_locationButton);
+
+            _routeCard.AddSubviews(_routeTableView, _secondaryLabel, _walkTimeLabel);
+
+            _accessoryButtonContainer.AddSubview(_accessoryButtonStack);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _accessoryButtonStack.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.TopAnchor, 4),
+                _accessoryButtonStack.BottomAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor),
+                _accessoryButtonStack.LeadingAnchor.ConstraintEqualTo(_accessoryButtonContainer.LeadingAnchor),
+                _accessoryButtonStack.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor)
+            });
+
+            NSLayoutConstraint.ActivateConstraints(new NSLayoutConstraint[]
+            {
+                // map view
+                _mapView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                _mapView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                _mapView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
+                _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
+                // right panel accessories
+                _accessoryButtonContainer.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
+                _accessoryButtonContainer.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -16),
+                _accessoryButtonContainer.HeightAnchor.ConstraintEqualTo(_accessoryButtonStack.HeightAnchor, 1, 16),
+                _accessoryButtonContainer.WidthAnchor.ConstraintEqualTo(_settingsButton.WidthAnchor, 1, 16),
+                // route card
+                _routeCard.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
+                _routeCard.WidthAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.WidthAnchor),
+                _routeCard.HeightAnchor.ConstraintEqualTo(80),
+                _routeCard.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor),
+                // contact card
+                _contactCardView.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
+                _contactCardView.WidthAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.WidthAnchor),
+                _contactCardView.HeightAnchor.ConstraintEqualTo(80),
+                _contactCardView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor),
+                // floors view
+                _floorsTableView.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor),
+                _floorsTableView.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor, 16),
+                _floorsTableView.WidthAnchor.ConstraintEqualTo(_accessoryButtonContainer.WidthAnchor),
+                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240),
+                // overlay card
+                _cardSheetView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, 16),
+                _cardSheetView.WidthAnchor.ConstraintEqualTo(320),
+                _cardSheetView.BottomAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
+                _cardSheetView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
+                _cardSheetView.TrailingAnchor.ConstraintLessThanOrEqualTo(_accessoryButtonContainer.LeadingAnchor, -16),
+                // search in overlay
+                _locationBar.LeadingAnchor.ConstraintEqualTo(_cardSheetView.LeadingAnchor, 16),
+                _locationBar.TrailingAnchor.ConstraintEqualTo(_cardSheetView.TrailingAnchor, -16),
+                _locationBar.TopAnchor.ConstraintEqualTo(_cardSheetView.TopAnchor, 16)
+            });
+        }
 
         /// <summary>
         /// Overrides default behavior when view has loaded. 
@@ -155,8 +334,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public async override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
-            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
 
             try
             {
@@ -183,79 +360,39 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
 
             // Remove mapview grid and set its background
-            this.MapView.BackgroundGrid.GridLineWidth = 0;
-            this.MapView.BackgroundGrid.Color = System.Drawing.Color.WhiteSmoke;
+            this._mapView.BackgroundGrid.GridLineWidth = 0;
+            this._mapView.BackgroundGrid.Color = System.Drawing.Color.WhiteSmoke;
 
             // Add a graphics overlay to hold the pins and route graphics
             var pinsGraphicOverlay = new GraphicsOverlay();
             pinsGraphicOverlay.Id = "PinsGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(pinsGraphicOverlay);
+            this._mapView.GraphicsOverlays.Add(pinsGraphicOverlay);
 
             var labelsGraphicOverlay = new GraphicsOverlay();
             labelsGraphicOverlay.Id = "LabelsGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(labelsGraphicOverlay);
+            this._mapView.GraphicsOverlays.Add(labelsGraphicOverlay);
 
             var routeGraphicsOverlay = new GraphicsOverlay();
             routeGraphicsOverlay.Id = "RouteGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(routeGraphicsOverlay);
-
-            // Handle the user moving the map 
-            this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
-
-            // Handle the user tapping on the map
-            this.MapView.GeoViewTapped += this.MapView_GeoViewTapped;
-
-            // Handle the user double tapping on the map
-            this.MapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
-
-            // Handle the user holding tap on the map
-            this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
-
-            this.MapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
-
-            // Handle text changing in the search bar
-            this.LocationSearchBar.TextChanged += async (sender, e) =>
-            {
-                // Call to populate autosuggestions 
-                await GetSuggestionsFromLocatorAsync();
-            };
-
-            this.LocationSearchBar.SearchButtonClicked += async (sender, e) =>
-            {
-                var searchText = ((UISearchBar)sender).Text;
-
-                // Dismiss keyboard
-                ((UISearchBar)sender).EndEditing(true);
-
-                // Dismiss autosuggestions table
-                AutosuggestionsTableView.Hidden = true;
-                await GetSearchedFeatureAsync(searchText);
-            };
+            this._mapView.GraphicsOverlays.Add(routeGraphicsOverlay);
         }
 
-        /// <summary>
-        /// Prepares for segue.
-        /// </summary>
-        /// <param name="segue">Segue element.</param>
-        /// <param name="sender">Sender element.</param>
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        private async void LocationSearch_TextChanged(object sender, EventArgs e)
         {
-            base.PrepareForSegue(segue, sender);
-
-            if (segue.Identifier == "RouteSegue")
-            {
-                var routeController = segue.DestinationViewController as RouteController;
-                routeController.EndLocation = this.MainLabel.Text;
-            }
+            // Call to populate autosuggestions 
+            await GetSuggestionsFromLocatorAsync();
         }
 
-        /// <summary>
-        /// Unwinds to main view controller.
-        /// </summary>
-        /// <param name="segue">Unwind Segue name.</param>
-        [Action("UnwindToMainViewController:")]
-        public void UnwindToMainViewController(UIStoryboardSegue segue)
+        private async void LocationSearch_SearchButtonClicked(object sender, EventArgs e)
         {
+            var searchText = ((UISearchBar)sender).Text;
+
+            // Dismiss keyboard
+            ((UISearchBar)sender).EndEditing(true);
+
+            // Dismiss autosuggestions table
+            _autoSuggestionsTableView.Hidden = true;
+            await GetSearchedFeatureAsync(searchText);
         }
 
         /// <summary>
@@ -271,12 +408,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                 // create a picture marker symbol for start pin
                 var uiImageStartPin = UIImage.FromBundle("StartCircle");
-                var startPin = this.ImageToByteArray(uiImageStartPin);
+                var startPin = uiImageStartPin.ToByteArray();
                 var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
 
                 // create a picture marker symbol for end pin
                 var uiImageEndPin = UIImage.FromBundle("EndCircle");
-                var endPin = this.ImageToByteArray(uiImageEndPin);
+                var endPin = uiImageEndPin.ToByteArray();
                 var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
 
                 if (newRoute != null)
@@ -309,17 +446,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
 
                     // Add graphics to overlay
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
+                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
+                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
+                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
 
                     // Hide the pins graphics overlay
-                    this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
+                    this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
 
                     try
                     {
-                        await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
+                        await this._mapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                     }
                     catch
                     {
@@ -347,23 +484,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this.InvokeOnMainThread(() =>
             {
                 // Show the tableview and populate it
-                RouteTableView.Source = new RouteTableSource(items);
-                RouteTableView.ReloadData();
+                _routeTableView.Source = new RouteTableSource(items);
+                _routeTableView.ReloadData();
 
-                WalkTimeLabel.Text = walkTime;
+                _walkTimeLabel.Text = walkTime;
 
                 UIView.Transition(
-                    RouteCard,
+                    _routeCard,
                     0.2,
                     UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
                     () =>
                     {
-                        RouteCard.Alpha = 1;
+                        _routeCard.Alpha = 1;
                     },
                     null);
 
-                var buttonConstraint = 35 + RouteCard.Frame.Height;
-                FloorPickerBottomConstraint.Constant = buttonConstraint;
+                var buttonConstraint = 35 + _routeCard.Frame.Height;
             });
         }
 
@@ -381,28 +517,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // If the label is for the contact info, show the Directions button and fill the labels with the office info
                 if (isRoute)
                 {
-                    DirectionsButton.Hidden = true;
+                    _directionsButton.Hidden = true;
                 }
                 else
                 {
-                    DirectionsButton.Hidden = false;
+                    _directionsButton.Hidden = false;
                 }
-
-                MainLabel.Text = mainLabel;
-                SecondaryLabel.Text = secondaryLabel;
+                _secondaryLabel.Text = secondaryLabel;
 
                 UIView.Transition(
-                    ContactCardView, 
-                    0.2, 
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
+                    _contactCardView,
+                    0.2,
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
                     () =>
                     {
-                        ContactCardView.Alpha = 1;
-                    }, 
+                        _contactCardView.Hidden = false;
+                    },
                     null);
-
-                var buttonConstraint = 35 + ContactCardView.Frame.Height;
-                FloorPickerBottomConstraint.Constant = buttonConstraint;
             });
         }
 
@@ -414,14 +545,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this.InvokeOnMainThread(() =>
             {
                 UIView.Animate(
-                    0.2, 
-                    0, 
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
+                    0.2,
+                    0,
+                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
                     () =>
                 {
-                    ContactCardView.Alpha = 0;
-                    FloorPickerBottomConstraint.Constant = 35;
-                }, 
+                    _contactCardView.Hidden = true;
+                },
                                null);
             });
         }
@@ -439,14 +569,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     if (this.ViewModel.Map != null)
                     {
                         // Add the map to the MapView to be displayedd
-                        this.MapView.Map = this.ViewModel.Map;
+                        this._mapView.Map = this.ViewModel.Map;
                     }
 
                     break;
                 case "Viewpoint":
                     if (this.ViewModel.Viewpoint != null)
                     {
-                        await this.MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
+                        await this._mapView.SetViewpointAsync(this.ViewModel.Viewpoint);
                     }
 
                     break;
@@ -462,13 +592,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             // Display floors and level if user is zoomed in 
             // If user is zoomed out, only show the base layer
-            if (this.MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+            if (this._mapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
             {
                 await this.DisplayFloorLevelsAsync();
             }
             else
             {
-                this.FloorsTableView.Hidden = true;
+                this._floorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
             }
         }
@@ -503,7 +633,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (this.RouteCard.Alpha == 1)
+                if (!this._routeCard.Hidden)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
@@ -530,7 +660,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     // get the tap location in screen unit
                     var tapScreenPoint = e.Position;
 
-                    var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
+                    var layer = this._mapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
                     var pixelTolerance = 10;
                     var returnPopupsOnly = false;
                     var maxResults = 1;
@@ -538,11 +668,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     try
                     {
                         // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
-                        IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+                        IdentifyLayerResult idResults = await this._mapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
                         // create a picture marker symbol
                         var uiImagePin = UIImage.FromBundle("MapPin");
-                        var mapPin = this.ImageToByteArray(uiImagePin);
+                        var mapPin = uiImagePin.ToByteArray();
                         var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
                         roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
@@ -552,7 +682,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         var mapPinGraphic = new Graphic(identifiedResult.Geometry.Extent.GetCenter(), roomMarker);
 
                         // Add pin to mapview
-                        var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                        var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
                         graphicsOverlay.Graphics.Clear();
                         graphicsOverlay.Graphics.Add(mapPinGraphic);
 
@@ -570,24 +700,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                                 var employeeName = identifiedResult.Attributes[employeeNameAttribute];
                                 employeeNameLabel = employeeName as string ?? string.Empty;
                             }
-                            
+
                             this.ShowBottomCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
                         }
                         else
                         {
-                            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
+                            this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                             this.HideContactCard();
                         }
                     }
                     catch
                     {
-                        this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
+                        this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
                         this.HideContactCard();
                     }
 
-                    if (this.LocationSearchBar.IsFirstResponder == true)
+                    if (this._locationBar.IsFirstResponder == true)
                     {
-                        this.LocationSearchBar.ResignFirstResponder();
+                        this._locationBar.ResignFirstResponder();
                     }
                 }
             }
@@ -598,20 +728,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private void ClearRoute()
         {
-            this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            this.RouteCard.Alpha = 0;
+            this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+            this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
+            this._routeCard.Alpha = 0;
         }
 
         /// <summary>
         /// Event handler for user tapping the blue Current Location button
         /// </summary>
         /// <param name="sender">Sender control.</param>
-        partial void CurrentLocationButton_TouchUpInside(UIButton sender)
+        private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e)
         {
-            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
-            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
-            this.MapView.LocationDisplay.IsEnabled = true;
+            this._mapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
+            this._mapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
+            this._mapView.LocationDisplay.IsEnabled = true;
 
             // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
         }
@@ -645,12 +775,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>The floor levels.</returns>
         private async Task DisplayFloorLevelsAsync()
         {
-            if (this.MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
+            if (this._mapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
             {
                 try
                 {
                     var floorsViewModel = new FloorSelectorViewModel();
-                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(this.MapView);
+                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(this._mapView);
 
                     this.InvokeOnMainThread(() =>
                     {
@@ -658,14 +788,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         if (tableItems.Count() > 1)
                         {
                             // Show the tableview and populate it
-                            FloorsTableView.Hidden = false;
+                            _floorsTableView.Hidden = false;
                             var tableSource = new FloorsTableSource(tableItems);
                             tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
-                            FloorsTableView.Source = tableSource;
-                            FloorsTableView.ReloadData();
-
-                            // Set height constraint based on content inside table
-                            HeightConstraint.Constant = FloorsTableView.ContentSize.Height;
+                            _floorsTableView.Source = tableSource;
+                            _floorsTableView.ReloadData();
 
                             if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))
                             {
@@ -673,7 +800,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                             }
 
                             var selectedFloorNSIndex = GetTableViewRowIndex(ViewModel.SelectedFloorLevel, tableItems, 0);
-                            FloorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+                            _floorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
 
                             // Turn layers on. If there is no floor selected, first floor will be displayed by default
                             this.ViewModel.SetFloorVisibility(true);
@@ -718,25 +845,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>The suggestions from locator</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.LocationSearchBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this._locationBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                this.AutosuggestionsTableView.Hidden = true;
+                this._autoSuggestionsTableView.Hidden = true;
             }
             else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                this.AutosuggestionsTableView.Hidden = false;
+                this._autoSuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
-                this.AutosuggestionsTableView.Source = tableSource;
+                this._autoSuggestionsTableView.Source = tableSource;
 
-                this.AutosuggestionsTableView.ReloadData();
+                this._autoSuggestionsTableView.ReloadData();
 
                 // Auto extend or shrink the tableview based on the content inside
-                var frame = this.AutosuggestionsTableView.Frame;
-                frame.Height = this.AutosuggestionsTableView.ContentSize.Height;
-                this.AutosuggestionsTableView.Frame = frame;
+                var frame = this._autoSuggestionsTableView.Frame;
+                frame.Height = this._autoSuggestionsTableView.ContentSize.Height;
+                this._autoSuggestionsTableView.Frame = frame;
             }
         }
 
@@ -748,9 +875,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            this.LocationSearchBar.Text = selectedItem.Label;
-            this.LocationSearchBar.ResignFirstResponder();
-            this.AutosuggestionsTableView.Hidden = true;
+            this._locationBar.Text = selectedItem.Label;
+            this._locationBar.ResignFirstResponder();
+            this._autoSuggestionsTableView.Hidden = true;
             await this.GetSearchedFeatureAsync(selectedItem.Label);
         }
 
@@ -768,7 +895,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // create a picture marker symbol
                 var uiImagePin = UIImage.FromBundle("MapPin");
-                var mapPin = this.ImageToByteArray(uiImagePin);
+                var mapPin = uiImagePin.ToByteArray();
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
                 roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
@@ -776,7 +903,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
                 graphicsOverlay.IsVisible = true;
@@ -811,26 +938,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         }
 
         /// <summary>
-        /// Convert images to byte array to be used as map pins.
-        /// </summary>
-        /// <returns>The to byte array.</returns>
-        /// <param name="image">Input Image.</param>
-        private byte[] ImageToByteArray(UIImage image)
-        {
-            using (NSData imageData = image.AsPNG())
-            {
-                var imageByteArray = new byte[imageData.Length];
-                System.Runtime.InteropServices.Marshal.Copy(imageData.Bytes, imageByteArray, 0, Convert.ToInt32(imageData.Length));
-                return imageByteArray;
-            }
-        }
-
-        /// <summary>
         /// When called, clears all values and hide table view
         /// </summary>
         private void DismissFloorsTableView()
         {
-            this.InvokeOnMainThread(() => this.FloorsTableView.Hidden = true);
+            this.InvokeOnMainThread(() => this._floorsTableView.Hidden = true);
         }
 
         /// <summary>
@@ -841,14 +953,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             this.ViewModel.SelectedFloorLevel = e.SelectedItem;
-            this.ViewModel.SetFloorVisibility(true); 
+            this.ViewModel.SetFloorVisibility(true);
         }
 
         /// <summary>
         /// When user taps on the home button, zoom them to the home location
         /// </summary>
         /// <param name="sender">Home button</param>
-        async partial void Home_TouchUpInside(UIBarButtonItem sender)
+        private async void Home_TouchUpInside(UIBarButtonItem sender)
         {
             var homeLocation = this.ViewModel.MoveToHomeLocation();
 
@@ -856,7 +968,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // create a picture marker symbol
                 var uiImagePin = UIImage.FromBundle("HomePin");
-                var mapPin = this.ImageToByteArray(uiImagePin);
+                var mapPin = uiImagePin.ToByteArray();
                 var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
                 roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
@@ -864,7 +976,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 var mapPinGraphic = new Graphic(homeLocation, roomMarker);
 
                 // Add pin to map
-                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
                 graphicsOverlay.IsVisible = true;
