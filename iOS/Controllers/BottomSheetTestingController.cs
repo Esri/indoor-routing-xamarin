@@ -139,14 +139,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             base.ViewDidAppear(animated);
             
 
-            _bottomSheet = new BottomSheetViewController();
+            _bottomSheet = new BottomSheetViewController(View);
 
             this.AddChildViewController(_bottomSheet);
 
-            View.AddSubview(_bottomSheet.View);
             _bottomSheet.DidMoveToParentViewController(this);
 
-            _bottomSheet.View.AddSubview(new UISearchBar());
+            var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            searchBar.BackgroundImage = new UIImage();
+            searchBar.Translucent = true;
+            _bottomSheet.DisplayedContentView.AddSubview(searchBar);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
+                searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
+                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor, 8)
+            });
         }
 
         public override void LoadView()
@@ -198,7 +207,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
         {
             base.TraitCollectionDidChange(previousTraitCollection);
+
             ApplyConstraintsForSizeClass();
+
+            _bottomSheet?.TraitCollectionDidChange(previousTraitCollection);
         }
 
         /// <summary>

@@ -12,42 +12,73 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             full
         };
 
-        private const float fullViewYOffset = 100;
-        private float minimizedYOffset = (float)UIScreen.MainScreen.Bounds.Height - 130f;
-
         private UIPanGestureRecognizer _gesture;
+        private UIView _containerView;
+        private nfloat minHeight = 80;
 
-        public BottomSheetViewController()
+        public BottomSheetViewController(UIView container)
         {
-        }
+            _containerView = container; // TODO - is there a better way?
+            _gesture = new UIPanGestureRecognizer(HandleMoveView);
 
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
+            var blurView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial))
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                ClipsToBounds = true
+            };
+            blurView.Layer.CornerRadius = 8;
 
-            UIView.Animate(1, () => {
-                MoveView(State.partial);
+            View = blurView;
+
+            blurView.AddGestureRecognizer(_gesture);
+
+            _containerView.AddSubview(View);
+            View.BackgroundColor = UIColor.Clear;
+
+            DisplayedContentView.BackgroundColor = UIColor.Clear;
+
+            blurView.ContentView.AddSubview(DisplayedContentView);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                DisplayedContentView.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
+                DisplayedContentView.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor),
+                DisplayedContentView.TopAnchor.ConstraintEqualTo(blurView.TopAnchor),
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor)
             });
 
-            _gesture = new UIPanGestureRecognizer(HandleMoveView);
-            this.View.AddGestureRecognizer(_gesture);
+
+            _regularWidthConstraints = new[]
+            {
+                blurView.LeadingAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.LeadingAnchor, 16),
+                blurView.WidthAnchor.ConstraintEqualTo(320),
+                blurView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16)
+            };
+
+            _compactWidthConstraints = new[]
+            {
+                blurView.LeadingAnchor.ConstraintEqualTo(_containerView.LeadingAnchor),
+                blurView.TrailingAnchor.ConstraintEqualTo(_containerView.TrailingAnchor),
+                blurView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, 8), // TODO find another way to correct for bottom radius
+            };
+
+            _heightConstraint = View.HeightAnchor.ConstraintEqualTo(150);
+            _heightConstraint.Active = true;
+
+            ApplyConstraints();
         }
 
-    private void HandleMoveView(UIPanGestureRecognizer recognizer)
+        private void HandleMoveView(UIPanGestureRecognizer recognizer)
         {
             MoveView(recognizer);
-
+            
             if (recognizer.State == UIGestureRecognizerState.Ended)
             {
                 UIView.Animate(1, () =>
                 {
-                    if (recognizer.VelocityInView(View).Y >= 0)
+                    if (_heightConstraint.Constant < minHeight)
                     {
-                        MoveView(State.partial);
-                    }
-                    else
-                    {
-                        MoveView(State.full);
+                        _heightConstraint.Constant = minHeight;
                     }
                 });
             }
@@ -56,33 +87,55 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private void MoveView(UIPanGestureRecognizer recognizer)
         {
             var translation = recognizer.TranslationInView(View);
-            var minY = View.Frame.Top;
-
-            if (minY + translation.Y >= fullViewYOffset && minY + translation.Y <= minimizedYOffset)
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
             {
-                View.Frame = new CoreGraphics.CGRect(0, minY + translation.Y, View.Frame.Width, View.Frame.Height);
-                recognizer.SetTranslation(new CoreGraphics.CGPoint(0, 0), View);
+                _heightConstraint.Constant += translation.Y;
+            }
+            else
+            {
+                _heightConstraint.Constant -= translation.Y;
+            }
+
+            if (_heightConstraint.Constant < minHeight)
+            {
+                _heightConstraint.Constant = minHeight;
+            }
+            
+            recognizer.SetTranslation(new CoreGraphics.CGPoint(0, 0), View);
+        }
+
+        public UIView DisplayedContentView { get;  } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+
+        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
+        {
+            base.TraitCollectionDidChange(previousTraitCollection);
+            ApplyConstraints();
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
+            {
+                _heightConstraint.Constant = 320;
+            }
+            else
+            {
+                _heightConstraint.Constant = minHeight;
             }
         }
 
-        private void MoveView(State state)
+        private NSLayoutConstraint[] _regularWidthConstraints;
+        private NSLayoutConstraint[] _compactWidthConstraints;
+        private NSLayoutConstraint _heightConstraint;
+
+        private void ApplyConstraints()
         {
-            float yPos = 0;
-
-            switch (state)
+            NSLayoutConstraint.DeactivateConstraints(_regularWidthConstraints);
+            NSLayoutConstraint.DeactivateConstraints(_compactWidthConstraints);
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
             {
-                case State.full:
-                    yPos = fullViewYOffset;
-                    break;
-                case State.minimized:
-                    yPos = minimizedYOffset;
-                    break;
-                case State.partial:
-                    yPos = minimizedYOffset;
-                    break;
+                NSLayoutConstraint.ActivateConstraints(_regularWidthConstraints);
             }
-
-            View.Frame = new CoreGraphics.CGRect(0, yPos, View.Frame.Width, View.Frame.Height);
+            else
+            {
+                NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
+            }
         }
     }
 }
