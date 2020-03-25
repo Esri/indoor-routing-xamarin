@@ -14,7 +14,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         private UIPanGestureRecognizer _gesture;
         private UIView _containerView;
-        private nfloat minHeight = 80;
+        private nfloat minHeight = 76;
+
+        private UIView _handlebar;
 
         public BottomSheetViewController(UIView container)
         {
@@ -29,9 +31,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             blurView.Layer.CornerRadius = 8;
 
             View = blurView;
-
-            blurView.AddGestureRecognizer(_gesture);
-
             _containerView.AddSubview(View);
             View.BackgroundColor = UIColor.Clear;
 
@@ -39,12 +38,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             blurView.ContentView.AddSubview(DisplayedContentView);
 
+            _handlebar = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _handlebar.Layer.CornerRadius = 2;
+            _handlebar.BackgroundColor = UIColor.SystemGray2Color;
+            blurView.ContentView.AddSubview(_handlebar);
+
+            blurView.AddGestureRecognizer(_gesture);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _handlebar.WidthAnchor.ConstraintEqualTo(36),
+                _handlebar.CenterXAnchor.ConstraintEqualTo(blurView.CenterXAnchor),
+                _handlebar.HeightAnchor.ConstraintEqualTo(4)
+            });
+            
+
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 DisplayedContentView.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
                 DisplayedContentView.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor),
-                DisplayedContentView.TopAnchor.ConstraintEqualTo(blurView.TopAnchor),
-                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor)
+                blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor)
             });
 
 
@@ -52,7 +65,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 blurView.LeadingAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.LeadingAnchor, 16),
                 blurView.WidthAnchor.ConstraintEqualTo(320),
-                blurView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16)
+                blurView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16),
+                blurView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurView.TopAnchor, 44),
+                blurView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
+                _handlebar.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor, -8),
+                DisplayedContentView.TopAnchor.ConstraintEqualTo(blurView.TopAnchor),
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -8)
             };
 
             _compactWidthConstraints = new[]
@@ -60,6 +78,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 blurView.LeadingAnchor.ConstraintEqualTo(_containerView.LeadingAnchor),
                 blurView.TrailingAnchor.ConstraintEqualTo(_containerView.TrailingAnchor),
                 blurView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, 8), // TODO find another way to correct for bottom radius
+                _handlebar.TopAnchor.ConstraintEqualTo(blurView.TopAnchor, 8),
+                DisplayedContentView.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor),
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor)
             };
 
             _heightConstraint = View.HeightAnchor.ConstraintEqualTo(150);
@@ -70,23 +91,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         private void HandleMoveView(UIPanGestureRecognizer recognizer)
         {
-            MoveView(recognizer);
-            
-            if (recognizer.State == UIGestureRecognizerState.Ended)
-            {
-                UIView.Animate(1, () =>
-                {
-                    if (_heightConstraint.Constant < minHeight)
-                    {
-                        _heightConstraint.Constant = minHeight;
-                    }
-                });
-            }
-        }
-
-        private void MoveView(UIPanGestureRecognizer recognizer)
-        {
             var translation = recognizer.TranslationInView(View);
+
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
             {
                 _heightConstraint.Constant += translation.Y;
@@ -96,12 +102,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _heightConstraint.Constant -= translation.Y;
             }
 
+            // handle going past limit (animation effect)
             if (_heightConstraint.Constant < minHeight)
             {
                 _heightConstraint.Constant = minHeight;
             }
-            
+
             recognizer.SetTranslation(new CoreGraphics.CGPoint(0, 0), View);
+        }
+
+        private nfloat logConstraintForHeight(nfloat constant)
+        {
+            return constant;
+        }
+
+        private void AnimateSnapToLimit()
+        {
+            UIView.Animate(1, 0, UIViewAnimationOptions.CurveEaseIn, () =>
+            {
+                _heightConstraint.Constant = minHeight;
+            }, null);
         }
 
         public UIView DisplayedContentView { get;  } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };

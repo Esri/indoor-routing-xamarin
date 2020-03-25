@@ -148,13 +148,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             searchBar.BackgroundImage = new UIImage();
             searchBar.Translucent = true;
+            searchBar.Placeholder = "Search for a place or address";
             _bottomSheet.DisplayedContentView.AddSubview(searchBar);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
                 searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
-                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor, 8)
+                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
             });
         }
 
@@ -276,6 +277,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     {
                         // Add the map to the MapView to be displayedd
                         this._mapView.Map = this.ViewModel.Map;
+                        this._mapView.Map = new Mapping.Map(Mapping.Basemap.CreateImageryWithLabelsVector());
                     }
 
                     break;
