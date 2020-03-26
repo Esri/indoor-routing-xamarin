@@ -95,11 +95,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
             {
+                // translate height constraint
                 _heightConstraint.Constant += translation.Y;
+
+                // prevent overscroll
+                if (_heightConstraint.Constant > _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom)
+                {
+                    _heightConstraint.Constant = _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom;
+                }
             }
             else
             {
+                // translate height constraint
                 _heightConstraint.Constant -= translation.Y;
+                // prevent overscroll
+                if (_heightConstraint.Constant > _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top)
+                {
+                    _heightConstraint.Constant = _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top;
+                }
             }
 
             // handle going past limit (animation effect)
