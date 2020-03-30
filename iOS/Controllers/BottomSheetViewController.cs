@@ -1,4 +1,5 @@
 ﻿using System;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
@@ -19,6 +20,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private nfloat minHeight = 76;
 
         private UIView _handlebar;
+        private UIView _handlebarSeparator;
 
         public nfloat partialHeight = 160;
 
@@ -47,13 +49,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             _handlebar.BackgroundColor = UIColor.SystemGray2Color;
             blurView.ContentView.AddSubview(_handlebar);
 
+            _handlebarSeparator = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _handlebarSeparator.BackgroundColor = UIColor.SystemGray2Color;
+            blurView.ContentView.AddSubview(_handlebarSeparator);
+
             blurView.AddGestureRecognizer(_gesture);
+
+            // Defined in Helpers/ViewExtensions
+            blurView.ApplyStandardShadow();
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 _handlebar.WidthAnchor.ConstraintEqualTo(36),
                 _handlebar.CenterXAnchor.ConstraintEqualTo(blurView.CenterXAnchor),
-                _handlebar.HeightAnchor.ConstraintEqualTo(4)
+                _handlebar.HeightAnchor.ConstraintEqualTo(4),
+                _handlebar.WidthAnchor.ConstraintEqualTo(48),
+                _handlebarSeparator.HeightAnchor.ConstraintEqualTo(0.5f),
+                _handlebarSeparator.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
+                _handlebarSeparator.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor)
             });
             
 
@@ -64,6 +77,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor)
             });
 
+            const int handleBarToSeparatorMargin = 4;
 
             _regularWidthConstraints = new[]
             {
@@ -72,9 +86,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 blurView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16),
                 blurView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurView.TopAnchor, 44),
                 blurView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
-                _handlebar.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor, -8),
+                _handlebar.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor, -4),
                 DisplayedContentView.TopAnchor.ConstraintEqualTo(blurView.TopAnchor),
-                DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -8)
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebarSeparator.TopAnchor, -8),
+                _handlebarSeparator.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -handleBarToSeparatorMargin)
             };
 
             _compactWidthConstraints = new[]
@@ -84,7 +99,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 blurView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, 8), // TODO find another way to correct for bottom radius
                 _handlebar.TopAnchor.ConstraintEqualTo(blurView.TopAnchor, 8),
                 DisplayedContentView.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor),
-                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor)
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor),
+                _handlebarSeparator.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor, handleBarToSeparatorMargin)
             };
 
             _heightConstraint = View.HeightAnchor.ConstraintEqualTo(150);

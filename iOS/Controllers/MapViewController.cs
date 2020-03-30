@@ -26,10 +26,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+    using Esri.ArcGISRuntime.Toolkit.UI.Controls;
     using Esri.ArcGISRuntime.UI;
     using Esri.ArcGISRuntime.UI.Controls;
     using Foundation;
@@ -44,19 +46,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private UIButton _settingsButton;
         private UIButton _homeButton;
         private UIButton _locationButton;
-        private UIStackView _accessoryButtonStack;
-        private UIView _accessoryButtonContainer;
+        
         private UITableView _autoSuggestionsTableView;
-        private UIView _contactCardView;
-        private UIButton _directionsButton;
-        private SelfSizedTableView _floorsTableView;
+
         private UISearchBar _locationBar;
+
+        private NSLayoutConstraint[] _compactWidthConstraints;
+        private NSLayoutConstraint[] _regularWidthConstraints;
+        private NSLayoutConstraint[] _invariantConstraints;
+
+        private SelfSizedTableView _floorsTableView;
+
+        private UIStackView _accessoryButtonStack;
+        private UIStackView _topRightStack;
+        private UIVisualEffectView _accessoryButtonContainer;
+
+        private Compass _compass;
         private MapView _mapView;
-        private UIView _routeCard;
-        private UITableView _routeTableView;
-        private UILabel _secondaryLabel;
-        private UILabel _walkTimeLabel;
-        private UIView _cardSheetView;
+
+        private BottomSheetViewController _bottomSheet;
 
         /// <summary>
         /// Flag used to determine if the view was single or double tapped
@@ -159,6 +167,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
 
             // If the routing is disabled, hide the directions button
+            /*
             if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
             {
                 this._directionsButton.Enabled = false;
@@ -170,12 +179,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 this._directionsButton.Enabled = true;
                 this._directionsButton.TintColor = UIColor.Blue;
             }
+            */
         }
 
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
 
+            ConfigureBottomSheet();
+        }
+
+        private void ConfigureBottomSheet()
+        {
+            _bottomSheet = new BottomSheetViewController(View);
+
+            this.AddChildViewController(_bottomSheet);
+
+            _bottomSheet.DidMoveToParentViewController(this);
+
+            var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            searchBar.BackgroundImage = new UIImage();
+            searchBar.Translucent = true;
+            searchBar.Placeholder = "Search for a place or address";
+            _bottomSheet.DisplayedContentView.AddSubview(searchBar);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
+                searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
+                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
+            });
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -220,12 +253,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _accessoryButtonContainer = new UIView
+            _accessoryButtonContainer = new UIVisualEffectView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                BackgroundColor = UIColor.SystemBackgroundColor,
+                Effect = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial)
             };
             _accessoryButtonContainer.Layer.CornerRadius = 8;
+
             _accessoryButtonStack = new UIStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -236,8 +270,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             };
 
             _autoSuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _contactCardView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _directionsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
             _floorsTableView = new SelfSizedTableView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -250,82 +282,97 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _locationBar.UserInteractionEnabled = true;
             _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
 
-            _routeCard = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _routeTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _secondaryLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _walkTimeLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            var homeImage = UIImage.FromBundle("Home").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
+            var locationImage = UIImage.FromBundle("CurrentLocation").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
+            var settingsImage = UIImage.FromBundle("Settings").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
 
-            _cardSheetView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _cardSheetView.BackgroundColor = UIColor.SystemBackgroundColor;
-            _cardSheetView.Layer.CornerRadius = 8;
-            _cardSheetView.UserInteractionEnabled = true;
-            _cardSheetView.Opaque = true;
-            _cardSheetView.Alpha = 1;
-
-            _homeButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
-            _directionsButton.SetImage(UIImage.FromBundle("Navigation"), UIControlState.Normal);
-            _locationButton.SetImage(UIImage.FromBundle("CurrentLocation"), UIControlState.Normal);
-            _settingsButton.SetImage(UIImage.FromBundle("Settings"), UIControlState.Normal);
+            _homeButton.SetImage(homeImage, UIControlState.Normal);
+            _locationButton.SetImage(locationImage, UIControlState.Normal);
+            _settingsButton.SetImage(settingsImage, UIControlState.Normal);
 
             _homeButton.SetTitleColor(UIColor.LabelColor, UIControlState.Normal);
 
-            View.AddSubviews(_mapView, _accessoryButtonContainer, _autoSuggestionsTableView, _contactCardView, _floorsTableView, _routeCard, _cardSheetView, _locationBar);
+            _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };
+            _compass.GeoView = _mapView;
+
+            View.AddSubviews(_mapView, _accessoryButtonContainer, _autoSuggestionsTableView, _floorsTableView, _locationBar, _compass);
 
 
             _accessoryButtonStack.AddArrangedSubview(_homeButton);
             _accessoryButtonStack.AddArrangedSubview(_settingsButton);
             _accessoryButtonStack.AddArrangedSubview(_locationButton);
 
-            _routeCard.AddSubviews(_routeTableView, _secondaryLabel, _walkTimeLabel);
+            _accessoryButtonContainer.ContentView.AddSubview(_accessoryButtonStack);
 
-            _accessoryButtonContainer.AddSubview(_accessoryButtonStack);
-
-            NSLayoutConstraint.ActivateConstraints(new[]
+            _invariantConstraints = new NSLayoutConstraint[]
             {
-                _accessoryButtonStack.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.TopAnchor, 4),
-                _accessoryButtonStack.BottomAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor),
-                _accessoryButtonStack.LeadingAnchor.ConstraintEqualTo(_accessoryButtonContainer.LeadingAnchor),
-                _accessoryButtonStack.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor)
-            });
-
-            NSLayoutConstraint.ActivateConstraints(new NSLayoutConstraint[]
-            {
-                // map view
                 _mapView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
                 _mapView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
                 _mapView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
                 _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
+                //
+                _floorsTableView.WidthAnchor.ConstraintEqualTo(48),
+                _compass.WidthAnchor.ConstraintEqualTo(48),
+                _compass.HeightAnchor.ConstraintEqualTo(48),
+                _compass.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor, 8),
+                _compass.CenterXAnchor.ConstraintEqualTo(_accessoryButtonContainer.CenterXAnchor),
                 // right panel accessories
                 _accessoryButtonContainer.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
                 _accessoryButtonContainer.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -16),
                 _accessoryButtonContainer.HeightAnchor.ConstraintEqualTo(_accessoryButtonStack.HeightAnchor, 1, 16),
                 _accessoryButtonContainer.WidthAnchor.ConstraintEqualTo(_settingsButton.WidthAnchor, 1, 16),
-                // route card
-                _routeCard.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
-                _routeCard.WidthAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.WidthAnchor),
-                _routeCard.HeightAnchor.ConstraintEqualTo(80),
-                _routeCard.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor),
-                // contact card
-                _contactCardView.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
-                _contactCardView.WidthAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.WidthAnchor),
-                _contactCardView.HeightAnchor.ConstraintEqualTo(80),
-                _contactCardView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor),
+                //
+                 _accessoryButtonStack.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.TopAnchor, 4),
+                _accessoryButtonStack.BottomAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor),
+                _accessoryButtonStack.LeadingAnchor.ConstraintEqualTo(_accessoryButtonContainer.LeadingAnchor),
+                _accessoryButtonStack.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor),
                 // floors view
                 _floorsTableView.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor),
-                _floorsTableView.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor, 16),
+                _floorsTableView.TopAnchor.ConstraintGreaterThanOrEqualTo(_accessoryButtonContainer.BottomAnchor, 16),
+                _floorsTableView.TopAnchor.ConstraintEqualTo(_compass.BottomAnchor, 16),
                 _floorsTableView.WidthAnchor.ConstraintEqualTo(_accessoryButtonContainer.WidthAnchor),
-                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240),
-                // overlay card
-                _cardSheetView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, 16),
-                _cardSheetView.WidthAnchor.ConstraintEqualTo(320),
-                _cardSheetView.BottomAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -16),
-                _cardSheetView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
-                _cardSheetView.TrailingAnchor.ConstraintLessThanOrEqualTo(_accessoryButtonContainer.LeadingAnchor, -16),
-                // search in overlay
-                _locationBar.LeadingAnchor.ConstraintEqualTo(_cardSheetView.LeadingAnchor, 16),
-                _locationBar.TrailingAnchor.ConstraintEqualTo(_cardSheetView.TrailingAnchor, -16),
-                _locationBar.TopAnchor.ConstraintEqualTo(_cardSheetView.TopAnchor, 16)
-            });
+                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240)
+            };
+
+            _regularWidthConstraints = new NSLayoutConstraint[]
+            {
+                // card container
+            };
+
+            _compactWidthConstraints = new NSLayoutConstraint[]
+            {
+                
+                // card container
+            };
+
+            NSLayoutConstraint.ActivateConstraints(_invariantConstraints);
+
+            ApplyConstraintsForSizeClass();
+
+            // Defined in Helpers/ViewExtensions
+            _accessoryButtonContainer.ApplyStandardShadow();
+            _floorsTableView.ApplyStandardShadow();
+        }
+
+        private void ApplyConstraintsForSizeClass()
+        {
+            NSLayoutConstraint.DeactivateConstraints(_compactWidthConstraints);
+            NSLayoutConstraint.DeactivateConstraints(_regularWidthConstraints);
+
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
+            {
+                NSLayoutConstraint.ActivateConstraints(_regularWidthConstraints);
+            }
+            else
+            {
+                NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
+            }
+        }
+
+        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
+        {
+            base.TraitCollectionDidChange(previousTraitCollection);
+            ApplyConstraintsForSizeClass();
         }
 
         /// <summary>
@@ -483,6 +530,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             this.InvokeOnMainThread(() =>
             {
+                /*
                 // Show the tableview and populate it
                 _routeTableView.Source = new RouteTableSource(items);
                 _routeTableView.ReloadData();
@@ -500,6 +548,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     null);
 
                 var buttonConstraint = 35 + _routeCard.Frame.Height;
+                */
             });
         }
 
@@ -511,6 +560,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="isRoute">If set to <c>true</c> is route.</param>
         private void ShowBottomCard(string mainLabel, string secondaryLabel, bool isRoute)
         {
+            /*
             this.InvokeOnMainThread(() =>
             {
                 // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
@@ -535,6 +585,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     },
                     null);
             });
+            */
         }
 
         /// <summary>
@@ -550,7 +601,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
                     () =>
                 {
-                    _contactCardView.Hidden = true;
+                    //_contactCardView.Hidden = true;
                 },
                                null);
             });
@@ -633,7 +684,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (!this._routeCard.Hidden)
+                if (true)//(!this._routeCard.Hidden)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
@@ -730,7 +781,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
             this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            this._routeCard.Alpha = 0;
+            //this._routeCard.Alpha = 0;
         }
 
         /// <summary>

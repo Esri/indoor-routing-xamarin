@@ -23,6 +23,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Location;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
@@ -45,11 +46,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private SelfSizedTableView _floorsTableView;
         private UIStackView _topRightStack;
         private Compass _compass;
-
         private MapView _mapView;
 
-        private UIVisualEffectView _cardContainer;
-        private UITableView _navigationWidgetTableView;
+        private BottomSheetViewController _bottomSheet;
 
         /// <summary>
         /// Flag used to determine if the view was single or double tapped
@@ -168,21 +167,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             };
 
             _floorsTableView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _floorsTableView.Layer.CornerRadius = 8;
-            _floorsTableView.Layer.ShadowRadius = 2;
-            _floorsTableView.Layer.ShadowColor = UIColor.Black.CGColor;
-            _floorsTableView.Layer.ShadowOpacity = 0.5f;
-            _floorsTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
+            //_floorsTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
 
             _accessoriesTableView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _accessoriesTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
-            _accessoriesTableView.Layer.CornerRadius = 8;
+            //_accessoriesTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
             _accessoriesTableView.ScrollEnabled = false;
 
-            _accessoriesTableView.Layer.CornerRadius = 8;
-            _accessoriesTableView.Layer.ShadowRadius = 2;
-            _accessoriesTableView.Layer.ShadowColor = UIColor.Black.CGColor;
-            _accessoriesTableView.Layer.ShadowOpacity = 0.5f;
 
             _accessoriesTableView.Source = new AccessoryTableSource(new[]
             {
@@ -195,18 +185,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _topRightStack.AddArrangedSubview(_floorsTableView);
             _topRightStack.AddArrangedSubview(_compass);
 
-            _cardContainer = new UIVisualEffectView() { TranslatesAutoresizingMaskIntoConstraints = false };
-            _cardContainer.Effect = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
-            _cardContainer.Layer.CornerRadius = 8;
-            _cardContainer.ClipsToBounds = true;
-
-            View.AddSubviews(_mapView, _topRightStack, _cardContainer);
-
-            _navigationWidgetTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _navigationWidgetTableView.BackgroundColor = UIColor.Clear;
-            _navigationWidgetTableView.TableHeaderView = new UISearchBar() { Placeholder = "Tap to search", Frame = new CoreGraphics.CGRect(0, 0, 0, 44) };
-
-            _cardContainer.ContentView.AddSubview(_navigationWidgetTableView);
+            View.AddSubviews(_mapView, _topRightStack);
 
             _invariantConstraints = new NSLayoutConstraint[]
             {
@@ -215,42 +194,43 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _mapView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
                 _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
                 //
-                _floorsTableView.WidthAnchor.ConstraintEqualTo(40),
-                _compass.WidthAnchor.ConstraintEqualTo(40),
-                _compass.HeightAnchor.ConstraintEqualTo(40),
-                _accessoriesTableView.WidthAnchor.ConstraintEqualTo(40),
+                _floorsTableView.WidthAnchor.ConstraintEqualTo(48),
+                _compass.WidthAnchor.ConstraintEqualTo(48),
+                _compass.HeightAnchor.ConstraintEqualTo(48),
+                _accessoriesTableView.WidthAnchor.ConstraintEqualTo(48),
                 // accessories
                 _topRightStack.TopAnchor.ConstraintEqualTo(View.LayoutMarginsGuide.TopAnchor),
                 _topRightStack.TrailingAnchor.ConstraintEqualTo(View.LayoutMarginsGuide.TrailingAnchor),
-                _topRightStack.WidthAnchor.ConstraintEqualTo(44),
-                // navigation widget
-                _navigationWidgetTableView.LeadingAnchor.ConstraintEqualTo(_cardContainer.LeadingAnchor),
-                _navigationWidgetTableView.TrailingAnchor.ConstraintEqualTo(_cardContainer.TrailingAnchor),
-                _navigationWidgetTableView.BottomAnchor.ConstraintEqualTo(_cardContainer.BottomAnchor),
-                _navigationWidgetTableView.TopAnchor.ConstraintEqualTo(_cardContainer.TopAnchor)
+                _topRightStack.WidthAnchor.ConstraintEqualTo(52)
             };
 
             _regularWidthConstraints = new NSLayoutConstraint[]
             {
                 // card container
-                _cardContainer.LeadingAnchor.ConstraintEqualTo(View.LayoutMarginsGuide.LeadingAnchor),
-                _cardContainer.TopAnchor.ConstraintEqualTo(View.LayoutMarginsGuide.TopAnchor),
-                _cardContainer.WidthAnchor.ConstraintEqualTo(300),
-                _cardContainer.HeightAnchor.ConstraintEqualTo(250)
             };
 
             _compactWidthConstraints = new NSLayoutConstraint[]
             {
                 
                 // card container
-                _cardContainer.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                _cardContainer.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
-                _cardContainer.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
-                _cardContainer.HeightAnchor.ConstraintEqualTo(250)
             };
 
             NSLayoutConstraint.ActivateConstraints(_invariantConstraints);
             ApplyConstraintsForSizeClass();
+
+            ApplyStandardShadow(_accessoriesTableView);
+            ApplyStandardShadow(_floorsTableView);
+        }
+
+        private void ApplyStandardShadow(UIView view)
+        {
+            view.Layer.MasksToBounds = false;
+            view.Layer.ShadowColor = UIColor.Black.CGColor;
+            view.Layer.ShadowOpacity = 0.25f;
+            view.Layer.ShadowRadius = 2;
+            view.Layer.CornerRadius = 8;
+            view.Layer.ShadowPath = UIBezierPath.FromRoundedRect(view.Bounds, view.Layer.CornerRadius).CGPath;
+            view.ClipsToBounds = true;
         }
 
         private void ApplyConstraintsForSizeClass()
@@ -321,6 +301,31 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var routeGraphicsOverlay = new GraphicsOverlay();
             routeGraphicsOverlay.Id = "RouteGraphicsOverlay";
             this._mapView.GraphicsOverlays.Add(routeGraphicsOverlay);
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+
+            _bottomSheet = new BottomSheetViewController(View);
+
+            this.AddChildViewController(_bottomSheet);
+
+            _bottomSheet.DidMoveToParentViewController(this);
+
+            var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            searchBar.BackgroundImage = new UIImage();
+            searchBar.Translucent = true;
+            searchBar.Placeholder = "Search for a place or address";
+            _bottomSheet.DisplayedContentView.AddSubview(searchBar);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
+                searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
+                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
+            });
         }
 
         private async void LocationSearch_SearchButtonClicked(object sender, EventArgs e)

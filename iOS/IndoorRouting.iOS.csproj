@@ -292,6 +292,7 @@
     <Compile Include="Helpers\AccessoryViewCell.cs" />
     <Compile Include="Controllers\BottomSheetTestingController.cs" />
     <Compile Include="Controllers\BottomSheetViewController.cs" />
+    <Compile Include="Helpers\ViewExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
