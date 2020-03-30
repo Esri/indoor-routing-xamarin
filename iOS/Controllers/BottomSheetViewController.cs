@@ -12,11 +12,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             full
         };
 
+        private State _currentState = State.minimized;
+
         private UIPanGestureRecognizer _gesture;
         private UIView _containerView;
         private nfloat minHeight = 76;
 
         private UIView _handlebar;
+
+        public nfloat partialHeight = 160;
 
         public BottomSheetViewController(UIView container)
         {
@@ -97,22 +101,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 // translate height constraint
                 _heightConstraint.Constant += translation.Y;
-
-                // prevent overscroll
-                if (_heightConstraint.Constant > _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom)
-                {
-                    _heightConstraint.Constant = _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom;
-                }
             }
             else
             {
                 // translate height constraint
                 _heightConstraint.Constant -= translation.Y;
-                // prevent overscroll
-                if (_heightConstraint.Constant > _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top)
-                {
-                    _heightConstraint.Constant = _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top;
-                }
+            }
+
+            if (_heightConstraint.Constant > MaxHeightConstraint)
+            {
+                _heightConstraint.Constant = MaxHeightConstraint;
             }
 
             // handle going past limit (animation effect)
@@ -121,7 +119,119 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _heightConstraint.Constant = minHeight;
             }
 
+            if (recognizer.State == UIGestureRecognizerState.Ended)
+            {
+                if (Math.Abs(recognizer.VelocityInView(View).Y) > 0)
+                {
+                    AnimateSwitchState(recognizer);
+                }
+
+                if (_heightConstraint.Constant == minHeight)
+                {
+                    _currentState = State.minimized;
+                } else if (_heightConstraint.Constant == MaxHeightConstraint)
+                {
+                    _currentState = State.full;
+                }
+                else
+                {
+                    _currentState = State.partial;
+                }
+            }
+
             recognizer.SetTranslation(new CoreGraphics.CGPoint(0, 0), View);
+        }
+
+        private nfloat MaxHeightConstraint
+        {
+            get
+            {
+                switch (TraitCollection.HorizontalSizeClass)
+                {
+                    case UIUserInterfaceSizeClass.Compact:
+                        return _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top;
+                    case UIUserInterfaceSizeClass.Regular:
+                    default:
+                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom;
+                }
+            }
+        }
+
+        private void AnimateSwitchState(UIPanGestureRecognizer recognizer)
+        {
+            switch (_currentState)
+            {
+                case State.minimized:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        _currentState = State.partial;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = partialHeight;
+                        });
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        _currentState = State.partial;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = partialHeight;
+                        });
+                    }
+                    break;
+                case State.partial:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        _currentState = State.full;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = MaxHeightConstraint;
+                        });
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        _currentState = State.minimized;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = minHeight;
+                        });
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        _currentState = State.minimized;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = minHeight;
+                        });
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        _currentState = State.full;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = MaxHeightConstraint;
+                        });
+                    }
+                    break;
+                case State.full:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        _currentState = State.partial;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = partialHeight;
+                        });
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        _currentState = State.partial;
+                        UIView.Animate(0.5, () =>
+                        {
+                            _heightConstraint.Constant = partialHeight;
+                        });
+                    }
+                    break;
+            }
         }
 
         private nfloat logConstraintForHeight(nfloat constant)
