@@ -42,7 +42,7 @@ If there are changes made in the Original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
-* [ArcGIS Runtime SDK for .NET 100.5 or higher](https://developers.arcgis.com/net/latest/)
+* [ArcGIS Runtime SDK for .NET 100.8 or higher](https://developers.arcgis.com/net/latest/)
 * [XCode 10.2 or higher](https://developer.apple.com/xcode/downloads/)
 * [Visual Studio for Mac 8.0.2 or higher](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 

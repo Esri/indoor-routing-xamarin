@@ -1,5 +1,9 @@
 # Release notes
 
+## Release 1.0.3
+
+* Updated ArcGIS Runtime to version 100.8.
+
 ## Release 1.0.2
 
 Changes:
