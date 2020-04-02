@@ -28,6 +28,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
@@ -57,9 +58,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private SelfSizedTableView _floorsTableView;
 
-        private UIStackView _accessoryButtonStack;
         private UIStackView _topRightStack;
         private UIVisualEffectView _accessoryButtonContainer;
+
+        private UIVisualEffectView _topBlur;
 
         private Compass _compass;
         private MapView _mapView;
@@ -258,15 +260,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Effect = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial)
             };
-            _accessoryButtonContainer.Layer.CornerRadius = 8;
 
-            _accessoryButtonStack = new UIStackView
+            var accesoryView = new SelfSizedTableView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                Axis = UILayoutConstraintAxis.Vertical,
-                Distribution = UIStackViewDistribution.EqualSpacing,
-                Alignment = UIStackViewAlignment.Center,
-                Spacing = 8
+                Source = new AccessoryTableSource(new[] { UIImage.FromBundle("Home"), UIImage.FromBundle("CurrentLocation") })
             };
 
             _autoSuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
@@ -291,18 +289,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _settingsButton.SetImage(settingsImage, UIControlState.Normal);
 
             _homeButton.SetTitleColor(UIColor.LabelColor, UIControlState.Normal);
+            _homeButton.TintColor = UIColor.FromName("AccessoryButtonColor");
 
             _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };
             _compass.GeoView = _mapView;
 
-            View.AddSubviews(_mapView, _accessoryButtonContainer, _autoSuggestionsTableView, _floorsTableView, _locationBar, _compass);
+            var shadowContainer = new ShadowContainerView(accesoryView);
+            shadowContainer.TranslatesAutoresizingMaskIntoConstraints = false;
 
+            _topBlur = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemChromeMaterial));
+            _topBlur.TranslatesAutoresizingMaskIntoConstraints = false;
 
-            _accessoryButtonStack.AddArrangedSubview(_homeButton);
-            _accessoryButtonStack.AddArrangedSubview(_settingsButton);
-            _accessoryButtonStack.AddArrangedSubview(_locationButton);
-
-            _accessoryButtonContainer.ContentView.AddSubview(_accessoryButtonStack);
+            View.AddSubviews(_mapView, shadowContainer, _autoSuggestionsTableView, _floorsTableView, _locationBar, _compass, _topBlur);
 
             _invariantConstraints = new NSLayoutConstraint[]
             {
@@ -314,24 +312,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _floorsTableView.WidthAnchor.ConstraintEqualTo(48),
                 _compass.WidthAnchor.ConstraintEqualTo(48),
                 _compass.HeightAnchor.ConstraintEqualTo(48),
-                _compass.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor, 8),
-                _compass.CenterXAnchor.ConstraintEqualTo(_accessoryButtonContainer.CenterXAnchor),
+                _compass.TopAnchor.ConstraintEqualTo(shadowContainer.BottomAnchor, 8),
+                _compass.CenterXAnchor.ConstraintEqualTo(shadowContainer.CenterXAnchor),
                 // right panel accessories
-                _accessoryButtonContainer.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
-                _accessoryButtonContainer.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -16),
-                _accessoryButtonContainer.HeightAnchor.ConstraintEqualTo(_accessoryButtonStack.HeightAnchor, 1, 16),
-                _accessoryButtonContainer.WidthAnchor.ConstraintEqualTo(_settingsButton.WidthAnchor, 1, 16),
-                //
-                 _accessoryButtonStack.TopAnchor.ConstraintEqualTo(_accessoryButtonContainer.TopAnchor, 4),
-                _accessoryButtonStack.BottomAnchor.ConstraintEqualTo(_accessoryButtonContainer.BottomAnchor),
-                _accessoryButtonStack.LeadingAnchor.ConstraintEqualTo(_accessoryButtonContainer.LeadingAnchor),
-                _accessoryButtonStack.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor),
+                shadowContainer.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
+                shadowContainer.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
+                shadowContainer.HeightAnchor.ConstraintEqualTo(accesoryView.HeightAnchor, 1, 16),
+                shadowContainer.WidthAnchor.ConstraintEqualTo(48),
                 // floors view
-                _floorsTableView.TrailingAnchor.ConstraintEqualTo(_accessoryButtonContainer.TrailingAnchor),
-                _floorsTableView.TopAnchor.ConstraintGreaterThanOrEqualTo(_accessoryButtonContainer.BottomAnchor, 16),
+                _floorsTableView.TrailingAnchor.ConstraintEqualTo(shadowContainer.TrailingAnchor),
+                _floorsTableView.TopAnchor.ConstraintGreaterThanOrEqualTo(shadowContainer.BottomAnchor, 16),
                 _floorsTableView.TopAnchor.ConstraintEqualTo(_compass.BottomAnchor, 16),
-                _floorsTableView.WidthAnchor.ConstraintEqualTo(_accessoryButtonContainer.WidthAnchor),
-                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240)
+                _floorsTableView.WidthAnchor.ConstraintEqualTo(shadowContainer.WidthAnchor),
+                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240),
+                // Top blur (to make handlebar and system area easy to see)
+                _topBlur.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                _topBlur.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                _topBlur.TopAnchor.ConstraintEqualTo(View.TopAnchor),
+                _topBlur.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
             };
 
             _regularWidthConstraints = new NSLayoutConstraint[]
