@@ -1,5 +1,6 @@
 ﻿using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
@@ -22,6 +23,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private UIView _handlebar;
         private UIView _handlebarSeparator;
 
+        private UIView _blurShadowContainerView;
+
         public nfloat partialHeight = 160;
 
         public BottomSheetViewController(UIView container)
@@ -34,11 +37,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 ClipsToBounds = true
             };
-            blurView.Layer.CornerRadius = 8;
 
-            View = blurView;
+            // Defined in Helpers/ViewExtensions
+            _blurShadowContainerView = blurView.EncapsulateInShadowView();
+
+            View = _blurShadowContainerView;
             _containerView.AddSubview(View);
-            View.BackgroundColor = UIColor.Clear;
 
             DisplayedContentView.BackgroundColor = UIColor.Clear;
 
@@ -55,8 +59,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             blurView.AddGestureRecognizer(_gesture);
 
-            // Defined in Helpers/ViewExtensions
-            blurView.ApplyStandardShadow();
+            
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
@@ -81,25 +84,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             _regularWidthConstraints = new[]
             {
-                blurView.LeadingAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.LeadingAnchor, 16),
-                blurView.WidthAnchor.ConstraintEqualTo(320),
-                blurView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16),
-                blurView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurView.TopAnchor, 44),
-                blurView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
-                _handlebar.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor, -4),
-                DisplayedContentView.TopAnchor.ConstraintEqualTo(blurView.TopAnchor),
+                _blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.LeadingAnchor, 16),
+                _blurShadowContainerView.WidthAnchor.ConstraintEqualTo(320),
+                _blurShadowContainerView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, 16),
+                _blurShadowContainerView.BottomAnchor.ConstraintGreaterThanOrEqualTo(_blurShadowContainerView.TopAnchor, 44),
+                _blurShadowContainerView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
+                _handlebar.BottomAnchor.ConstraintEqualTo(_blurShadowContainerView.BottomAnchor, -4),
+                DisplayedContentView.TopAnchor.ConstraintEqualTo(_blurShadowContainerView.TopAnchor),
                 DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebarSeparator.TopAnchor, -8),
                 _handlebarSeparator.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -handleBarToSeparatorMargin)
             };
 
             _compactWidthConstraints = new[]
             {
-                blurView.LeadingAnchor.ConstraintEqualTo(_containerView.LeadingAnchor),
-                blurView.TrailingAnchor.ConstraintEqualTo(_containerView.TrailingAnchor),
-                blurView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, 8), // TODO find another way to correct for bottom radius
-                _handlebar.TopAnchor.ConstraintEqualTo(blurView.TopAnchor, 8),
+                _blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(_containerView.LeadingAnchor),
+                _blurShadowContainerView.TrailingAnchor.ConstraintEqualTo(_containerView.TrailingAnchor),
+                _blurShadowContainerView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, 8), // TODO find another way to correct for bottom radius
+                _handlebar.TopAnchor.ConstraintEqualTo(_blurShadowContainerView.TopAnchor, 8),
                 DisplayedContentView.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor),
-                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurView.BottomAnchor),
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(_blurShadowContainerView.BottomAnchor),
                 _handlebarSeparator.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor, handleBarToSeparatorMargin)
             };
 

@@ -19,6 +19,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Threading.Tasks;
     using Foundation;
     using UIKit;
 

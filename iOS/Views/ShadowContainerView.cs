@@ -14,10 +14,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         public ShadowContainerView(UIView childView)
         {
+            TranslatesAutoresizingMaskIntoConstraints = false; // TODO - is this a good idea?
+
             Layer.ShadowColor = UIColor.Black.CGColor;
             Layer.ShadowRadius = 1;
             Layer.CornerRadius = 8;
-            Layer.ShadowOpacity = 0.25f;
+            Layer.ShadowOpacity = 0.5f;
             Layer.ShadowOffset = new CoreGraphics.CGSize(0, 0);
 
             _innerContainer = new UIView();

@@ -173,13 +173,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             //_accessoriesTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
             _accessoriesTableView.ScrollEnabled = false;
 
-
+            /*
             _accessoriesTableView.Source = new AccessoryTableSource(new[]
             {
                 UIImage.FromBundle("Home"),
                 UIImage.FromBundle("CurrentLocation"),
                 UIImage.FromBundle("Settings")
             });
+            */
 
             _topRightStack.AddArrangedSubview(_accessoriesTableView);
             _topRightStack.AddArrangedSubview(_floorsTableView);

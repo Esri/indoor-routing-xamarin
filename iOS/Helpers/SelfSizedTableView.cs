@@ -8,7 +8,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
     {
         public SelfSizedTableView() : base()
         {
-            TableFooterView = new UIView() { Frame = new CGRect(0, 0, 44, 1) };
+            TableFooterView = new UIView() { Frame = new CGRect(0, 0, 50, 1) };
         }
 
         public override void ReloadData()

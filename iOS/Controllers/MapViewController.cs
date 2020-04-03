@@ -43,31 +43,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// </summary>
     public partial class MapViewController : UIViewController
     {
-        // top right buttons
-        private UIButton _settingsButton;
-        private UIButton _homeButton;
-        private UIButton _locationButton;
-        
-        private UITableView _autoSuggestionsTableView;
-
-        private UISearchBar _locationBar;
-
-        private NSLayoutConstraint[] _compactWidthConstraints;
-        private NSLayoutConstraint[] _regularWidthConstraints;
-        private NSLayoutConstraint[] _invariantConstraints;
-
-        private SelfSizedTableView _floorsTableView;
-
-        private UIStackView _topRightStack;
-        private UIVisualEffectView _accessoryButtonContainer;
-
-        private UIVisualEffectView _topBlur;
-
-        private Compass _compass;
-        private MapView _mapView;
-
-        private BottomSheetViewController _bottomSheet;
-
         /// <summary>
         /// Flag used to determine if the view was single or double tapped
         /// </summary>
@@ -184,35 +159,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             */
         }
 
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-
-            ConfigureBottomSheet();
-        }
-
-        private void ConfigureBottomSheet()
-        {
-            _bottomSheet = new BottomSheetViewController(View);
-
-            this.AddChildViewController(_bottomSheet);
-
-            _bottomSheet.DidMoveToParentViewController(this);
-
-            var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
-            searchBar.BackgroundImage = new UIImage();
-            searchBar.Translucent = true;
-            searchBar.Placeholder = "Search for a place or address";
-            _bottomSheet.DisplayedContentView.AddSubview(searchBar);
-
-            NSLayoutConstraint.ActivateConstraints(new[]
-            {
-                searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
-                searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
-                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
-            });
-        }
-
         public override void ViewDidDisappear(bool animated)
         {
             base.ViewDidDisappear(animated);
@@ -241,136 +187,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = false;
-        }
-
-        public override void LoadView()
-        {
-            base.LoadView();
-            this.ViewModel = new MapViewModel();
-
-            this.View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
-
-            _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
-
-            _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _accessoryButtonContainer = new UIVisualEffectView
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
-                Effect = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial)
-            };
-
-            var accesoryView = new SelfSizedTableView
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
-                Source = new AccessoryTableSource(new[] { UIImage.FromBundle("Home"), UIImage.FromBundle("CurrentLocation") })
-            };
-
-            _autoSuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
-            _floorsTableView = new SelfSizedTableView
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
-                Hidden = true
-            };
-            _floorsTableView.Layer.CornerRadius = 8;
-
-            _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
-            _locationBar.Placeholder = "Search for a place or address";
-            _locationBar.UserInteractionEnabled = true;
-            _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
-
-            var homeImage = UIImage.FromBundle("Home").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
-            var locationImage = UIImage.FromBundle("CurrentLocation").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
-            var settingsImage = UIImage.FromBundle("Settings").ApplyTintColor(UIColor.FromName("AccessoryButtonColor"));
-
-            _homeButton.SetImage(homeImage, UIControlState.Normal);
-            _locationButton.SetImage(locationImage, UIControlState.Normal);
-            _settingsButton.SetImage(settingsImage, UIControlState.Normal);
-
-            _homeButton.SetTitleColor(UIColor.LabelColor, UIControlState.Normal);
-            _homeButton.TintColor = UIColor.FromName("AccessoryButtonColor");
-
-            _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };
-            _compass.GeoView = _mapView;
-
-            var shadowContainer = new ShadowContainerView(accesoryView);
-            shadowContainer.TranslatesAutoresizingMaskIntoConstraints = false;
-
-            _topBlur = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemChromeMaterial));
-            _topBlur.TranslatesAutoresizingMaskIntoConstraints = false;
-
-            View.AddSubviews(_mapView, shadowContainer, _autoSuggestionsTableView, _floorsTableView, _locationBar, _compass, _topBlur);
-
-            _invariantConstraints = new NSLayoutConstraint[]
-            {
-                _mapView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                _mapView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
-                _mapView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
-                _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
-                //
-                _floorsTableView.WidthAnchor.ConstraintEqualTo(48),
-                _compass.WidthAnchor.ConstraintEqualTo(48),
-                _compass.HeightAnchor.ConstraintEqualTo(48),
-                _compass.TopAnchor.ConstraintEqualTo(shadowContainer.BottomAnchor, 8),
-                _compass.CenterXAnchor.ConstraintEqualTo(shadowContainer.CenterXAnchor),
-                // right panel accessories
-                shadowContainer.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 16),
-                shadowContainer.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
-                shadowContainer.HeightAnchor.ConstraintEqualTo(accesoryView.HeightAnchor, 1, 16),
-                shadowContainer.WidthAnchor.ConstraintEqualTo(48),
-                // floors view
-                _floorsTableView.TrailingAnchor.ConstraintEqualTo(shadowContainer.TrailingAnchor),
-                _floorsTableView.TopAnchor.ConstraintGreaterThanOrEqualTo(shadowContainer.BottomAnchor, 16),
-                _floorsTableView.TopAnchor.ConstraintEqualTo(_compass.BottomAnchor, 16),
-                _floorsTableView.WidthAnchor.ConstraintEqualTo(shadowContainer.WidthAnchor),
-                _floorsTableView.HeightAnchor.ConstraintLessThanOrEqualTo(240),
-                // Top blur (to make handlebar and system area easy to see)
-                _topBlur.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                _topBlur.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
-                _topBlur.TopAnchor.ConstraintEqualTo(View.TopAnchor),
-                _topBlur.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
-            };
-
-            _regularWidthConstraints = new NSLayoutConstraint[]
-            {
-                // card container
-            };
-
-            _compactWidthConstraints = new NSLayoutConstraint[]
-            {
-                
-                // card container
-            };
-
-            NSLayoutConstraint.ActivateConstraints(_invariantConstraints);
-
-            ApplyConstraintsForSizeClass();
-
-            // Defined in Helpers/ViewExtensions
-            _accessoryButtonContainer.ApplyStandardShadow();
-            _floorsTableView.ApplyStandardShadow();
-        }
-
-        private void ApplyConstraintsForSizeClass()
-        {
-            NSLayoutConstraint.DeactivateConstraints(_compactWidthConstraints);
-            NSLayoutConstraint.DeactivateConstraints(_regularWidthConstraints);
-
-            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
-            {
-                NSLayoutConstraint.ActivateConstraints(_regularWidthConstraints);
-            }
-            else
-            {
-                NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
-            }
-        }
-
-        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
-        {
-            base.TraitCollectionDidChange(previousTraitCollection);
-            ApplyConstraintsForSizeClass();
         }
 
         /// <summary>
@@ -630,6 +446,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                     break;
             }
+            _mapView.ViewpointChanged -= _mapView_ViewpointChanged;
+            _mapView.ViewpointChanged += _mapView_ViewpointChanged;
         }
 
         /// <summary>
@@ -647,7 +465,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             else
             {
-                this._floorsTableView.Hidden = true;
+                this._innerFloorsTableView.Hidden = true;
                 this.ViewModel.SetFloorVisibility(false);
             }
         }
@@ -837,11 +655,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         if (tableItems.Count() > 1)
                         {
                             // Show the tableview and populate it
-                            _floorsTableView.Hidden = false;
+                            _innerFloorsTableView.Hidden = false;
                             var tableSource = new FloorsTableSource(tableItems);
                             tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
-                            _floorsTableView.Source = tableSource;
-                            _floorsTableView.ReloadData();
+                            _innerFloorsTableView.Source = tableSource;
+                            _innerFloorsTableView.ReloadData();
 
                             if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))
                             {
@@ -849,7 +667,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                             }
 
                             var selectedFloorNSIndex = GetTableViewRowIndex(ViewModel.SelectedFloorLevel, tableItems, 0);
-                            _floorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+                            _innerFloorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
 
                             // Turn layers on. If there is no floor selected, first floor will be displayed by default
                             this.ViewModel.SetFloorVisibility(true);
@@ -991,7 +809,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private void DismissFloorsTableView()
         {
-            this.InvokeOnMainThread(() => this._floorsTableView.Hidden = true);
+            this.InvokeOnMainThread(() => this._innerFloorsTableView.Hidden = true);
         }
 
         /// <summary>
