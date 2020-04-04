@@ -112,6 +112,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
             this.OnTableRowSelected(indexPath);
+            tableView.DeselectRow(indexPath, false);
         }
 
         /// <summary>
