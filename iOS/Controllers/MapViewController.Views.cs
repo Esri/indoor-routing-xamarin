@@ -51,6 +51,12 @@
 
         private BottomSheetViewController _bottomSheet;
 
+        private UIView _locationCard;
+        private UIButton _startDirectionsFromLocationCardButton;
+        private UIButton _closeLocationCardButton;
+        private UILabel _locationCardPrimaryLabel;
+        private UILabel _locationCardSecondaryLabel;
+
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
@@ -66,9 +72,13 @@
 
             _bottomSheet.DidMoveToParentViewController(this);
 
+            ConfigureLocationCard();
+
             _bottomSheet.DisplayedContentView.AddSubview(_locationBar);
 
             _bottomSheet.DisplayedContentView.AddSubview(_autoSuggestionsTableView);
+
+            _bottomSheet.DisplayedContentView.AddSubview(_locationCard);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
@@ -77,8 +87,98 @@
                 _locationBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor),
                 _autoSuggestionsTableView.TopAnchor.ConstraintEqualTo(_locationBar.BottomAnchor, 8),
                 _autoSuggestionsTableView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
-                _autoSuggestionsTableView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor)
+                _autoSuggestionsTableView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
+                _locationCard.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor),
+                _locationCard.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
+                _locationCard.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
             });
+        }
+
+        private void SetLocationCardHidden(bool isHidden)
+        {
+            _locationCard.Hidden = isHidden;
+            _locationBar.Hidden = !isHidden;
+
+            if (isHidden)
+            {
+                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.minimized);
+            }
+            else
+            {
+                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+            }
+        }
+
+        private void ConfigureLocationCard()
+        {
+            _locationCard = new UIView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Hidden = true,
+                BackgroundColor = UIColor.Clear
+            };
+
+            _startDirectionsFromLocationCardButton = new UIButton
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false
+            };
+
+            _startDirectionsFromLocationCardButton.SetTitle("Directions", UIControlState.Normal);
+            _startDirectionsFromLocationCardButton.BackgroundColor = UIColor.SystemBlueColor;
+            _startDirectionsFromLocationCardButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _startDirectionsFromLocationCardButton.Layer.CornerRadius = 8;
+
+            _closeLocationCardButton = new UIButton
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false
+            };
+            _closeLocationCardButton.BackgroundColor = UIColor.SystemGray5Color;
+            _closeLocationCardButton.Layer.CornerRadius = 22;
+            _closeLocationCardButton.SetImage(UIImage.GetSystemImage("xmark"), UIControlState.Normal);
+
+            _locationCardPrimaryLabel = new UILabel
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                TextColor = UIColor.LabelColor
+            };
+
+            _locationCardPrimaryLabel.Font = _locationCardPrimaryLabel.Font.WithSize(18);
+
+            _locationCardSecondaryLabel = new UILabel
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                TextColor = UIColor.LabelColor
+            };
+
+            _locationCard.AddSubviews(_startDirectionsFromLocationCardButton, _closeLocationCardButton, _locationCardPrimaryLabel, _locationCardSecondaryLabel);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _locationCardPrimaryLabel.LeadingAnchor.ConstraintEqualTo(_locationCard.LeadingAnchor, 8),
+                _locationCardPrimaryLabel.TopAnchor.ConstraintEqualTo(_locationCard.TopAnchor, 8),
+                _locationCardPrimaryLabel.TrailingAnchor.ConstraintEqualTo(_closeLocationCardButton.LeadingAnchor, -8),
+                _locationCardSecondaryLabel.LeadingAnchor.ConstraintEqualTo(_locationCardPrimaryLabel.LeadingAnchor),
+                _locationCardSecondaryLabel.TrailingAnchor.ConstraintEqualTo(_locationCardPrimaryLabel.TrailingAnchor),
+                _locationCardSecondaryLabel.TopAnchor.ConstraintEqualTo(_locationCardPrimaryLabel.BottomAnchor, 8),
+                _closeLocationCardButton.TopAnchor.ConstraintEqualTo(_locationCard.TopAnchor, 8),
+                _closeLocationCardButton.TrailingAnchor.ConstraintEqualTo(_locationCard.TrailingAnchor, -8),
+                _closeLocationCardButton.WidthAnchor.ConstraintEqualTo(44),
+                _closeLocationCardButton.HeightAnchor.ConstraintEqualTo(44),
+                _startDirectionsFromLocationCardButton.LeadingAnchor.ConstraintEqualTo(_locationCard.LeadingAnchor, 8),
+                _startDirectionsFromLocationCardButton.TrailingAnchor.ConstraintEqualTo(_locationCard.TrailingAnchor, -8),
+                _startDirectionsFromLocationCardButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_locationCardSecondaryLabel.BottomAnchor, 8),
+                _startDirectionsFromLocationCardButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_closeLocationCardButton.BottomAnchor, 8),
+                _startDirectionsFromLocationCardButton.HeightAnchor.ConstraintEqualTo(44),
+                _locationCard.BottomAnchor.ConstraintEqualTo(_startDirectionsFromLocationCardButton.BottomAnchor, 8)
+            });
+
+            // Handle closing location card.
+            if (_closeLocationCardButton != null)
+            {
+                this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
+            }
+            // Check settings
+            _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
         }
 
         public override void LoadView()
@@ -89,8 +189,6 @@
             this.View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
 
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
-
-            
 
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -144,8 +242,8 @@
             View.AddSubviews(_mapView, _topRightStack, _topBlur);
             
             _topRightStack.AddArrangedSubview(accessoryShadowContainer);
-            _topRightStack.AddArrangedSubview(_compass);
             _topRightStack.AddArrangedSubview(floorsTableShadowContainer);
+            _topRightStack.AddArrangedSubview(_compass);
 
             _invariantConstraints = new NSLayoutConstraint[]
             {
@@ -200,28 +298,6 @@
             else
             {
                 _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
-            }
-        }
-
-        private void _mapView_ViewpointChanged(object sender, EventArgs e)
-        {
-            var rotation = _mapView.GetCurrentViewpoint(ViewpointType.CenterAndScale)?.Rotation;
-            if (rotation == null) return;
-            if (rotation == 0)
-            {
-                UIView.Animate(0.5, () =>
-                {
-                    _compass.Hidden = true;
-                });
-                
-            }
-            else
-            {
-                UIView.Animate(0.5, () =>
-                {
-                    _compass.Hidden = false;
-                });
-                
             }
         }
 

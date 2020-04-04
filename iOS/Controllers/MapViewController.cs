@@ -108,15 +108,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Handle the user double tapping on the map
             this._mapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
 
-            // Handle the user holding tap on the map
-            this._mapView.GeoViewHolding += this.MapView_GeoViewHolding;
-
             this._mapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
 
             // Handle text changing in the search bar
             this._locationBar.TextChanged += LocationSearch_TextChanged;
 
+            // Show auto suggest when enter search area.
+            this._locationBar.OnEditingStarted += _locationBar_OnEditingStarted;
+
+            //
             this._locationBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+
+            // Handle closing location card.
+            if (_closeLocationCardButton != null)
+            {
+                this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
+            }
 
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = true;
@@ -144,19 +151,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
 
             // If the routing is disabled, hide the directions button
-            /*
-            if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
+            if (_startDirectionsFromLocationCardButton != null)
             {
-                this._directionsButton.Enabled = false;
-                this._directionsButton.TintColor = UIColor.White;
+                _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+            }
+        }
 
-            }
-            else
-            {
-                this._directionsButton.Enabled = true;
-                this._directionsButton.TintColor = UIColor.Blue;
-            }
-            */
+        private void _locationBar_OnEditingStarted(object sender, EventArgs e)
+        {
+            SetAutoSuggestHidden(false);
+        }
+
+        private void _closeLocationCardButton_TouchUpInside(object sender, EventArgs e)
+        {
+            SetLocationCardHidden(true);
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -175,9 +183,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Handle the user double tapping on the map
             this._mapView.GeoViewDoubleTapped -= this.MapView_GeoViewDoubleTapped;
 
-            // Handle the user holding tap on the map
-            this._mapView.GeoViewHolding -= this.MapView_GeoViewHolding;
-
             this._mapView.LocationDisplay.LocationChanged -= this.MapView_LocationChanged;
 
             // Handle text changing in the search bar
@@ -185,8 +190,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             this._locationBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
 
+            // Show auto suggest when enter search area.
+            this._locationBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = false;
+
+            // Handle closing location card.
+            if (_closeLocationCardButton != null)
+            {
+                this._closeLocationCardButton.TouchUpInside -= _closeLocationCardButton_TouchUpInside;
+            }
         }
 
         /// <summary>
@@ -326,12 +340,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 }
                 else
                 {
-                    this.ShowBottomCard("Routing Error", "Please retry route", true);
+                    this.ShowLocationCard("Routing Error", "Please retry route", true);
                 }
             }
             else
             {
-                this.ShowBottomCard("Routing Error", "Please retry route", true);
+                this.ShowLocationCard("Routing Error", "Please retry route", true);
             }
         }
 
@@ -372,34 +386,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="mainLabel">Main label.</param>
         /// <param name="secondaryLabel">Secondary label.</param>
         /// <param name="isRoute">If set to <c>true</c> is route.</param>
-        private void ShowBottomCard(string mainLabel, string secondaryLabel, bool isRoute)
+        private void ShowLocationCard(string mainLabel, string secondaryLabel, bool isRoute)
         {
-            /*
             this.InvokeOnMainThread(() =>
             {
+                _locationCardPrimaryLabel.Text = mainLabel;
+                _locationCardSecondaryLabel.Text = secondaryLabel;
                 // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
                 // If the label is for the contact info, show the Directions button and fill the labels with the office info
-                if (isRoute)
-                {
-                    _directionsButton.Hidden = true;
-                }
-                else
-                {
-                    _directionsButton.Hidden = false;
-                }
-                _secondaryLabel.Text = secondaryLabel;
-
-                UIView.Transition(
-                    _contactCardView,
-                    0.2,
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
-                    () =>
-                    {
-                        _contactCardView.Hidden = false;
-                    },
-                    null);
+                SetLocationCardHidden(false);
             });
-            */
         }
 
         /// <summary>
@@ -446,8 +442,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                     break;
             }
-            _mapView.ViewpointChanged -= _mapView_ViewpointChanged;
-            _mapView.ViewpointChanged += _mapView_ViewpointChanged;
         }
 
         /// <summary>
@@ -500,7 +494,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (true)//(!this._routeCard.Hidden)
+                if (this._route != null)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
@@ -568,7 +562,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                                 employeeNameLabel = employeeName as string ?? string.Empty;
                             }
 
-                            this.ShowBottomCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
+                            this.ShowLocationCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
                         }
                         else
                         {
@@ -597,7 +591,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
             this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            //this._routeCard.Alpha = 0;
+            this._route = null;
         }
 
         /// <summary>
@@ -611,19 +605,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._mapView.LocationDisplay.IsEnabled = true;
 
             // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
-        }
-
-        /// <summary>
-        /// When user holds tap on a room, the information about the room is displayed
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
-        private void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
-        {
-            // Override default behavior
-            e.Handled = true;
-
-            // TODO: Make map full screen
         }
 
         /// <summary>
@@ -713,11 +694,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private async Task GetSuggestionsFromLocatorAsync()
         {
             var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this._locationBar.Text);
-            if (suggestions == null || suggestions.Count == 0)
-            {
-                SetAutoSuggestHidden(true);
-            }
-            else if (suggestions.Count > 0)
+            if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
                 var tableSource = new AutosuggestionsTableSource(suggestions);
@@ -792,12 +769,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         employeeNameLabel = employeeName as string ?? string.Empty;
                     }
 
-                    this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                    this.ShowLocationCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
                 }
             }
             else
             {
-                this.ShowBottomCard(searchText, "Location not found", true);
+                this.ShowLocationCard(searchText, "Location not found", true);
             }
         }
 
@@ -864,7 +841,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     var employeeName = roomFeature.Attributes[employeeNameAttribute];
                     employeeNameLabel = employeeName as string ?? string.Empty;
                 }
-                this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                this.ShowLocationCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
             }
         }
     }
