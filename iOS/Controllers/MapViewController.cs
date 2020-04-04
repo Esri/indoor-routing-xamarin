@@ -252,7 +252,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             ((UISearchBar)sender).EndEditing(true);
 
             // Dismiss autosuggestions table
-            _autoSuggestionsTableView.Hidden = true;
+            SetAutoSuggestHidden(true);
             await GetSearchedFeatureAsync(searchText);
         }
 
@@ -715,22 +715,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this._locationBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                this._autoSuggestionsTableView.Hidden = true;
+                SetAutoSuggestHidden(true);
             }
             else if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
-                this._autoSuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions);
                 tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
                 this._autoSuggestionsTableView.Source = tableSource;
 
                 this._autoSuggestionsTableView.ReloadData();
 
-                // Auto extend or shrink the tableview based on the content inside
-                var frame = this._autoSuggestionsTableView.Frame;
-                frame.Height = this._autoSuggestionsTableView.ContentSize.Height;
-                this._autoSuggestionsTableView.Frame = frame;
+                // show the auto suggestion view
+                SetAutoSuggestHidden(false);
             }
         }
 
@@ -744,7 +741,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var selectedItem = e.SelectedItem;
             this._locationBar.Text = selectedItem.Label;
             this._locationBar.ResignFirstResponder();
-            this._autoSuggestionsTableView.Hidden = true;
+            SetAutoSuggestHidden(true);
             await this.GetSearchedFeatureAsync(selectedItem.Label);
         }
 

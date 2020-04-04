@@ -88,6 +88,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (cell == null)
             {
                 cell = new UITableViewCell(UITableViewCellStyle.Default, this.cellIdentifier);
+                cell.BackgroundColor = tableView.BackgroundColor;
             }
 
             try

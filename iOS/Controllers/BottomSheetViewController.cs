@@ -7,14 +7,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
     public class BottomSheetViewController : UIViewController
     {
-        private enum State
+        public enum BottomSheetState
         {
             minimized,
             partial,
             full
         };
 
-        private State _currentState = State.minimized;
+        private BottomSheetState _currentState = BottomSheetState.minimized;
 
         private UIPanGestureRecognizer _gesture;
         private UIView _containerView;
@@ -147,14 +147,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
                 if (_heightConstraint.Constant == minHeight)
                 {
-                    _currentState = State.minimized;
+                    _currentState = BottomSheetState.minimized;
                 } else if (_heightConstraint.Constant == MaxHeightConstraint)
                 {
-                    _currentState = State.full;
+                    _currentState = BottomSheetState.full;
                 }
                 else
                 {
-                    _currentState = State.partial;
+                    _currentState = BottomSheetState.partial;
                 }
             }
 
@@ -176,78 +176,72 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
+        public void SetStateWithAnimation(BottomSheetState state)
+        {
+            _currentState = state;
+            switch (state)
+            {
+                case BottomSheetState.partial:
+                    UIView.Animate(0.5, () =>
+                    {
+                        _heightConstraint.Constant = partialHeight;
+                    });
+                    break;
+                case BottomSheetState.minimized:
+                    UIView.Animate(0.5, () =>
+                    {
+                        _heightConstraint.Constant = minHeight;
+                    });
+                    break;
+                case BottomSheetState.full:
+                    UIView.Animate(0.5, () =>
+                    {
+                        _heightConstraint.Constant = MaxHeightConstraint;
+                    });
+                    break;
+            }
+        }
+
         private void AnimateSwitchState(UIPanGestureRecognizer recognizer)
         {
             switch (_currentState)
             {
-                case State.minimized:
+                case BottomSheetState.minimized:
                     if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
                     {
-                        _currentState = State.partial;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = partialHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.partial);
                     }
                     else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
                     {
-                        _currentState = State.partial;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = partialHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.partial);
                     }
                     break;
-                case State.partial:
+                case BottomSheetState.partial:
                     if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
                     {
-                        _currentState = State.full;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = MaxHeightConstraint;
-                        });
+                        SetStateWithAnimation(BottomSheetState.full);
                     }
                     else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
                     {
-                        _currentState = State.minimized;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = minHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.minimized);
                     }
                     else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
                     {
-                        _currentState = State.minimized;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = minHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.minimized);
                     }
                     else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
                     {
-                        _currentState = State.full;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = MaxHeightConstraint;
-                        });
+                        SetStateWithAnimation(BottomSheetState.full);
                     }
                     break;
-                case State.full:
+                case BottomSheetState.full:
                     if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
                     {
-                        _currentState = State.partial;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = partialHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.partial);
                     }
                     else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
                     {
-                        _currentState = State.partial;
-                        UIView.Animate(0.5, () =>
-                        {
-                            _heightConstraint.Constant = partialHeight;
-                        });
+                        SetStateWithAnimation(BottomSheetState.partial);
                     }
                     break;
             }

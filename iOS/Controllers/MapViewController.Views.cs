@@ -32,7 +32,7 @@
         private UIButton _homeButton;
         private UIButton _locationButton;
         
-        private UITableView _autoSuggestionsTableView;
+        private SelfSizedTableView _autoSuggestionsTableView;
 
         private UISearchBar _locationBar;
 
@@ -66,17 +66,18 @@
 
             _bottomSheet.DidMoveToParentViewController(this);
 
-            var searchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
-            searchBar.BackgroundImage = new UIImage();
-            searchBar.Translucent = true;
-            searchBar.Placeholder = "Search for a place or address";
-            _bottomSheet.DisplayedContentView.AddSubview(searchBar);
+            _bottomSheet.DisplayedContentView.AddSubview(_locationBar);
+
+            _bottomSheet.DisplayedContentView.AddSubview(_autoSuggestionsTableView);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                searchBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
-                searchBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
-                searchBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
+                _locationBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
+                _locationBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
+                _locationBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor),
+                _autoSuggestionsTableView.TopAnchor.ConstraintEqualTo(_locationBar.BottomAnchor, 8),
+                _autoSuggestionsTableView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
+                _autoSuggestionsTableView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor)
             });
         }
 
@@ -108,7 +109,8 @@
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
-            _autoSuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _autoSuggestionsTableView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _autoSuggestionsTableView.BackgroundColor = UIColor.Clear;
 
             _innerFloorsTableView = new SelfSizedTableView
             {
@@ -118,6 +120,7 @@
             _innerFloorsTableView.Layer.CornerRadius = 8;
 
             _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            _locationBar.BackgroundImage = new UIImage();
             _locationBar.Placeholder = "Search for a place or address";
             _locationBar.UserInteractionEnabled = true;
             _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
@@ -138,7 +141,7 @@
             _innerFloorsTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
             var floorsTableShadowContainer = _innerFloorsTableView.EncapsulateInShadowView();
 
-            View.AddSubviews(_mapView, _topRightStack, _locationBar, _topBlur);
+            View.AddSubviews(_mapView, _topRightStack, _topBlur);
             
             _topRightStack.AddArrangedSubview(accessoryShadowContainer);
             _topRightStack.AddArrangedSubview(_compass);
@@ -185,6 +188,19 @@
             ApplyConstraintsForSizeClass();
 
             // Defined in Helpers/ViewExtensions
+        }
+
+        private void SetAutoSuggestHidden(bool isHidden)
+        {
+            _autoSuggestionsTableView.Hidden = isHidden;
+            if (isHidden)
+            {
+                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+            }
+            else
+            {
+                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+            }
         }
 
         private void _mapView_ViewpointChanged(object sender, EventArgs e)
