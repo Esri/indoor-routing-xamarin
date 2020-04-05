@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using CoreGraphics;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Location;
@@ -51,11 +52,26 @@
 
         private BottomSheetViewController _bottomSheet;
 
+        // Location search result components
         private UIView _locationCard;
         private UIButton _startDirectionsFromLocationCardButton;
         private UIButton _closeLocationCardButton;
         private UILabel _locationCardPrimaryLabel;
         private UILabel _locationCardSecondaryLabel;
+
+        // Route planning components
+        private UIView _routeSearchView;
+        private UISearchBar _startSearchBar;
+        private UISearchBar _endSearchBar;
+        private UIButton _searchRouteButton;
+        private UILabel _searchStartLabel;
+        private UILabel _searchEndLabel;
+
+        // Route result components
+        private UIView _routeResultView;
+        private SelfSizedTableView _routeResultStopsView;
+        private UIImageView _routeTravelModeImage;
+        private UILabel _walkTimeLabel;
 
         public override void ViewDidAppear(bool animated)
         {
@@ -74,23 +90,58 @@
 
             ConfigureLocationCard();
 
-            _bottomSheet.DisplayedContentView.AddSubview(_locationBar);
+            ConfigureRouteSearchCard();
 
-            _bottomSheet.DisplayedContentView.AddSubview(_autoSuggestionsTableView);
+            ConfigureRouteResultView();
 
-            _bottomSheet.DisplayedContentView.AddSubview(_locationCard);
+            UIStackView _containerView = new UIStackView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Axis = UILayoutConstraintAxis.Vertical,
+                Distribution = UIStackViewDistribution.Fill
+            };
+
+            _containerView.AddArrangedSubview(_locationBar);
+            _containerView.AddArrangedSubview(_locationCard);
+            _containerView.AddArrangedSubview(_routeSearchView);
+            _containerView.AddArrangedSubview(_routeResultView);
+            _containerView.AddArrangedSubview(_autoSuggestionsTableView);
+
+            _bottomSheet.DisplayedContentView.AddSubview(_containerView);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _locationBar.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor, 8),
-                _locationBar.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor, -8),
-                _locationBar.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor),
-                _autoSuggestionsTableView.TopAnchor.ConstraintEqualTo(_locationBar.BottomAnchor, 8),
-                _autoSuggestionsTableView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
-                _autoSuggestionsTableView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
-                _locationCard.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor),
-                _locationCard.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
-                _locationCard.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
+                _containerView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
+                _containerView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
+                _containerView.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
+            });
+        }
+
+        private void ConfigureRouteResultView()
+        {
+            _routeResultView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+            _routeResultStopsView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _routeResultStopsView.BackgroundColor = UIColor.SystemRedColor;
+
+            _routeTravelModeImage = new UIImageView(UIImage.FromBundle("Walk")) { TranslatesAutoresizingMaskIntoConstraints = false };
+            _routeTravelModeImage.TintColor = UIColor.FromName("AccessoryButtonColor");
+
+            _walkTimeLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
+            _walkTimeLabel.TextAlignment = UITextAlignment.Center;
+
+            _routeResultView.AddSubviews(_routeResultStopsView, _routeTravelModeImage, _walkTimeLabel);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _routeResultStopsView.LeadingAnchor.ConstraintEqualTo(_routeResultView.LeadingAnchor, 8),
+                _routeResultStopsView.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
+                _routeResultStopsView.TrailingAnchor.ConstraintEqualTo(_walkTimeLabel.LeadingAnchor, -8),
+                _routeTravelModeImage.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
+                _routeTravelModeImage.HeightAnchor.ConstraintEqualTo(44),
+                _routeTravelModeImage.CenterXAnchor.ConstraintEqualTo(_walkTimeLabel.CenterXAnchor),
+                _walkTimeLabel.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
+                _walkTimeLabel.TopAnchor.ConstraintEqualTo(_routeTravelModeImage.BottomAnchor, 8),
+                _walkTimeLabel.WidthAnchor.ConstraintEqualTo(80)
             });
         }
 
@@ -107,6 +158,65 @@
             {
                 _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
             }
+        }
+
+        private void ConfigureRouteSearchCard()
+        {
+            _routeSearchView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
+
+            _startSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            _startSearchBar.BackgroundImage = new UIImage();
+            _startSearchBar.Placeholder = "Origin";
+
+            _endSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            _endSearchBar.BackgroundImage = new UIImage();
+            _endSearchBar.Placeholder = "Destination";
+            _endSearchBar.SearchBarStyle = UISearchBarStyle.Minimal;
+
+            _searchRouteButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _searchRouteButton.SetTitle("Route Me", UIControlState.Normal);
+            _searchRouteButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _searchRouteButton.BackgroundColor = UIColor.SystemBlueColor;
+            _searchRouteButton.Layer.CornerRadius = 8;
+
+            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Start" };
+            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "End" };
+
+            // Initial event setup
+            _startSearchBar.TextChanged += LocationSearch_TextChanged;
+            _startSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+            _startSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            _endSearchBar.TextChanged += LocationSearch_TextChanged;
+            _endSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+            _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
+
+            _searchRouteButton.TouchUpInside += RouteSearch_TouchUpInside;
+
+            _routeSearchView.AddSubviews(_startSearchBar, _endSearchBar, _searchRouteButton, _searchStartLabel, _searchEndLabel);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                // labels
+                _searchStartLabel.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
+                _searchStartLabel.CenterYAnchor.ConstraintEqualTo(_startSearchBar.CenterYAnchor),
+                _searchEndLabel.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
+                _searchEndLabel.CenterYAnchor.ConstraintEqualTo(_endSearchBar.CenterYAnchor),
+                _searchEndLabel.TrailingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
+                // search bars
+                _startSearchBar.LeadingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor, 8),
+                _startSearchBar.TopAnchor.ConstraintEqualTo(_routeSearchView.TopAnchor, 8),
+                _startSearchBar.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _endSearchBar.LeadingAnchor.ConstraintEqualTo(_startSearchBar.LeadingAnchor),
+                _endSearchBar.TrailingAnchor.ConstraintEqualTo(_startSearchBar.TrailingAnchor),
+                _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor),
+                // search button
+                _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor),
+                _searchRouteButton.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
+                _searchRouteButton.HeightAnchor.ConstraintEqualTo(44),
+                // update bottom size
+                _routeSearchView.BottomAnchor.ConstraintEqualTo(_searchRouteButton.BottomAnchor)
+            });
         }
 
         private void ConfigureLocationCard()
@@ -126,7 +236,11 @@
             _startDirectionsFromLocationCardButton.SetTitle("Directions", UIControlState.Normal);
             _startDirectionsFromLocationCardButton.BackgroundColor = UIColor.SystemBlueColor;
             _startDirectionsFromLocationCardButton.SetTitleColor(UIColor.White, UIControlState.Normal);
+            _startDirectionsFromLocationCardButton.SetTitleColor(UIColor.SystemGrayColor, UIControlState.Disabled);
             _startDirectionsFromLocationCardButton.Layer.CornerRadius = 8;
+
+            // Handle searching for directions
+            _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
 
             _closeLocationCardButton = new UIButton
             {
@@ -178,7 +292,8 @@
                 this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
             }
             // Check settings
-            _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+            // TODO - re-enable this when settings UI is re-enabled
+            //_startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
         }
 
         public override void LoadView()
@@ -216,6 +331,7 @@
                 Hidden = true
             };
             _innerFloorsTableView.Layer.CornerRadius = 8;
+            _innerFloorsTableView.TableFooterView = new UIView() { Frame = new CGRect(0, 0, 50, 1) };
 
             _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationBar.BackgroundImage = new UIImage();

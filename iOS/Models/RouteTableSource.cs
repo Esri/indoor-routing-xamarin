@@ -81,6 +81,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var cellIdentifier = indexPath.Row % 2 == 1 ? this.endCellIdentifier : this.startCellIdentifier;
             var cell = tableView.DequeueReusableCell(cellIdentifier);
 
+            if (cell == null)
+            {
+                cell = new UITableViewCell(UITableViewCellStyle.Subtitle, cellIdentifier);
+                string imageName = indexPath.Row % 2 == 1 ? "EndCircle" : "StartCircle";
+                cell.ImageView.Image = UIImage.FromBundle(imageName);
+                cell.BackgroundColor = tableView.BackgroundColor;
+            }
+
             try
             {
                 if (this.items.ElementAt(indexPath.Row) != null)

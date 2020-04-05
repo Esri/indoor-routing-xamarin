@@ -45,6 +45,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             _containerView.AddSubview(View);
 
             DisplayedContentView.BackgroundColor = UIColor.Clear;
+            DisplayedContentView.ClipsToBounds = true;
 
             blurView.ContentView.AddSubview(DisplayedContentView);
 
@@ -58,9 +59,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             blurView.ContentView.AddSubview(_handlebarSeparator);
 
             blurView.AddGestureRecognizer(_gesture);
-
-            
-
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 _handlebar.WidthAnchor.ConstraintEqualTo(36),

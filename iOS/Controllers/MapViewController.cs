@@ -71,6 +71,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
+        // Track previously-used search bar to know where to send selected search suggestions
+        private UISearchBar _lastSelectedSearchBar;
+
         /// <summary>
         /// Gets or sets from location feature.
         /// </summary>
@@ -111,18 +114,39 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._mapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
 
             // Handle text changing in the search bar
+            // Handle search bar events
             this._locationBar.TextChanged += LocationSearch_TextChanged;
-
-            // Show auto suggest when enter search area.
-            this._locationBar.OnEditingStarted += _locationBar_OnEditingStarted;
-
-            //
             this._locationBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+            this._locationBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            if (this._startSearchBar != null)
+            {
+                _startSearchBar.TextChanged += LocationSearch_TextChanged;
+                _startSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+                _startSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            }
+            if (_endSearchBar != null)
+            {
+                _endSearchBar.TextChanged += LocationSearch_TextChanged;
+                _endSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
+                _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            }
+
+            // Search for route button
+            if (_searchRouteButton != null)
+            {
+                _searchRouteButton.TouchUpInside += RouteSearch_TouchUpInside;
+            }
 
             // Handle closing location card.
             if (_closeLocationCardButton != null)
             {
                 this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
+            }
+
+            // Handle searching for directions
+            if (_startDirectionsFromLocationCardButton != null)
+            {
+                _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
             }
 
             // Hide the navigation bar on the main screen 
@@ -157,8 +181,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
+        private void _startDirectionsFromLocationCardButton_TouchUpInside(object sender, EventArgs e)
+        {
+            _locationCard.Hidden = true;
+            _locationBar.Hidden = true;
+            _routeSearchView.Hidden = false;
+
+            // TODO - implement home behavior
+            // TODO - implement 'current location' behavior // see old RouteController.cs
+
+            // Copy searched value into origin, jump to entering destination
+            _endSearchBar.Text = _locationBar.Text;
+            _startSearchBar.BecomeFirstResponder();
+            SetAutoSuggestHidden(true);
+
+            // expand bottom sheet
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+        }
+
         private void _locationBar_OnEditingStarted(object sender, EventArgs e)
         {
+            // Store most-recently interacted with search bar
+            _lastSelectedSearchBar = (UISearchBar)sender;
+
+            // Show search suggestions
             SetAutoSuggestHidden(false);
         }
 
@@ -185,16 +231,37 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             this._mapView.LocationDisplay.LocationChanged -= this.MapView_LocationChanged;
 
-            // Handle text changing in the search bar
+            // Handle search bar events
             this._locationBar.TextChanged -= LocationSearch_TextChanged;
-
             this._locationBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
-
-            // Show auto suggest when enter search area.
             this._locationBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+            if (this._startSearchBar != null)
+            {
+                _startSearchBar.TextChanged -= LocationSearch_TextChanged;
+                _startSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
+                _startSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+            }
+            if (_endSearchBar != null)
+            {
+                _endSearchBar.TextChanged -= LocationSearch_TextChanged;
+                _endSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
+                _endSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+            }
+
+            // Search for route button
+            if (_searchRouteButton != null)
+            {
+                _searchRouteButton.TouchUpInside -= RouteSearch_TouchUpInside;
+            }
 
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = false;
+
+            // Handle searching for directions
+            if (_startDirectionsFromLocationCardButton != null)
+            {
+                _startDirectionsFromLocationCardButton.TouchUpInside -= _startDirectionsFromLocationCardButton_TouchUpInside;
+            }
 
             // Handle closing location card.
             if (_closeLocationCardButton != null)
@@ -254,20 +321,29 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private async void LocationSearch_TextChanged(object sender, EventArgs e)
         {
+            // Store most-recently interacted with search bar
+            _lastSelectedSearchBar = (UISearchBar)sender;
+
             // Call to populate autosuggestions 
-            await GetSuggestionsFromLocatorAsync();
+            await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text);
         }
 
         private async void LocationSearch_SearchButtonClicked(object sender, EventArgs e)
         {
+            // Store most-recently interacted with search bar
+            _lastSelectedSearchBar = (UISearchBar)sender;
+
             var searchText = ((UISearchBar)sender).Text;
 
-            // Dismiss keyboard
-            ((UISearchBar)sender).EndEditing(true);
+            if (sender == _locationBar)
+            {
+                // Dismiss keyboard
+                ((UISearchBar)sender).EndEditing(true);
 
-            // Dismiss autosuggestions table
-            SetAutoSuggestHidden(true);
-            await GetSearchedFeatureAsync(searchText);
+                // Dismiss autosuggestions table
+                SetAutoSuggestHidden(true);
+                await GetSearchedFeatureAsync(searchText);
+            }
         }
 
         /// <summary>
@@ -358,25 +434,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             this.InvokeOnMainThread(() =>
             {
-                /*
                 // Show the tableview and populate it
-                _routeTableView.Source = new RouteTableSource(items);
-                _routeTableView.ReloadData();
+                _routeResultStopsView.Source = new RouteTableSource(items);
+                //_routeResultStopsView.ReloadData();
 
                 _walkTimeLabel.Text = walkTime;
 
-                UIView.Transition(
-                    _routeCard,
-                    0.2,
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
-                    () =>
-                    {
-                        _routeCard.Alpha = 1;
-                    },
-                    null);
-
-                var buttonConstraint = 35 + _routeCard.Frame.Height;
-                */
+                // Hide and show cards
+                _routeResultView.Hidden = false;
+                _routeSearchView.Hidden = true;
+                _autoSuggestionsTableView.Hidden = true;
+                _locationCard.Hidden = true;
+                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
             });
         }
 
@@ -403,18 +472,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private void HideContactCard()
         {
-            this.InvokeOnMainThread(() =>
-            {
-                UIView.Animate(
-                    0.2,
-                    0,
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
-                    () =>
-                {
-                    //_contactCardView.Hidden = true;
-                },
-                               null);
-            });
+            _locationCard.Hidden = true;
+            _locationBar.Hidden = false;
         }
 
         /// <summary>
@@ -494,7 +553,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (this._route != null)
+                if (!_routeResultView.Hidden)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
@@ -576,9 +635,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         this.HideContactCard();
                     }
 
-                    if (this._locationBar.IsFirstResponder == true)
+                    foreach(var bar in new[] { _locationBar, _startSearchBar, _endSearchBar })
                     {
-                        this._locationBar.ResignFirstResponder();
+                        if (bar != null && bar.IsFirstResponder)
+                        {
+                            bar.ResignFirstResponder();
+                        }
                     }
                 }
             }
@@ -591,7 +653,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
             this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            this._route = null;
+            Route = null;
+            _routeResultView.Hidden = true;
+            _locationBar.Hidden = false;
         }
 
         /// <summary>
@@ -691,9 +755,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
         /// </summary>
         /// <returns>The suggestions from locator</returns>
-        private async Task GetSuggestionsFromLocatorAsync()
+        private async Task GetSuggestionsFromLocatorAsync(string text)
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this._locationBar.Text);
+            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(text);
             if (suggestions.Count > 0)
             {
                 // Show the tableview with autosuggestions and populate it
@@ -716,10 +780,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
         {
             var selectedItem = e.SelectedItem;
-            this._locationBar.Text = selectedItem.Label;
-            this._locationBar.ResignFirstResponder();
-            SetAutoSuggestHidden(true);
-            await this.GetSearchedFeatureAsync(selectedItem.Label);
+            this._lastSelectedSearchBar.Text = selectedItem.Label;
+            this._lastSelectedSearchBar.ResignFirstResponder();
+            
+            if (_lastSelectedSearchBar == _locationBar)
+            {
+                await this.GetSearchedFeatureAsync(selectedItem.Label);
+                SetAutoSuggestHidden(true);
+            }
+            // Advance to next field
+            else if (_lastSelectedSearchBar == _startSearchBar && String.IsNullOrWhiteSpace(_endSearchBar.Text))
+            {
+                _endSearchBar.BecomeFirstResponder();
+            }
+            else
+            {
+                SetAutoSuggestHidden(true);
+            }
         }
 
         /// <summary>
@@ -842,6 +919,42 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     employeeNameLabel = employeeName as string ?? string.Empty;
                 }
                 this.ShowLocationCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+            }
+        }
+
+        private async void RouteSearch_TouchUpInside(object sender, EventArgs e)
+        {
+            // Geocode the locations selected by the user
+            try
+            {
+                if (_startSearchBar.Text != "Current Location")
+                {
+                    FromLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_startSearchBar.Text);
+                    ToLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_endSearchBar.Text);
+
+                    var fromLocationPoint = FromLocationFeature.Geometry.Extent.GetCenter();
+                    var toLocationPoint = ToLocationFeature.Geometry.Extent.GetCenter();
+
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+
+                    Route = route;
+                }
+                else
+                {
+                    ToLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_endSearchBar.Text);
+
+                    var fromLocationPoint = LocationViewModel.Instance.CurrentLocation;
+                    var toLocationPoint = ToLocationFeature.Geometry.Extent.GetCenter();
+
+                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
+
+                    Route = route;
+                }
+            }
+            catch
+            {
+                // TODO - show error somehow
+                Route = null;
             }
         }
     }

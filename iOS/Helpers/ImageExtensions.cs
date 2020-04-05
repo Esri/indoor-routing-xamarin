@@ -13,7 +13,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
         /// <param name="image">Input Image.</param>
         public static byte[] ToByteArray(this UIImage image)
         {
-            using (NSData imageData = image.AsPNG())
+            using (NSData imageData = image.AsPNG()) // TODO - replace with Runtime method
             {
                 return imageData.ToArray();
             }
