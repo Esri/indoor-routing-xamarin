@@ -385,13 +385,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                 // create a picture marker symbol for start pin
                 var uiImageStartPin = UIImage.FromBundle("StartCircle");
-                var startPin = uiImageStartPin.ToByteArray();
-                var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
+                var startPin = await uiImageStartPin.ToRuntimeImageAsync();
+                var startMarker = new PictureMarkerSymbol(startPin);
 
                 // create a picture marker symbol for end pin
                 var uiImageEndPin = UIImage.FromBundle("EndCircle");
-                var endPin = uiImageEndPin.ToByteArray();
-                var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
+                var endPin = await uiImageEndPin.ToRuntimeImageAsync();
+                var endMarker = new PictureMarkerSymbol(endPin);
 
                 if (newRoute != null)
                 {
@@ -618,8 +618,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                         // create a picture marker symbol
                         var uiImagePin = UIImage.FromBundle("MapPin");
-                        var mapPin = uiImagePin.ToByteArray();
-                        var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                        var mapPin = await uiImagePin.ToRuntimeImageAsync();
+                        var roomMarker = new PictureMarkerSymbol(mapPin);
                         roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                         var identifiedResult = idResults.GeoElements.First();
@@ -843,8 +843,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // create a picture marker symbol
                 var uiImagePin = UIImage.FromBundle("MapPin");
-                var mapPin = uiImagePin.ToByteArray();
-                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                var mapPin = await uiImagePin.ToRuntimeImageAsync();
+                var roomMarker = new PictureMarkerSymbol(mapPin);
                 roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                 // Create graphic
@@ -916,8 +916,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // create a picture marker symbol
                 var uiImagePin = UIImage.FromBundle("HomePin");
-                var mapPin = uiImagePin.ToByteArray();
-                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
+                var mapPin = await uiImagePin.ToRuntimeImageAsync();
+                var roomMarker = new PictureMarkerSymbol(mapPin);
                 roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
                 // Create graphic
