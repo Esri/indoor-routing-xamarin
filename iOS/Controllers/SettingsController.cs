@@ -76,6 +76,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             _tableSource.TableRowSelected += _tableSource_TableRowSelected;
 
+            // reload any changed settings
+            // TODO - switch app settings to follow MVVM pattern, listen for updates
+            _SettingsTableView.ReloadData();
+
             base.ViewWillAppear(animated);
         }
 
@@ -99,7 +103,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private void _closeButton_Clicked(object sender, EventArgs e)
         {
-            this.DismissModalViewController(true);
+            NavigationController.DismissModalViewController(true);
         }
     }
 

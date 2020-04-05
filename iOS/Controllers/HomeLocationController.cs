@@ -30,7 +30,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         UITableView AutosuggestionsTableView { get; set; }
         UISearchBar HomeLocationSearchBar { get; set; }
-        UIView HomeLocationView { get; set; }
+        UIButton _clearHomeLocationButton;
 
         /// <summary>
         /// The home location.
@@ -98,6 +98,58 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
+        
+
+        public override void LoadView()
+        {
+            base.LoadView();
+            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+
+            HomeLocationSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
+            HomeLocationSearchBar.Placeholder = "Search for a location";
+            HomeLocationSearchBar.BackgroundImage = new UIImage();
+            AutosuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false };
+            AutosuggestionsTableView.BackgroundColor = UIColor.Clear;
+
+            _clearHomeLocationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _clearHomeLocationButton.SetTitle("Clear Home Location", UIControlState.Normal);
+
+            View.AddSubviews(HomeLocationSearchBar, AutosuggestionsTableView, _clearHomeLocationButton);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                HomeLocationSearchBar.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor),
+                HomeLocationSearchBar.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                HomeLocationSearchBar.TrailingAnchor.ConstraintEqualTo(_clearHomeLocationButton.LeadingAnchor, -8),
+                _clearHomeLocationButton.CenterYAnchor.ConstraintEqualTo(HomeLocationSearchBar.CenterYAnchor),
+                _clearHomeLocationButton.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor, -8),
+                AutosuggestionsTableView.TopAnchor.ConstraintEqualTo(HomeLocationSearchBar.BottomAnchor),
+                AutosuggestionsTableView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                AutosuggestionsTableView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                AutosuggestionsTableView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
+            });
+        }
+
+        /// <summary>
+        /// Overrides the behavior of the controller once the view has loaded
+        /// </summary>
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            this.HomeLocationSearchBar.BecomeFirstResponder();
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            _clearHomeLocationButton.TouchUpInside -= _clearHomeLocationButton_TouchUpInside;
+
+            HomeLocationSearchBar.TextChanged -= HomeLocationSearchBar_TextChanged;
+
+            HomeLocationSearchBar.SearchButtonClicked -= HomeLocationSearchBar_SearchButtonClicked;
+        }
+
         /// <summary>
         /// Overrides the controller behavior before view is about to appear
         /// </summary>
@@ -106,29 +158,34 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             // Show the navigation bar
             NavigationController.NavigationBarHidden = false;
+
+            _clearHomeLocationButton.TouchUpInside += _clearHomeLocationButton_TouchUpInside;
+
+            HomeLocationSearchBar.TextChanged += HomeLocationSearchBar_TextChanged;
+
+            HomeLocationSearchBar.SearchButtonClicked += HomeLocationSearchBar_SearchButtonClicked;
+
             base.ViewWillAppear(animated);
         }
 
-        /// <summary>
-        /// Overrides the behavior of the controller once the view has loaded
-        /// </summary>
-        public override void ViewDidLoad()
+        private async void HomeLocationSearchBar_SearchButtonClicked(object sender, EventArgs e)
         {
-            base.ViewDidLoad();
-            this.HomeLocationSearchBar.BecomeFirstResponder();
+            var locationText = ((UISearchBar)sender).Text;
+            await SetHomeLocationAsync(locationText);
+        }
 
-            // Set text changed event on the search bar
-            this.HomeLocationSearchBar.TextChanged += async (sender, e) =>
-            {
-                // This is the method that is called when the user searchess
-                await GetSuggestionsFromLocatorAsync();
-            };
+        private async void HomeLocationSearchBar_TextChanged(object sender, UISearchBarTextChangedEventArgs e)
+        {
+            // This is the method that is called when the user searchess
+            await GetSuggestionsFromLocatorAsync();
+        }
 
-            this.HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
-            {
-                var locationText = ((UISearchBar)sender).Text;
-                await SetHomeLocationAsync(locationText);
-            };
+        private void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
+        {
+            // TODO clear this up
+            AppSettings.CurrentSettings.HomeLocation = "";
+            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+
         }
 
         /// <summary>

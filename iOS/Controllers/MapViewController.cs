@@ -140,6 +140,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _searchRouteButton.TouchUpInside += RouteSearch_TouchUpInside;
             }
 
+            // Home button
+            _homeButton.TouchUpInside += Home_TouchUpInside;
+
             // Handle closing location card.
             if (_closeLocationCardButton != null)
             {
@@ -162,7 +165,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
 
             // Show Current Location button if location services is enabled
-            _locationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
+            _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
 
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
             {
@@ -184,10 +187,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void _settingsButton_TouchUpInside(object sender, EventArgs e)
+        private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
         {
-            UINavigationController navController = new UINavigationController(new SettingsController());
-            this.PresentModalViewController(navController, true);
+            DismissableNavigationController navController = new DismissableNavigationController(new SettingsController());
+            await PresentViewControllerAsync(navController, true);
+
+            navController.DidDismiss += (o, x) =>
+            {
+                _homeButton.Enabled = !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation);
+                _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
+                _accessoryView.ReloadData();
+            };
+            
         }
 
         private void _startDirectionsFromLocationCardButton_TouchUpInside(object sender, EventArgs e)
@@ -259,6 +270,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             //  the settings button
             _settingsButton.TouchUpInside -= _settingsButton_TouchUpInside;
+
+            // Home button
+            _homeButton.TouchUpInside -= Home_TouchUpInside;
 
             // Search for route button
             if (_searchRouteButton != null)
@@ -894,7 +908,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// When user taps on the home button, zoom them to the home location
         /// </summary>
         /// <param name="sender">Home button</param>
-        private async void Home_TouchUpInside(UIBarButtonItem sender)
+        private async void Home_TouchUpInside(object sender, EventArgs e)
         {
             var homeLocation = this.ViewModel.MoveToHomeLocation();
 

@@ -85,13 +85,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             try
             {
-                return this.items.Count();
+                return this.items.Where(_buttonInclusionPredicate).Count();
             }
             catch
             {
                 return 0;
             }
         }
+
+        private Func<UIButton, bool> _buttonInclusionPredicate = button => !button.Hidden && button.Enabled;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -114,7 +116,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             try
             {
-                var item = this.items.ElementAt(indexPath.Row);
+                var item = this.items.Where(_buttonInclusionPredicate).ElementAt(indexPath.Row);
 
                 if (cell._containedButton != item)
                 {

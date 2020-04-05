@@ -284,6 +284,7 @@
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
     <Compile Include="Controllers\MapViewController.Views.cs" />
     <Compile Include="Views\ViewExtensions.cs" />
+    <Compile Include="Helpers\DismissableNavigationController.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />

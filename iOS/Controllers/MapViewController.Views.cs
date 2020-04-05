@@ -32,6 +32,7 @@
         private UIButton _settingsButton;
         private UIButton _homeButton;
         private UIButton _locationButton;
+        private SimpleStackedButtonContainer _accessoryView;
         
         private SelfSizedTableView _autoSuggestionsTableView;
 
@@ -317,7 +318,7 @@
                 Spacing = 8
             };
 
-            var accesoryView = new SimpleStackedButtonContainer(new[] { _homeButton, _settingsButton, _locationButton })
+            _accessoryView = new SimpleStackedButtonContainer(new[] { _homeButton, _settingsButton, _locationButton })
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
@@ -346,7 +347,7 @@
             _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };
             _compass.GeoView = _mapView;
 
-            var accessoryShadowContainer = accesoryView.EncapsulateInShadowView();
+            var accessoryShadowContainer = _accessoryView.EncapsulateInShadowView();
 
             _topBlur = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemUltraThinMaterial));
             _topBlur.TranslatesAutoresizingMaskIntoConstraints = false;
@@ -374,7 +375,7 @@
                 _compass.WidthAnchor.ConstraintEqualTo(48),
                 _compass.HeightAnchor.ConstraintEqualTo(48),
                 // right panel accessories
-                accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(accesoryView.HeightAnchor, 1, 16),
+                accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(_accessoryView.HeightAnchor, 1, 16),
                 accessoryShadowContainer.WidthAnchor.ConstraintEqualTo(48),
                 // floors view
                 floorsTableShadowContainer.WidthAnchor.ConstraintEqualTo(accessoryShadowContainer.WidthAnchor),
