@@ -281,6 +281,7 @@
     <Compile Include="Controllers\MapViewController.Views.cs" />
     <Compile Include="Views\ViewExtensions.cs" />
     <Compile Include="Helpers\DismissableNavigationController.cs" />
+    <Compile Include="Views\IntrinsicContentSizedStackView.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />

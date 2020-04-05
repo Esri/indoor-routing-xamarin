@@ -8,7 +8,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
     {
         public SelfSizedTableView() : base()
         {
-            TableFooterView = new UIView() { Frame = new CGRect(0, 0, 50, 1) };
+            // Get more accurate height values from `ContentSize`
+            EstimatedRowHeight = 0;
+            EstimatedSectionFooterHeight = 0;
+            EstimatedSectionHeaderHeight = 0;
         }
 
         public override void ReloadData()

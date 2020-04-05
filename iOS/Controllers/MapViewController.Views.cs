@@ -43,6 +43,7 @@
         private NSLayoutConstraint[] _invariantConstraints;
 
         private SelfSizedTableView _innerFloorsTableView;
+        private UIView _innerFloorsTableViewShadow; // shadow container needs to be hidden for stack layout to work
 
         private UIStackView _topRightStack;
 
@@ -95,11 +96,10 @@
 
             ConfigureRouteResultView();
 
-            UIStackView _containerView = new UIStackView
+            UIStackView _containerView = new IntrinsicContentSizedStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                Axis = UILayoutConstraintAxis.Vertical,
-                Distribution = UIStackViewDistribution.Fill
+                Axis = UILayoutConstraintAxis.Vertical
             };
 
             _containerView.AddArrangedSubview(_locationBar);
@@ -122,7 +122,9 @@
         {
             _routeResultView = new UIView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
             _routeResultStopsView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _routeResultStopsView.BackgroundColor = UIColor.SystemRedColor;
+            _routeResultStopsView.TableFooterView = null;
+            _routeResultStopsView.ScrollEnabled = false;
+            _routeResultStopsView.BackgroundColor = UIColor.Clear;
 
             _routeTravelModeImage = new UIImageView(UIImage.FromBundle("Walk")) { TranslatesAutoresizingMaskIntoConstraints = false };
             _routeTravelModeImage.TintColor = UIColor.FromName("AccessoryButtonColor");
@@ -142,7 +144,8 @@
                 _routeTravelModeImage.CenterXAnchor.ConstraintEqualTo(_walkTimeLabel.CenterXAnchor),
                 _walkTimeLabel.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
                 _walkTimeLabel.TopAnchor.ConstraintEqualTo(_routeTravelModeImage.BottomAnchor, 8),
-                _walkTimeLabel.WidthAnchor.ConstraintEqualTo(80)
+                _walkTimeLabel.WidthAnchor.ConstraintEqualTo(80),
+                _routeResultView.BottomAnchor.ConstraintEqualTo(_routeResultStopsView.BottomAnchor, 8)
             });
         }
 
@@ -168,6 +171,7 @@
             _startSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _startSearchBar.BackgroundImage = new UIImage();
             _startSearchBar.Placeholder = "Origin";
+            _startSearchBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
             _endSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _endSearchBar.BackgroundImage = new UIImage();
@@ -204,19 +208,19 @@
                 _searchEndLabel.CenterYAnchor.ConstraintEqualTo(_endSearchBar.CenterYAnchor),
                 _searchEndLabel.TrailingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
                 // search bars
-                _startSearchBar.LeadingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor, 8),
+                _startSearchBar.LeadingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
                 _startSearchBar.TopAnchor.ConstraintEqualTo(_routeSearchView.TopAnchor, 8),
-                _startSearchBar.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _startSearchBar.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor),
                 _endSearchBar.LeadingAnchor.ConstraintEqualTo(_startSearchBar.LeadingAnchor),
                 _endSearchBar.TrailingAnchor.ConstraintEqualTo(_startSearchBar.TrailingAnchor),
-                _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor),
+                _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor, -12),
                 // search button
                 _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
-                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor),
+                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor, -4),
                 _searchRouteButton.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
                 _searchRouteButton.HeightAnchor.ConstraintEqualTo(44),
                 // update bottom size
-                _routeSearchView.BottomAnchor.ConstraintEqualTo(_searchRouteButton.BottomAnchor)
+                _routeSearchView.BottomAnchor.ConstraintEqualTo(_searchRouteButton.BottomAnchor, 8)
             });
         }
 
@@ -293,7 +297,6 @@
                 this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
             }
             // Check settings
-            // TODO - re-enable this when settings UI is re-enabled
             _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
         }
 
@@ -310,12 +313,12 @@
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _topRightStack = new UIStackView
+            _topRightStack = new IntrinsicContentSizedStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Axis = UILayoutConstraintAxis.Vertical,
-                Distribution = UIStackViewDistribution.EqualSpacing,
-                Spacing = 8
+                Spacing = 8,
+                Distribution = UIStackViewDistribution.EqualSpacing
             };
 
             _accessoryView = new SimpleStackedButtonContainer(new[] { _homeButton, _settingsButton, _locationButton })
@@ -332,13 +335,12 @@
                 Hidden = true
             };
             _innerFloorsTableView.Layer.CornerRadius = 8;
-            _innerFloorsTableView.TableFooterView = new UIView() { Frame = new CGRect(0, 0, 50, 1) };
 
             _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationBar.BackgroundImage = new UIImage();
             _locationBar.Placeholder = "Search for a place or address";
             _locationBar.UserInteractionEnabled = true;
-            _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
+            _locationBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
             _homeButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
             _locationButton.SetImage(UIImage.FromBundle("CurrentLocation"), UIControlState.Normal);
@@ -354,12 +356,12 @@
 
             _innerFloorsTableView.BackgroundColor = UIColor.Clear;
             _innerFloorsTableView.BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
-            var floorsTableShadowContainer = _innerFloorsTableView.EncapsulateInShadowView();
+            _innerFloorsTableViewShadow = _innerFloorsTableView.EncapsulateInShadowView();
 
             View.AddSubviews(_mapView, _topRightStack, _topBlur);
             
             _topRightStack.AddArrangedSubview(accessoryShadowContainer);
-            _topRightStack.AddArrangedSubview(floorsTableShadowContainer);
+            _topRightStack.AddArrangedSubview(_innerFloorsTableViewShadow);
             _topRightStack.AddArrangedSubview(_compass);
 
             _invariantConstraints = new NSLayoutConstraint[]
@@ -378,8 +380,8 @@
                 accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(_accessoryView.HeightAnchor, 1, 16),
                 accessoryShadowContainer.WidthAnchor.ConstraintEqualTo(48),
                 // floors view
-                floorsTableShadowContainer.WidthAnchor.ConstraintEqualTo(accessoryShadowContainer.WidthAnchor),
-                floorsTableShadowContainer.HeightAnchor.ConstraintLessThanOrEqualTo(240),
+                _innerFloorsTableViewShadow.WidthAnchor.ConstraintEqualTo(accessoryShadowContainer.WidthAnchor),
+                _innerFloorsTableViewShadow.HeightAnchor.ConstraintLessThanOrEqualTo(240),
                 // Top blur (to make handlebar and system area easy to see)
                 _topBlur.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
                 _topBlur.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),

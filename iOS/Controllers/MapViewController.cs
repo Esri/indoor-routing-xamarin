@@ -155,6 +155,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
             }
 
+            // location button
+            _locationButton.TouchUpInside += CurrentLocationButton_TouchUpInside;
+
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = true;
 
@@ -211,7 +214,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // TODO - implement 'current location' behavior // see old RouteController.cs
 
             // Copy searched value into origin, jump to entering destination
-            _endSearchBar.Text = _locationBar.Text;
+            _endSearchBar.Text = _locationCardPrimaryLabel.Text;
             _startSearchBar.BecomeFirstResponder();
             SetAutoSuggestHidden(true);
 
@@ -273,6 +276,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // Home button
             _homeButton.TouchUpInside -= Home_TouchUpInside;
+
+            // location button
+            _locationButton.TouchUpInside -= CurrentLocationButton_TouchUpInside;
 
             // Search for route button
             if (_searchRouteButton != null)
@@ -462,7 +468,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // Show the tableview and populate it
                 _routeResultStopsView.Source = new RouteTableSource(items);
-                //_routeResultStopsView.ReloadData();
+                // Necessary to trigger resize
+                _routeResultStopsView.ReloadData();
 
                 _walkTimeLabel.Text = walkTime;
 
@@ -490,6 +497,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
                 // If the label is for the contact info, show the Directions button and fill the labels with the office info
                 SetLocationCardHidden(false);
+                _routeSearchView.Hidden = true;
+                _routeResultView.Hidden = true;
             });
         }
 
@@ -544,7 +553,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             else
             {
-                this._innerFloorsTableView.Hidden = true;
+                this.DismissFloorsTableView();
                 this.ViewModel.SetFloorVisibility(false);
             }
         }
@@ -594,7 +603,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
                     if (presentationPopover != null)
                     {
-                        presentationPopover.SourceView = this.View;
+                        presentationPopover.SourceView = _routeTravelModeImage;
                         presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
                     }
 
@@ -694,7 +703,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._mapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
             this._mapView.LocationDisplay.IsEnabled = true;
 
-            // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
+            this.ViewModel.Viewpoint = new Viewpoint(_mapView.LocationDisplay.Location.Position, 150);
         }
 
         /// <summary>
@@ -731,6 +740,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         {
                             // Show the tableview and populate it
                             _innerFloorsTableView.Hidden = false;
+                            _innerFloorsTableViewShadow.Hidden = false;
                             var tableSource = new FloorsTableSource(tableItems);
                             tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
                             _innerFloorsTableView.Source = tableSource;
@@ -890,7 +900,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private void DismissFloorsTableView()
         {
-            this.InvokeOnMainThread(() => this._innerFloorsTableView.Hidden = true);
+            this.InvokeOnMainThread(() => { this._innerFloorsTableView.Hidden = true; this._innerFloorsTableViewShadow.Hidden = true; });
         }
 
         /// <summary>
