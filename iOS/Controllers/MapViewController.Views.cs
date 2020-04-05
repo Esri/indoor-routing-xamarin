@@ -293,7 +293,7 @@
             }
             // Check settings
             // TODO - re-enable this when settings UI is re-enabled
-            //_startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+            _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
         }
 
         public override void LoadView()
@@ -340,7 +340,7 @@
             _locationBar.SearchBarStyle = UISearchBarStyle.Prominent;
 
             _homeButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
-            _locationButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
+            _locationButton.SetImage(UIImage.FromBundle("CurrentLocation"), UIControlState.Normal);
             _settingsButton.SetImage(UIImage.FromBundle("Settings"), UIControlState.Normal);
 
             _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };

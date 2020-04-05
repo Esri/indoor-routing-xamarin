@@ -131,6 +131,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
             }
 
+            //  the settings button
+            _settingsButton.TouchUpInside += _settingsButton_TouchUpInside;
+
             // Search for route button
             if (_searchRouteButton != null)
             {
@@ -179,6 +182,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
             }
+        }
+
+        private void _settingsButton_TouchUpInside(object sender, EventArgs e)
+        {
+            UINavigationController navController = new UINavigationController(new SettingsController());
+            this.PresentModalViewController(navController, true);
         }
 
         private void _startDirectionsFromLocationCardButton_TouchUpInside(object sender, EventArgs e)
@@ -247,6 +256,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _endSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
                 _endSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
             }
+
+            //  the settings button
+            _settingsButton.TouchUpInside -= _settingsButton_TouchUpInside;
 
             // Search for route button
             if (_searchRouteButton != null)
@@ -678,7 +690,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="e">Event args.</param>
         private void MapView_LocationChanged(object sender, Location e)
         {
-            LocationViewModel.Instance.CurrentLocation = e.Position;
+            if (LocationViewModel.Instance != null)
+            {
+                LocationViewModel.Instance.CurrentLocation = e.Position;
+            }
+            
         }
 
         /// <summary>

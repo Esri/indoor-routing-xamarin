@@ -266,18 +266,8 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
-    <Compile Include="Controllers\SettingsController.designer.cs">
-      <DependentUpon>SettingsController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controllers\RouteController.cs" />
-    <Compile Include="Controllers\RouteController.designer.cs">
-      <DependentUpon>RouteController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\MapViewController.cs" />
     <Compile Include="Controllers\HomeLocationController.cs" />
-    <Compile Include="Controllers\HomeLocationController.designer.cs">
-      <DependentUpon>HomeLocationController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\NetworkReachability.cs" />
     <Compile Include="Helpers\DownloadDelegate.cs" />
     <Compile Include="Models\AutosuggestionsTableSource.cs" />

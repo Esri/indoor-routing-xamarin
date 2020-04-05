@@ -27,6 +27,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// </summary>
     internal partial class HomeLocationController : UIViewController
     {
+
+        UITableView AutosuggestionsTableView { get; set; }
+        UISearchBar HomeLocationSearchBar { get; set; }
+        UIView HomeLocationView { get; set; }
+
         /// <summary>
         /// The home location.
         /// </summary>
@@ -36,14 +41,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// The home floor level.
         /// </summary>
         private string floorLevel;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.HomeLocationController"/> class.
-        /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private HomeLocationController(IntPtr handle) : base(handle)
-        {
-        }
 
         /// <summary>
         /// Gets the coordinates for the home location
