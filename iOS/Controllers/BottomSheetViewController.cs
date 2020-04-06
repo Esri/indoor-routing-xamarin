@@ -169,12 +169,35 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 switch (TraitCollection.HorizontalSizeClass)
                 {
                     case UIUserInterfaceSizeClass.Compact:
-                        return _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top;
+                        return _containerView.Frame.Height + 8 - _containerView.SafeAreaInsets.Top - 16; //16 is top margin
                     case UIUserInterfaceSizeClass.Regular:
                     default:
-                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom;
+                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - 16 - _containerView.SafeAreaInsets.Bottom - 16; //16 is bottom margin
                 }
             }
+        }
+
+        private nfloat GetPartialHeight()
+        {
+            nfloat baseHeight = 0;
+            if (DisplayedContentView.Subviews.First() is IntrinsicContentSizedStackView stackView)
+            {
+                baseHeight = stackView.SystemLayoutSizeFittingSize(new CoreGraphics.CGSize(-1, -1)).Height;
+            }
+            else
+            {
+                baseHeight = partialHeight;
+            }
+
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact)
+            {
+                baseHeight += 12.5f + 8f; // 8f is extra margin, 12.5 is size of UI elements
+            }
+            else
+            {
+                baseHeight += 12.5f;
+            }
+            return baseHeight;
         }
 
         public void SetStateWithAnimation(BottomSheetState state)
@@ -185,14 +208,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 case BottomSheetState.partial:
                     UIView.Animate(0.5, () =>
                     {
-                        if (DisplayedContentView.Subviews.First() is IntrinsicContentSizedStackView stackView)
-                        {
-                            _heightConstraint.Constant = stackView.SystemLayoutSizeFittingSize(new CoreGraphics.CGSize(-1, -1)).Height + 12.5f;
-                        }
-                        else
-                        {
-                            _heightConstraint.Constant = partialHeight;
-                        }
+                        _heightConstraint.Constant = GetPartialHeight();
                     });
                     break;
                 case BottomSheetState.minimized:
@@ -294,6 +310,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
                 _handlebarSeparator.BackgroundColor = UIColor.Clear;
             }
+
+            SetStateWithAnimation(_currentState);
         }
     }
 }

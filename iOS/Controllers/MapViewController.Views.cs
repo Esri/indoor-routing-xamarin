@@ -116,6 +116,8 @@
                 _containerView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
                 _containerView.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
             });
+
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
 
         private void ConfigureRouteResultView()
@@ -154,14 +156,7 @@
             _locationCard.Hidden = isHidden;
             _locationBar.Hidden = !isHidden;
 
-            if (isHidden)
-            {
-                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.minimized);
-            }
-            else
-            {
-                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
-            }
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
 
         private void ConfigureRouteSearchCard()
@@ -251,10 +246,10 @@
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
-            _closeLocationCardButton.BackgroundColor = UIColor.SystemGray5Color;
+            _closeLocationCardButton.BackgroundColor = UIColor.SystemGray4Color;
             _closeLocationCardButton.Layer.CornerRadius = 16;
             _closeLocationCardButton.SetImage(UIImage.FromBundle("x"), UIControlState.Normal);
-            _closeLocationCardButton.TintColor = UIColor.SystemGray2Color;
+            _closeLocationCardButton.TintColor = UIColor.SystemGrayColor;
 
             _locationCardPrimaryLabel = new UILabel
             {
