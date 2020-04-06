@@ -30,7 +30,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         UITableView AutosuggestionsTableView { get; set; }
         UISearchBar HomeLocationSearchBar { get; set; }
-        UIButton _clearHomeLocationButton;
 
         /// <summary>
         /// The home location.
@@ -108,21 +107,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             HomeLocationSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             HomeLocationSearchBar.Placeholder = "Search for a location";
             HomeLocationSearchBar.BackgroundImage = new UIImage();
+            HomeLocationSearchBar.ShowsCancelButton = true;
+            HomeLocationSearchBar.Text = AppSettings.CurrentSettings.HomeLocation;
             AutosuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false };
             AutosuggestionsTableView.BackgroundColor = UIColor.Clear;
 
-            _clearHomeLocationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _clearHomeLocationButton.SetTitle("Clear Home Location", UIControlState.Normal);
-
-            View.AddSubviews(HomeLocationSearchBar, AutosuggestionsTableView, _clearHomeLocationButton);
+            View.AddSubviews(HomeLocationSearchBar, AutosuggestionsTableView);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 HomeLocationSearchBar.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor),
                 HomeLocationSearchBar.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                HomeLocationSearchBar.TrailingAnchor.ConstraintEqualTo(_clearHomeLocationButton.LeadingAnchor, -8),
-                _clearHomeLocationButton.CenterYAnchor.ConstraintEqualTo(HomeLocationSearchBar.CenterYAnchor),
-                _clearHomeLocationButton.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor, -8),
+                HomeLocationSearchBar.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
                 AutosuggestionsTableView.TopAnchor.ConstraintEqualTo(HomeLocationSearchBar.BottomAnchor),
                 AutosuggestionsTableView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
                 AutosuggestionsTableView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
@@ -143,11 +139,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             base.ViewDidDisappear(animated);
 
-            _clearHomeLocationButton.TouchUpInside -= _clearHomeLocationButton_TouchUpInside;
-
             HomeLocationSearchBar.TextChanged -= HomeLocationSearchBar_TextChanged;
 
             HomeLocationSearchBar.SearchButtonClicked -= HomeLocationSearchBar_SearchButtonClicked;
+
+            HomeLocationSearchBar.CancelButtonClicked -= _clearHomeLocationButton_TouchUpInside;
         }
 
         /// <summary>
@@ -159,7 +155,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Show the navigation bar
             NavigationController.NavigationBarHidden = false;
 
-            _clearHomeLocationButton.TouchUpInside += _clearHomeLocationButton_TouchUpInside;
+            HomeLocationSearchBar.CancelButtonClicked += _clearHomeLocationButton_TouchUpInside;
 
             HomeLocationSearchBar.TextChanged += HomeLocationSearchBar_TextChanged;
 
@@ -180,11 +176,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             await GetSuggestionsFromLocatorAsync();
         }
 
-        private void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
+        private async void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
         {
-            // TODO clear this up
-            AppSettings.CurrentSettings.HomeLocation = "";
-            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+            this.HomeLocationSearchBar.Text = "";
+            await this.SetHomeLocationAsync("");
 
         }
 
@@ -237,6 +232,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             AppSettings.CurrentSettings.HomeLocation = locationText;
             this.HomeLocation = await LocationViewModel.Instance.GetSearchedLocationAsync(locationText);
             this.FloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(locationText);
+
+            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
 
             NavigationController.PopViewController(true);
         }
