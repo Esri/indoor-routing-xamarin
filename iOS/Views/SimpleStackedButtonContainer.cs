@@ -40,10 +40,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _containedButton.CenterXAnchor.ConstraintEqualTo(ContentView.CenterXAnchor),
-                _containedButton.CenterYAnchor.ConstraintEqualTo(ContentView.CenterYAnchor),
-                _containedButton.WidthAnchor.ConstraintLessThanOrEqualTo(28),
-                _containedButton.HeightAnchor.ConstraintLessThanOrEqualTo(28)
+                _containedButton.LeadingAnchor.ConstraintEqualTo(ContentView.LeadingAnchor),
+                _containedButton.TrailingAnchor.ConstraintEqualTo(ContentView.TrailingAnchor),
+                _containedButton.BottomAnchor.ConstraintEqualTo(ContentView.BottomAnchor),
+                _containedButton.TopAnchor.ConstraintEqualTo(ContentView.TopAnchor)
             });
         }
     }
