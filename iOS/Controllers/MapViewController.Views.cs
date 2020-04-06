@@ -324,6 +324,7 @@
 
             _autoSuggestionsTableView = new SelfSizedTableView { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = true };
             _autoSuggestionsTableView.BackgroundColor = UIColor.Clear;
+            _autoSuggestionsTableView.SeparatorColor = UIColor.SystemGrayColor;
 
             _innerFloorsTableView = new SelfSizedTableView
             {
