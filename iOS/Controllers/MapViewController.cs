@@ -210,25 +210,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _locationBar.Hidden = true;
             _routeSearchView.Hidden = false;
 
-            // TODO - implement home behavior
             // TODO - implement 'current location' behavior // see old RouteController.cs
 
             // Copy searched value into origin, jump to entering destination
-            _endSearchBar.Text = _locationCardPrimaryLabel.Text;
-            _startSearchBar.BecomeFirstResponder();
-            SetAutoSuggestHidden(true);
-
+            if (_locationCardPrimaryLabel.Text == AppSettings.CurrentSettings.HomeLocation)
+            {
+                _startSearchBar.Text = _locationCardPrimaryLabel.Text;
+                _endSearchBar.BecomeFirstResponder();
+                SetAutoSuggestHidden(false);
+            }
+            else
+            {
+                _endSearchBar.Text = _locationCardPrimaryLabel.Text;
+                _startSearchBar.BecomeFirstResponder();
+                SetAutoSuggestHidden(false);
+            }
+            
             // expand bottom sheet
             _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
         }
 
-        private void _locationBar_OnEditingStarted(object sender, EventArgs e)
+        private async void _locationBar_OnEditingStarted(object sender, EventArgs e)
         {
             // Store most-recently interacted with search bar
             _lastSelectedSearchBar = (UISearchBar)sender;
 
             // Show search suggestions
             SetAutoSuggestHidden(false);
+
+            // Populate with initial suggestions
+            await GetSuggestionsFromLocatorAsync("");
         }
 
         private void _closeLocationCardButton_TouchUpInside(object sender, EventArgs e)
@@ -499,6 +510,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 SetLocationCardHidden(false);
                 _routeSearchView.Hidden = true;
                 _routeResultView.Hidden = true;
+                SetAutoSuggestHidden(true);
             });
         }
 
@@ -798,10 +810,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private async Task GetSuggestionsFromLocatorAsync(string text)
         {
             var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(text);
-            if (suggestions.Count > 0)
+            if (suggestions.Count > 0 || AppSettings.CurrentSettings.IsLocationServicesEnabled || !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
                 // Show the tableview with autosuggestions and populate it
-                var tableSource = new AutosuggestionsTableSource(suggestions);
+                var tableSource = new AutosuggestionsTableSource(suggestions, true);
                 tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
                 this._autoSuggestionsTableView.Source = tableSource;
 
@@ -817,23 +829,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+        private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             var selectedItem = e.SelectedItem;
-            this._lastSelectedSearchBar.Text = selectedItem.Label;
+            this._lastSelectedSearchBar.Text = selectedItem;
             this._lastSelectedSearchBar.ResignFirstResponder();
             
             if (_lastSelectedSearchBar == _locationBar)
             {
-                await this.GetSearchedFeatureAsync(selectedItem.Label);
-                SetAutoSuggestHidden(true);
+                if (selectedItem != "Current Location")
+                {
+                    await this.GetSearchedFeatureAsync(selectedItem);
+                    SetAutoSuggestHidden(true);
+                }
             }
             // Advance to next field
             else if (_lastSelectedSearchBar == _startSearchBar && String.IsNullOrWhiteSpace(_endSearchBar.Text))
             {
                 _endSearchBar.BecomeFirstResponder();
             }
-            else
+            else if (_lastSelectedSearchBar == _endSearchBar && String.IsNullOrWhiteSpace(_startSearchBar.Text))
+            {
+                _startSearchBar.BecomeFirstResponder();
+            }
+            else if (selectedItem != "Current Location")
             {
                 SetAutoSuggestHidden(true);
             }

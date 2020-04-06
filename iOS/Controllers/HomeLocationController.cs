@@ -205,7 +205,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 // Show the tableview with autosuggestions and populate it
                 this.AutosuggestionsTableView.Hidden = false;
-                var tableSource = new AutosuggestionsTableSource(suggestions);
+                var tableSource = new AutosuggestionsTableSource(suggestions, false);
                 tableSource.TableRowSelected += this.TableSource_TableRowSelected;
                 this.AutosuggestionsTableView.Source = tableSource;
                 this.AutosuggestionsTableView.ReloadData();
@@ -217,13 +217,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+        private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             var selectedItem = e.SelectedItem;
             if (selectedItem != null)
             {
-                this.HomeLocationSearchBar.Text = selectedItem.Label;
-                await this.SetHomeLocationAsync(selectedItem.Label);
+                this.HomeLocationSearchBar.Text = selectedItem;
+                await this.SetHomeLocationAsync(selectedItem);
             }
         }
 

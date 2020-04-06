@@ -33,28 +33,34 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private readonly IEnumerable<SuggestResult> items;
 
+        private List<string> _specialSettings = new List<string>();
+
         /// <summary>
         /// The cell identifier.
         /// </summary>
         private readonly string cellIdentifier;
 
+        public bool ShouldShowSpecialItems { get; set; } = true;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.AutosuggestionsTableSource"/> class.
         /// </summary>
         /// <param name="items">table items.</param>
-        internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items)
+        internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items, bool showSpecialItems)
         {
             if (items != null)
             {
                 this.items = items;
                 this.cellIdentifier = "cell_id";
             }
+            ResetSpecialSettings();
+            ShouldShowSpecialItems = showSpecialItems;
         }
 
         /// <summary>
         /// Occurs when table row is selected.
         /// </summary>
-        public event EventHandler<TableRowSelectedEventArgs<SuggestResult>> TableRowSelected;
+        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -66,11 +72,55 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                return this.items.Count();
+                if (_specialSettings.Count() > 0 && ShouldShowSpecialItems && section == 0)
+                {
+                    return _specialSettings.Count;
+                }
+                else
+                {
+                    return this.items.Count();
+                }
             }
             catch
             {
                 return 0;
+            }
+        }
+
+        public override nint NumberOfSections(UITableView tableView)
+        {
+            ResetSpecialSettings();
+            if (_specialSettings.Count > 0 && ShouldShowSpecialItems)
+            {
+                return 2;
+            }
+            return 1;
+        }
+
+        private void ResetSpecialSettings()
+        {
+            _specialSettings.Clear();
+            if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+            {
+                _specialSettings.Add("Current Location");
+            }
+
+            if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
+            {
+                _specialSettings.Add(AppSettings.CurrentSettings.HomeLocation);
+            }
+        }
+
+        public override string TitleForHeader(UITableView tableView, nint section)
+        {
+            // Don't show extra section for special features if they're not enabled
+            if (section == 0 && _specialSettings.Count() > 0 && ShouldShowSpecialItems)
+            {
+                return "Top choices";
+            }
+            else
+            {
+                return "Suggestions";
             }
         }
 
@@ -93,6 +143,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             try
             {
+                if (_specialSettings.Count() > 0 && indexPath.Section == 0 && ShouldShowSpecialItems)
+                {
+                    cell.TextLabel.Text = _specialSettings[indexPath.Row];
+                    return cell;
+                }
                 var item = this.items.ElementAt(indexPath.Row);
                 cell.TextLabel.Text = item.Label;
 
@@ -132,8 +187,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                var item = this.items.ElementAt(itemIndexPath.Row);
-                this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<SuggestResult>(item, itemIndexPath));
+                if (_specialSettings.Count > 0 && itemIndexPath.Section == 0 && ShouldShowSpecialItems)
+                {
+                    var specialItem = _specialSettings[itemIndexPath.Row];
+                    this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(specialItem, itemIndexPath));
+                }
+                else
+                {
+                    var item = this.items.ElementAt(itemIndexPath.Row);
+                    this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item.Label, itemIndexPath));
+                }
             }
             catch 
             { 
