@@ -127,6 +127,8 @@
             _routeResultStopsView.TableFooterView = null;
             _routeResultStopsView.ScrollEnabled = false;
             _routeResultStopsView.BackgroundColor = UIColor.Clear;
+            _routeResultStopsView.ScrollEnabled = false;
+            _routeResultStopsView.AllowsSelection = false;
 
             _routeTravelModeImage = new UIImageView(UIImage.FromBundle("walking")) { TranslatesAutoresizingMaskIntoConstraints = false };
             _routeTravelModeImage.TintColor = UIColor.FromName("AccessoryButtonColor");
