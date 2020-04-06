@@ -126,8 +126,9 @@
             _routeResultStopsView.ScrollEnabled = false;
             _routeResultStopsView.BackgroundColor = UIColor.Clear;
 
-            _routeTravelModeImage = new UIImageView(UIImage.FromBundle("Walk")) { TranslatesAutoresizingMaskIntoConstraints = false };
+            _routeTravelModeImage = new UIImageView(UIImage.FromBundle("walking")) { TranslatesAutoresizingMaskIntoConstraints = false };
             _routeTravelModeImage.TintColor = UIColor.FromName("AccessoryButtonColor");
+            _routeTravelModeImage.ContentMode = UIViewContentMode.ScaleAspectFit;
 
             _walkTimeLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
             _walkTimeLabel.TextAlignment = UITextAlignment.Center;
@@ -140,7 +141,6 @@
                 _routeResultStopsView.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
                 _routeResultStopsView.TrailingAnchor.ConstraintEqualTo(_walkTimeLabel.LeadingAnchor, -8),
                 _routeTravelModeImage.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
-                _routeTravelModeImage.HeightAnchor.ConstraintEqualTo(44),
                 _routeTravelModeImage.CenterXAnchor.ConstraintEqualTo(_walkTimeLabel.CenterXAnchor),
                 _walkTimeLabel.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
                 _walkTimeLabel.TopAnchor.ConstraintEqualTo(_routeTravelModeImage.BottomAnchor, 8),
@@ -252,8 +252,9 @@
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
             _closeLocationCardButton.BackgroundColor = UIColor.SystemGray5Color;
-            _closeLocationCardButton.Layer.CornerRadius = 22;
-            _closeLocationCardButton.SetImage(UIImage.GetSystemImage("xmark"), UIControlState.Normal);
+            _closeLocationCardButton.Layer.CornerRadius = 16;
+            _closeLocationCardButton.SetImage(UIImage.FromBundle("x"), UIControlState.Normal);
+            _closeLocationCardButton.TintColor = UIColor.SystemGray2Color;
 
             _locationCardPrimaryLabel = new UILabel
             {
@@ -281,8 +282,8 @@
                 _locationCardSecondaryLabel.TopAnchor.ConstraintEqualTo(_locationCardPrimaryLabel.BottomAnchor, 8),
                 _closeLocationCardButton.TopAnchor.ConstraintEqualTo(_locationCard.TopAnchor, 8),
                 _closeLocationCardButton.TrailingAnchor.ConstraintEqualTo(_locationCard.TrailingAnchor, -8),
-                _closeLocationCardButton.WidthAnchor.ConstraintEqualTo(44),
-                _closeLocationCardButton.HeightAnchor.ConstraintEqualTo(44),
+                _closeLocationCardButton.WidthAnchor.ConstraintEqualTo(32),
+                _closeLocationCardButton.HeightAnchor.ConstraintEqualTo(32),
                 _startDirectionsFromLocationCardButton.LeadingAnchor.ConstraintEqualTo(_locationCard.LeadingAnchor, 8),
                 _startDirectionsFromLocationCardButton.TrailingAnchor.ConstraintEqualTo(_locationCard.TrailingAnchor, -8),
                 _startDirectionsFromLocationCardButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_locationCardSecondaryLabel.BottomAnchor, 8),
@@ -342,9 +343,9 @@
             _locationBar.UserInteractionEnabled = true;
             _locationBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
-            _homeButton.SetImage(UIImage.FromBundle("Home"), UIControlState.Normal);
-            _locationButton.SetImage(UIImage.FromBundle("CurrentLocation"), UIControlState.Normal);
-            _settingsButton.SetImage(UIImage.FromBundle("Settings"), UIControlState.Normal);
+            _homeButton.SetImage(UIImage.FromBundle("home"), UIControlState.Normal);
+            _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
+            _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);
 
             _compass = new Compass() { TranslatesAutoresizingMaskIntoConstraints = false };
             _compass.GeoView = _mapView;

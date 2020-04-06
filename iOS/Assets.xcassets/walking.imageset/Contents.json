@@ -4,17 +4,17 @@
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_Toolbar_RouteTo@1x.png",
+      "filename": "walking@1x.png",
       "scale": "1x",
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_Toolbar_RouteTo@2x.png",
+      "filename": "walking@2x.png",
       "scale": "2x",
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_Toolbar_RouteTo@3x.png",
+      "filename": "walking@3x.png",
       "scale": "3x",
       "idiom": "universal"
     },
@@ -525,7 +525,9 @@
   ],
   "info": {
     "version": 1,
-    "author": "xcode",
+    "author": "xcode"
+  },
+  "properties": {
     "template-rendering-intent": "template"
   }
 }

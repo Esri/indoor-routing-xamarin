@@ -4,17 +4,17 @@
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_TabBar_UseCurrentLocation@1x.png",
+      "filename": "x@1x.png",
       "scale": "1x",
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_TabBar_UseCurrentLocation@2x.png",
+      "filename": "x@2x.png",
       "scale": "2x",
       "idiom": "universal"
     },
     {
-      "filename": "iOS8_TabBar_UseCurrentLocation@3x.png",
+      "filename": "x@3x.png",
       "scale": "3x",
       "idiom": "universal"
     },
@@ -525,7 +525,9 @@
   ],
   "info": {
     "version": 1,
-    "author": "xcode",
+    "author": "xcode"
+  },
+  "properties": {
     "template-rendering-intent": "template"
   }
 }

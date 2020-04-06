@@ -140,46 +140,7 @@
     <ImageAsset Include="Assets.xcassets\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\HomePin.imageset\Contents.json">
@@ -192,15 +153,6 @@
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\HomePin.imageset\home@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json">
@@ -239,19 +191,27 @@
     <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
     <ImageAsset Include="Assets.xcassets\AccessoryButtonColor.colorset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%401x.png" />
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%403x.png" />
+    <ImageAsset Include="Assets.xcassets\walking.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%402x.png" />
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%402x.png" />
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%403x.png" />
+    <ImageAsset Include="Assets.xcassets\home.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%401x.png" />
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%401x.png" />
+    <ImageAsset Include="Assets.xcassets\gear.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%402x.png" />
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%403x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%401x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%402x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%403x.png" />
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%401x.png" />
+    <ImageAsset Include="Assets.xcassets\x.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%403x.png" />
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
