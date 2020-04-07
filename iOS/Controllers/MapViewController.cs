@@ -218,6 +218,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 _homeButton.Enabled = !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation);
                 _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
+                _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
                 _accessoryView.ReloadData();
             };
             

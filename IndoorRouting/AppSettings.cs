@@ -276,7 +276,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
 
                 appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
-                appSettings.HomeLocation = "Set home location";
+                appSettings.HomeLocation = string.Empty;
                 appSettings.IsLocationServicesEnabled = false;
                 appSettings.IsRoutingEnabled = false;
                 appSettings.IsPreferElevatorsEnabled = false;

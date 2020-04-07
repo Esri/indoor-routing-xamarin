@@ -412,7 +412,7 @@
                 _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
                 // top-right floating buttons
                 _topRightStack.TopAnchor.ConstraintEqualTo(_topBlur.BottomAnchor, 8),
-                _topRightStack.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor, -8),
+                _topRightStack.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
                 // compass sizing
                 _compass.WidthAnchor.ConstraintEqualTo(48),
                 _compass.HeightAnchor.ConstraintEqualTo(48),

@@ -192,6 +192,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact)
             {
                 baseHeight += 12.5f + 8f; // 8f is extra margin, 12.5 is size of UI elements
+
+                // account for bottom safe area
+                baseHeight += UIApplication.SharedApplication.KeyWindow.SafeAreaInsets.Bottom;
             }
             else
             {
