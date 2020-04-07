@@ -72,7 +72,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                if (_specialSettings.Count() > 0 && ShouldShowSpecialItems && section == 0)
+                if (_specialSettings.Count() > 0 && ShouldShowSpecialItems && !this.items.Any())
                 {
                     return _specialSettings.Count;
                 }
@@ -89,11 +89,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         public override nint NumberOfSections(UITableView tableView)
         {
-            ResetSpecialSettings();
-            if (_specialSettings.Count > 0 && ShouldShowSpecialItems)
-            {
-                return 2;
-            }
             return 1;
         }
 
@@ -108,19 +103,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
                 _specialSettings.Add(AppSettings.CurrentSettings.HomeLocation);
-            }
-        }
-
-        public override string TitleForHeader(UITableView tableView, nint section)
-        {
-            // Don't show extra section for special features if they're not enabled
-            if (section == 0 && _specialSettings.Count() > 0 && ShouldShowSpecialItems)
-            {
-                return "Top choices";
-            }
-            else
-            {
-                return "Suggestions";
             }
         }
 
@@ -143,13 +125,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             try
             {
-                if (_specialSettings.Count() > 0 && indexPath.Section == 0 && ShouldShowSpecialItems)
+                if (_specialSettings.Count() > 0 && indexPath.Section == 0 && ShouldShowSpecialItems && !this.items.Any())
                 {
                     cell.TextLabel.Text = _specialSettings[indexPath.Row];
-                    return cell;
                 }
-                var item = this.items.ElementAt(indexPath.Row);
-                cell.TextLabel.Text = item.Label;
+                else
+                {
+                    var item = this.items.ElementAt(indexPath.Row);
+                    cell.TextLabel.Text = item.Label;
+                }
 
                 return cell;
             }
@@ -187,7 +171,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                if (_specialSettings.Count > 0 && itemIndexPath.Section == 0 && ShouldShowSpecialItems)
+                if (_specialSettings.Count > 0 && itemIndexPath.Section == 0 && ShouldShowSpecialItems && !this.items.Any())
                 {
                     var specialItem = _specialSettings[itemIndexPath.Row];
                     this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(specialItem, itemIndexPath));
