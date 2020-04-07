@@ -68,12 +68,16 @@
         private UIButton _searchRouteButton;
         private UILabel _searchStartLabel;
         private UILabel _searchEndLabel;
+        private UIButton _cancelRouteSearchButton;
+        private UILabel _routeSearchHeader;
 
         // Route result components
         private UIView _routeResultView;
         private SelfSizedTableView _routeResultStopsView;
         private UIImageView _routeTravelModeImage;
         private UILabel _walkTimeLabel;
+        private UIButton _clearRouteResultButton;
+        private UILabel _routeResultHeader;
 
         public override void ViewDidAppear(bool animated)
         {
@@ -131,27 +135,50 @@
             _routeResultStopsView.AllowsSelection = false;
 
             _routeTravelModeImage = new UIImageView(UIImage.FromBundle("walking")) { TranslatesAutoresizingMaskIntoConstraints = false };
-            _routeTravelModeImage.TintColor = UIColor.FromName("AccessoryButtonColor");
+            _routeTravelModeImage.TintColor = UIColor.LabelColor;
             _routeTravelModeImage.ContentMode = UIViewContentMode.ScaleAspectFit;
 
             _walkTimeLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
-            _walkTimeLabel.TextAlignment = UITextAlignment.Center;
 
-            _routeResultView.AddSubviews(_routeResultStopsView, _routeTravelModeImage, _walkTimeLabel);
+            _clearRouteResultButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            _routeResultHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Route" };
+            _routeResultHeader.Font = UIFont.BoldSystemFontOfSize(28);
+            _routeResultHeader.TextColor = UIColor.LabelColor;
+
+            _clearRouteResultButton.TouchUpInside += _clearRouteResultButton_TouchUpInside;
+
+            _routeResultView.AddSubviews(_routeResultStopsView, _routeTravelModeImage, _walkTimeLabel, _clearRouteResultButton, _routeResultHeader);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _routeResultStopsView.LeadingAnchor.ConstraintEqualTo(_routeResultView.LeadingAnchor, 8),
-                _routeResultStopsView.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
-                _routeResultStopsView.TrailingAnchor.ConstraintEqualTo(_walkTimeLabel.LeadingAnchor, -8),
-                _routeTravelModeImage.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
-                _routeTravelModeImage.CenterXAnchor.ConstraintEqualTo(_walkTimeLabel.CenterXAnchor),
-                _walkTimeLabel.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
-                _walkTimeLabel.TopAnchor.ConstraintEqualTo(_routeTravelModeImage.BottomAnchor, 8),
-                _walkTimeLabel.WidthAnchor.ConstraintEqualTo(80),
+                // result header
+                _routeResultHeader.TopAnchor.ConstraintEqualTo(_routeResultView.TopAnchor, 8),
+                _routeResultHeader.LeadingAnchor.ConstraintEqualTo(_routeResultView.LeadingAnchor, 8),
+                _routeResultHeader.TrailingAnchor.ConstraintEqualTo(_clearRouteResultButton.LeadingAnchor, -8),
+                //clear button
+                _clearRouteResultButton.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
+                _clearRouteResultButton.CenterYAnchor.ConstraintEqualTo(_routeResultHeader.CenterYAnchor),
+                _clearRouteResultButton.WidthAnchor.ConstraintEqualTo(32),
+                _clearRouteResultButton.HeightAnchor.ConstraintEqualTo(32),
+                // stops view
+                _routeResultStopsView.LeadingAnchor.ConstraintEqualTo(_routeResultView.LeadingAnchor),
+                _routeResultStopsView.TopAnchor.ConstraintEqualTo(_walkTimeLabel.BottomAnchor, 8),
+                _routeResultStopsView.TrailingAnchor.ConstraintEqualTo(_routeResultView.TrailingAnchor, -8),
+                // image
+                _routeTravelModeImage.LeadingAnchor.ConstraintEqualTo(_routeResultView.LeadingAnchor, 8),
+                _routeTravelModeImage.TopAnchor.ConstraintEqualTo(_walkTimeLabel.TopAnchor),
+                _routeTravelModeImage.BottomAnchor.ConstraintEqualTo(_walkTimeLabel.BottomAnchor),
+                _routeTravelModeImage.WidthAnchor.ConstraintEqualTo(32),
+                // walk time label
+                _walkTimeLabel.TopAnchor.ConstraintEqualTo(_routeResultHeader.BottomAnchor, 8),
+                _walkTimeLabel.LeadingAnchor.ConstraintEqualTo(_routeTravelModeImage.TrailingAnchor, 8),
+                //
                 _routeResultView.BottomAnchor.ConstraintEqualTo(_routeResultStopsView.BottomAnchor, 8)
             });
         }
+
+        
 
         private void SetLocationCardHidden(bool isHidden)
         {
@@ -176,13 +203,19 @@
             _endSearchBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
             _searchRouteButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _searchRouteButton.SetTitle("Route Me", UIControlState.Normal);
+            _searchRouteButton.SetTitle("Find Route", UIControlState.Normal);
             _searchRouteButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _searchRouteButton.BackgroundColor = UIColor.SystemBlueColor;
             _searchRouteButton.Layer.CornerRadius = 8;
 
-            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Start" };
-            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "End" };
+            _cancelRouteSearchButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "From:" };
+            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "To:" };
+
+            _routeSearchHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Directions" };
+            _routeSearchHeader.TextColor = UIColor.LabelColor;
+            _routeSearchHeader.Font = UIFont.BoldSystemFontOfSize(24);
 
             // Initial event setup
             _startSearchBar.TextChanged += LocationSearch_TextChanged;
@@ -194,10 +227,21 @@
 
             _searchRouteButton.TouchUpInside += RouteSearch_TouchUpInside;
 
-            _routeSearchView.AddSubviews(_startSearchBar, _endSearchBar, _searchRouteButton, _searchStartLabel, _searchEndLabel);
+            _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
+
+            _routeSearchView.AddSubviews(_startSearchBar, _endSearchBar, _searchRouteButton, _searchStartLabel, _searchEndLabel, _cancelRouteSearchButton, _routeSearchHeader);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
+                // label
+                _routeSearchHeader.TopAnchor.ConstraintEqualTo(_routeSearchView.TopAnchor, 8),
+                _routeSearchHeader.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
+                _routeSearchHeader.TrailingAnchor.ConstraintEqualTo(_cancelRouteSearchButton.LeadingAnchor, -8),
+                // close button
+                _cancelRouteSearchButton.CenterYAnchor.ConstraintEqualTo(_routeSearchHeader.CenterYAnchor),
+                _cancelRouteSearchButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _cancelRouteSearchButton.HeightAnchor.ConstraintEqualTo(32),
+                _cancelRouteSearchButton.WidthAnchor.ConstraintEqualTo(32),
                 // labels
                 _searchStartLabel.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
                 _searchStartLabel.CenterYAnchor.ConstraintEqualTo(_startSearchBar.CenterYAnchor),
@@ -206,14 +250,14 @@
                 _searchEndLabel.TrailingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
                 // search bars
                 _startSearchBar.LeadingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
-                _startSearchBar.TopAnchor.ConstraintEqualTo(_routeSearchView.TopAnchor, 8),
+                _startSearchBar.TopAnchor.ConstraintEqualTo(_routeSearchHeader.BottomAnchor, 8 - 4),
                 _startSearchBar.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor),
                 _endSearchBar.LeadingAnchor.ConstraintEqualTo(_startSearchBar.LeadingAnchor),
                 _endSearchBar.TrailingAnchor.ConstraintEqualTo(_startSearchBar.TrailingAnchor),
-                _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor, -12),
+                _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor, -8 - 4),
                 // search button
                 _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
-                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor, -4),
+                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor, -8 + 4),
                 _searchRouteButton.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
                 _searchRouteButton.HeightAnchor.ConstraintEqualTo(44),
                 // update bottom size
@@ -244,14 +288,11 @@
             // Handle searching for directions
             _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
 
-            _closeLocationCardButton = new UIButton
+            _closeLocationCardButton = new CloseButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
-            _closeLocationCardButton.BackgroundColor = UIColor.SystemGray4Color;
-            _closeLocationCardButton.Layer.CornerRadius = 16;
-            _closeLocationCardButton.SetImage(UIImage.FromBundle("x"), UIControlState.Normal);
-            _closeLocationCardButton.TintColor = UIColor.SystemGrayColor;
+            
 
             _locationCardPrimaryLabel = new UILabel
             {
@@ -376,7 +417,7 @@
                 _compass.WidthAnchor.ConstraintEqualTo(48),
                 _compass.HeightAnchor.ConstraintEqualTo(48),
                 // right panel accessories
-                accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(_accessoryView.HeightAnchor, 1, 16),
+                accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(_accessoryView.HeightAnchor),
                 accessoryShadowContainer.WidthAnchor.ConstraintEqualTo(48),
                 // floors view
                 _innerFloorsTableViewShadow.WidthAnchor.ConstraintEqualTo(accessoryShadowContainer.WidthAnchor),
@@ -409,6 +450,9 @@
         private void SetAutoSuggestHidden(bool isHidden)
         {
             _autoSuggestionsTableView.Hidden = isHidden;
+
+            _locationBar.ShowsCancelButton = !isHidden;
+
             if (isHidden)
             {
                 _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);

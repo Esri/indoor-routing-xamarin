@@ -118,6 +118,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._locationBar.TextChanged += LocationSearch_TextChanged;
             this._locationBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
             this._locationBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            this._locationBar.CancelButtonClicked += _locationBar_CancelButtonClicked;
             if (this._startSearchBar != null)
             {
                 _startSearchBar.TextChanged += LocationSearch_TextChanged;
@@ -129,6 +130,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _endSearchBar.TextChanged += LocationSearch_TextChanged;
                 _endSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
                 _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
+            }
+
+            if (_cancelRouteSearchButton != null)
+            {
+                _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
             }
 
             //  the settings button
@@ -147,6 +153,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (_closeLocationCardButton != null)
             {
                 this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
+            }
+
+            if (_clearRouteResultButton != null)
+            {
+                _clearRouteResultButton.TouchUpInside += _clearRouteResultButton_TouchUpInside;
             }
 
             // Handle searching for directions
@@ -188,6 +199,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
             }
+        }
+
+        private void _locationBar_CancelButtonClicked(object sender, EventArgs e)
+        {
+            (sender as UISearchBar).Text = string.Empty;
+            (sender as UISearchBar).ShowsCancelButton = false;
+            (sender as UISearchBar).ResignFirstResponder();
+            SetAutoSuggestHidden(true);
         }
 
         private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
@@ -269,6 +288,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._locationBar.TextChanged -= LocationSearch_TextChanged;
             this._locationBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
             this._locationBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+            this._locationBar.CancelButtonClicked -= _locationBar_CancelButtonClicked;
             if (this._startSearchBar != null)
             {
                 _startSearchBar.TextChanged -= LocationSearch_TextChanged;
@@ -280,6 +300,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _endSearchBar.TextChanged -= LocationSearch_TextChanged;
                 _endSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
                 _endSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
+            }
+            if (_cancelRouteSearchButton != null)
+            {
+                _cancelRouteSearchButton.TouchUpInside -= _cancelRouteSearchButton_TouchUpInside;
+            }
+
+            if (_clearRouteResultButton != null)
+            {
+                _clearRouteResultButton.TouchUpInside -= _clearRouteResultButton_TouchUpInside;
             }
 
             //  the settings button
@@ -1015,6 +1044,29 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // TODO - show error somehow
                 Route = null;
             }
+        }
+
+        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e)
+        {
+            _startSearchBar.Text = string.Empty;
+            _endSearchBar.Text = string.Empty;
+            _routeSearchView.Hidden = true;
+            _locationBar.Hidden = false;
+            _locationCard.Hidden = true;
+            SetAutoSuggestHidden(true);
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+        }
+
+        private void _clearRouteResultButton_TouchUpInside(object sender, EventArgs e)
+        {
+            this.ClearRoute();
+            _startSearchBar.Text = string.Empty;
+            _endSearchBar.Text = string.Empty;
+            _routeSearchView.Hidden = true;
+            _locationCard.Hidden = true;
+            _locationBar.Hidden = false;
+            SetAutoSuggestHidden(true);
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
     }
 }

@@ -242,6 +242,7 @@
     <Compile Include="Views\ViewExtensions.cs" />
     <Compile Include="Helpers\DismissableNavigationController.cs" />
     <Compile Include="Views\IntrinsicContentSizedStackView.cs" />
+    <Compile Include="Views\CloseButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
