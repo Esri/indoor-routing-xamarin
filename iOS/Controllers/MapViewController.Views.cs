@@ -70,6 +70,7 @@
         private UILabel _searchEndLabel;
         private UIButton _cancelRouteSearchButton;
         private UILabel _routeSearchHeader;
+        private UIButton _swapOriginDestinationButton;
 
         // Route result components
         private UIView _routeResultView;
@@ -80,7 +81,6 @@
         private UILabel _routeResultHeader;
 
         // Attribution image
-
         private UIButton _esriIcon;
         private UIButton _attributionImageButton;
         private UIStackView _attributionStack;
@@ -258,8 +258,6 @@
             });
         }
 
-        
-
         private void SetLocationCardHidden(bool isHidden)
         {
             _locationCard.Hidden = isHidden;
@@ -297,6 +295,11 @@
             _routeSearchHeader.TextColor = UIColor.LabelColor;
             _routeSearchHeader.Font = UIFont.BoldSystemFontOfSize(24);
 
+            // swap origin and destination button
+            _swapOriginDestinationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _swapOriginDestinationButton.SetImage(UIImage.FromBundle("arrow-up-down"), UIControlState.Normal);
+            _swapOriginDestinationButton.TintColor = UIColor.LabelColor;
+
             // Initial event setup
             _startSearchBar.TextChanged += LocationSearch_TextChanged;
             _startSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
@@ -309,7 +312,9 @@
 
             _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
 
-            _routeSearchView.AddSubviews(_startSearchBar, _endSearchBar, _searchRouteButton, _searchStartLabel, _searchEndLabel, _cancelRouteSearchButton, _routeSearchHeader);
+            _swapOriginDestinationButton.TouchUpInside += _swapOriginDestinationButton_TouchUpInside;
+
+            _routeSearchView.AddSubviews(_startSearchBar, _endSearchBar, _searchRouteButton, _searchStartLabel, _searchEndLabel, _cancelRouteSearchButton, _routeSearchHeader, _swapOriginDestinationButton);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
@@ -336,13 +341,27 @@
                 _endSearchBar.TrailingAnchor.ConstraintEqualTo(_startSearchBar.TrailingAnchor),
                 _endSearchBar.TopAnchor.ConstraintEqualTo(_startSearchBar.BottomAnchor, -8 - 4),
                 // search button
-                _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_swapOriginDestinationButton.LeadingAnchor, -8),
                 _searchRouteButton.TopAnchor.ConstraintEqualTo(_endSearchBar.BottomAnchor, -8 + 4),
                 _searchRouteButton.LeadingAnchor.ConstraintEqualTo(_routeSearchView.LeadingAnchor, 8),
                 _searchRouteButton.HeightAnchor.ConstraintEqualTo(44),
+                // swap origin and destinations button
+                _swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(44),
+                _swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
+                _swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(_routeSearchView.TrailingAnchor, -8),
+                _swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(_searchRouteButton.CenterYAnchor),
                 // update bottom size
                 _routeSearchView.BottomAnchor.ConstraintEqualTo(_searchRouteButton.BottomAnchor, 8)
             });
+        }
+
+        private void _swapOriginDestinationButton_TouchUpInside(object sender, EventArgs e)
+        {
+            string oldOrigin = _startSearchBar.Text;
+            string oldDestination = _endSearchBar.Text;
+
+            _startSearchBar.Text = oldDestination;
+            _endSearchBar.Text = oldOrigin;
         }
 
         private void ConfigureLocationCard()

@@ -220,6 +220,10 @@
     <ImageAsset Include="Assets.xcassets\information.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\information.imageset\information%402x.png" />
     <ImageAsset Include="Assets.xcassets\information.imageset\information%403x.png" />
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%401x.png" />
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%403x.png" />
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />

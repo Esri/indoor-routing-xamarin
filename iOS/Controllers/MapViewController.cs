@@ -132,6 +132,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
             }
 
+            if (_swapOriginDestinationButton != null)
+            {
+                _swapOriginDestinationButton.TouchUpInside += _swapOriginDestinationButton_TouchUpInside;
+            }
+
             if (_cancelRouteSearchButton != null)
             {
                 _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
@@ -335,6 +340,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (_searchRouteButton != null)
             {
                 _searchRouteButton.TouchUpInside -= RouteSearch_TouchUpInside;
+            }
+
+            if (_swapOriginDestinationButton != null)
+            {
+                _swapOriginDestinationButton.TouchUpInside -= _swapOriginDestinationButton_TouchUpInside;
             }
 
             // Hide the navigation bar on the main screen 
