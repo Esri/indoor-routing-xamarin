@@ -79,11 +79,87 @@
         private UIButton _clearRouteResultButton;
         private UILabel _routeResultHeader;
 
+        // Attribution image
+
+        private UIButton _esriIcon;
+        private UIButton _attributionImageButton;
+        private UIStackView _attributionStack;
+        private UIView _shadowedAttribution;
+
+        private AttributionViewController _attributionController;
+
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
 
             ConfigureBottomSheet();
+        }
+
+        private void ConfigureAttribution()
+        {
+            _attributionStack = new UIStackView { TranslatesAutoresizingMaskIntoConstraints = false, Axis = UILayoutConstraintAxis.Horizontal };
+            _attributionStack.Alignment = UIStackViewAlignment.Trailing;
+            _attributionStack.Spacing = 8;
+
+            _attributionImageButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _attributionImageButton.SetImage(UIImage.FromBundle("information").ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate), UIControlState.Normal);
+            _attributionImageButton.TintColor = UIColor.SystemBackgroundColor;
+
+            _esriIcon = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _esriIcon.SetImage(UIImage.FromBundle("esri"), UIControlState.Normal);
+            _esriIcon.TintColor = UIColor.SystemBackgroundColor;
+            _esriIcon.AdjustsImageWhenHighlighted = false;
+            _esriIcon.ImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+
+            _attributionStack.AddArrangedSubview(_esriIcon);
+            _attributionStack.AddArrangedSubview(_attributionImageButton);
+
+            // put mapview attribution directly above map so it is under accesory views
+            _shadowedAttribution = _attributionStack.EncapsulateInShadowView();
+            View.InsertSubviewAbove(_shadowedAttribution, _mapView);
+
+            _attributionImageButton.TouchUpInside += Attribution_Tapped;
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _shadowedAttribution.BottomAnchor.ConstraintEqualTo(_bottomSheet.PanelTopAnchor, -8),
+                _shadowedAttribution.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
+                _esriIcon.HeightAnchor.ConstraintEqualTo(22),
+                _esriIcon.WidthAnchor.ConstraintEqualTo(63)
+            });
+
+            SetAttributionForCurrentState();
+        }
+
+        private void SetAttributionForCurrentState()
+        {
+            if (_shadowedAttribution == null)
+            {
+                return;
+            }
+
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
+            {
+                _shadowedAttribution.Hidden = true;
+                _mapView.IsAttributionTextVisible = true;
+            }
+            else
+            {
+                _shadowedAttribution.Hidden = false;
+                _mapView.IsAttributionTextVisible = false;
+            }
+
+            _attributionImageButton.Hidden = String.IsNullOrWhiteSpace(_mapView.AttributionText);
+        }
+
+        private async void Attribution_Tapped(object sender, EventArgs e)
+        {
+            if (_attributionController == null)
+            {
+                _attributionController = new AttributionViewController(_mapView);
+            }
+
+            await PresentViewControllerAsync(new UINavigationController(_attributionController), true);
         }
 
         private void ConfigureBottomSheet()
@@ -99,6 +175,8 @@
             ConfigureRouteSearchCard();
 
             ConfigureRouteResultView();
+
+            ConfigureAttribution();
 
             UIStackView _containerView = new IntrinsicContentSizedStackView
             {
@@ -122,6 +200,8 @@
             });
 
             _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+
+            
         }
 
         private void ConfigureRouteResultView()
@@ -375,6 +455,7 @@
                 Hidden = true
             };
             _innerFloorsTableView.Layer.CornerRadius = 8;
+            _innerFloorsTableView.SeparatorColor = UIColor.SystemGrayColor;
 
             _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationBar.BackgroundImage = new UIImage();
@@ -481,6 +562,9 @@
         public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
         {
             base.TraitCollectionDidChange(previousTraitCollection);
+
+            SetAttributionForCurrentState();
+
             ApplyConstraintsForSizeClass();
         }
     }

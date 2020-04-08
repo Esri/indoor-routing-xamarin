@@ -166,6 +166,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
             }
 
+            if (_attributionImageButton != null)
+            {
+                _attributionImageButton.TouchUpInside += Attribution_Tapped;
+            }
+
             // location button
             _locationButton.TouchUpInside += CurrentLocationButton_TouchUpInside;
 
@@ -310,6 +315,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (_clearRouteResultButton != null)
             {
                 _clearRouteResultButton.TouchUpInside -= _clearRouteResultButton_TouchUpInside;
+            }
+
+            if (_attributionImageButton != null)
+            {
+                _attributionImageButton.TouchUpInside -= Attribution_Tapped;
             }
 
             //  the settings button
@@ -567,6 +577,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     {
                         // Add the map to the MapView to be displayedd
                         this._mapView.Map = this.ViewModel.Map;
+
+                        // Update attribution visibility in case it changed.
+                        this.InvokeOnMainThread(SetAttributionForCurrentState);
                     }
 
                     break;
@@ -587,6 +600,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="e">Eevent args.</param>
         private async void MapView_NavigationCompleted(object sender, EventArgs e)
         {
+            // Update attribution visibility in case it changed
+            this.InvokeOnMainThread(SetAttributionForCurrentState);
+
             // Display floors and level if user is zoomed in 
             // If user is zoomed out, only show the base layer
             if (this._mapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)

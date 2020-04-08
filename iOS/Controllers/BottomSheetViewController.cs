@@ -30,6 +30,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public nfloat partialHeight = 160;
 
+        public NSLayoutYAxisAnchor PanelTopAnchor { get; set; }
+
         public BottomSheetViewController(UIView container)
         {
             _containerView = container; // TODO - is there a better way?
@@ -109,6 +111,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             _heightConstraint = View.HeightAnchor.ConstraintEqualTo(150);
             _heightConstraint.Active = true;
+
+            PanelTopAnchor = _blurShadowContainerView.TopAnchor;
 
             ApplyConstraints();
         }
