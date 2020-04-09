@@ -247,7 +247,6 @@
     <Compile Include="Models\RouteTableSource.cs" />
     <Compile Include="Helpers\SelfSizedTableView.cs" />
     <Compile Include="Controllers\BottomSheetViewController.cs" />
-    <Compile Include="Helpers\ViewExtensions.cs" />
     <Compile Include="Views\ShadowContainerView.cs" />
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
     <Compile Include="Controllers\MapViewController.Views.cs" />
@@ -256,6 +255,7 @@
     <Compile Include="Views\IntrinsicContentSizedStackView.cs" />
     <Compile Include="Views\CloseButton.cs" />
     <Compile Include="Controllers\AttributionViewController.cs" />
+    <Compile Include="Helpers\LocalizationExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
@@ -273,6 +273,11 @@
     <Folder Include="Views\" />
     <Folder Include="Assets.xcassets\AccessoryButtonColor.colorset\" />
     <Folder Include="Assets.xcassets\esri.imageset\" />
+    <Folder Include="Resources\" />
+    <Folder Include="Resources\base.lproj\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\base.lproj\Localizable.strings" />
   </ItemGroup>
   <Import Project="..\IndoorRouting\IndoorRouting.projitems" Label="Shared" Condition="Exists('..\IndoorRouting\IndoorRouting.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

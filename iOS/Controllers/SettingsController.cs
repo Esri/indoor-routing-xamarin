@@ -20,6 +20,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
 
@@ -59,7 +60,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _SettingsTableView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
             });
 
-            _closeButton = new UIBarButtonItem("Close", UIBarButtonItemStyle.Plain, null);
+            _closeButton = new UIBarButtonItem("ModalCloseButtonText".AsLocalized(), UIBarButtonItemStyle.Plain, null);
         }
 
         /// <summary>
@@ -118,14 +119,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 case 0:
                     var homeCell = tableView.DequeueReusableCell("HomeLocationCell") ?? new UITableViewCell(UITableViewCellStyle.Value1, "HomeLocationCell");
-                    homeCell.TextLabel.Text = "Home Location";
+                    homeCell.TextLabel.Text = "HomeLocationSettingLabel".AsLocalized();
                     homeCell.DetailTextLabel.Text = AppSettings.CurrentSettings.HomeLocation;
                     homeCell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                     homeCell.BackgroundColor = tableView.BackgroundColor;
                     return homeCell;
                 case 1:
                     var locationCell = tableView.DequeueReusableCell("LocationServicesCell") ?? new UITableViewCell(UITableViewCellStyle.Default, "LocationServicesCell");
-                    locationCell.TextLabel.Text = "Use Location Services";
+                    locationCell.TextLabel.Text = "UseLocationServicesSettingLabel".AsLocalized();
                     locationCell.BackgroundColor = tableView.BackgroundColor;
 
                     if (_locationSwitch == null)
@@ -139,7 +140,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     return locationCell;
                 case 2:
                     var routingCell = tableView.DequeueReusableCell("RoutingCell") ?? new UITableViewCell(UITableViewCellStyle.Default, "RoutingCell");
-                    routingCell.TextLabel.Text = "Enable Routing";
+                    routingCell.TextLabel.Text = "EnableRoutingSettingLabel".AsLocalized();
                     routingCell.BackgroundColor = tableView.BackgroundColor;
 
                     if (_routingSwitch == null)

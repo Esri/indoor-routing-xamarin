@@ -97,7 +97,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _specialSettings.Clear();
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
-                _specialSettings.Add("Current Location");
+                _specialSettings.Add("CurrentLocationLabel");
             }
 
             if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))

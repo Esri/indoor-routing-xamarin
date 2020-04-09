@@ -222,7 +222,7 @@
 
             _clearRouteResultButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _routeResultHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Route" };
+            _routeResultHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "RouteResultHeader".AsLocalized() };
             _routeResultHeader.Font = UIFont.BoldSystemFontOfSize(28);
             _routeResultHeader.TextColor = UIColor.LabelColor;
 
@@ -272,26 +272,26 @@
 
             _startSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _startSearchBar.BackgroundImage = new UIImage();
-            _startSearchBar.Placeholder = "Origin";
+            _startSearchBar.Placeholder = "OriginSearchBarPlaceholder".AsLocalized();
             _startSearchBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
             _endSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _endSearchBar.BackgroundImage = new UIImage();
-            _endSearchBar.Placeholder = "Destination";
+            _endSearchBar.Placeholder = "DestinationSearchBarPlaceholder".AsLocalized();
             _endSearchBar.SearchBarStyle = UISearchBarStyle.Minimal;
 
             _searchRouteButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _searchRouteButton.SetTitle("Find Route", UIControlState.Normal);
+            _searchRouteButton.SetTitle("SearchForRouteButtonText".AsLocalized(), UIControlState.Normal);
             _searchRouteButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _searchRouteButton.BackgroundColor = UIColor.SystemBlueColor;
             _searchRouteButton.Layer.CornerRadius = 8;
 
             _cancelRouteSearchButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "From:" };
-            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "To:" };
+            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "OriginRouteSearchFieldLabel".AsLocalized() };
+            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DestinationRouteSearchFieldLabel".AsLocalized() };
 
-            _routeSearchHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "Directions" };
+            _routeSearchHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DirectionsPanelHeader".AsLocalized() };
             _routeSearchHeader.TextColor = UIColor.LabelColor;
             _routeSearchHeader.Font = UIFont.BoldSystemFontOfSize(24);
 
@@ -378,7 +378,7 @@
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
-            _startDirectionsFromLocationCardButton.SetTitle("Directions", UIControlState.Normal);
+            _startDirectionsFromLocationCardButton.SetTitle("FindDirectionsButtonText".AsLocalized(), UIControlState.Normal);
             _startDirectionsFromLocationCardButton.BackgroundColor = UIColor.SystemBlueColor;
             _startDirectionsFromLocationCardButton.SetTitleColor(UIColor.White, UIControlState.Normal);
             _startDirectionsFromLocationCardButton.SetTitleColor(UIColor.SystemGrayColor, UIControlState.Disabled);
@@ -478,7 +478,7 @@
 
             _locationBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             _locationBar.BackgroundImage = new UIImage();
-            _locationBar.Placeholder = "Search for a place or address";
+            _locationBar.Placeholder = "LocationSearchBarPlaceholder".AsLocalized();
             _locationBar.UserInteractionEnabled = true;
             _locationBar.SearchBarStyle = UISearchBarStyle.Minimal;
 

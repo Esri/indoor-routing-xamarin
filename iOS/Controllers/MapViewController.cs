@@ -376,18 +376,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             catch (Exception ex)
             {
-                var genericError = "An error has occured and map was not loaded. Please restart the app";
+                var genericError = "MapLoadError".AsLocalized();
 
                 this.InvokeOnMainThread(() =>
                 {
-                    var detailsController = UIAlertController.Create("Error Details", ex.Message, UIAlertControllerStyle.Alert);
-                    detailsController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                    var detailsController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), ex.Message, UIAlertControllerStyle.Alert);
+                    detailsController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
 
-                    var alertController = UIAlertController.Create("Error", genericError, UIAlertControllerStyle.Alert);
-                    alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                    var alertController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), genericError, UIAlertControllerStyle.Alert);
+                    alertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
                     alertController.AddAction(
                         UIAlertAction.Create(
-                            "Details",
+                            "ErrorAlertDetailsButtonText".AsLocalized(),
                             UIAlertActionStyle.Default,
                             (obj) => { this.PresentViewController(detailsController, true, null); }));
                     this.PresentViewController(alertController, true, null);
@@ -509,12 +509,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 }
                 else
                 {
-                    this.ShowLocationCard("Routing Error", "Please retry route", true);
+                    this.ShowLocationCard("RoutErrorTitle".AsLocalized(), "RouteErrorGuidance".AsLocalized(), true);
                 }
             }
             else
             {
-                this.ShowLocationCard("Routing Error", "Please retry route", true);
+                this.ShowLocationCard("RoutErrorTitle".AsLocalized(), "RouteErrorGuidance".AsLocalized(), true);
             }
         }
 
@@ -662,9 +662,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
                     // Add Actions
-                    actionSheetAlert.AddAction(UIAlertAction.Create("Clear Route", UIAlertActionStyle.Destructive, (action) => this.ClearRoute()));
+                    actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive, (action) => this.ClearRoute()));
 
-                    actionSheetAlert.AddAction(UIAlertAction.Create("Keep Route", UIAlertActionStyle.Default, null));
+                    actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
 
                     // Required for iPad - You must specify a source for the Action Sheet since it is
                     // displayed as a popover
@@ -893,7 +893,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             
             if (_lastSelectedSearchBar == _locationBar)
             {
-                if (selectedItem != "Current Location")
+                if (selectedItem != "CurrentLocationLabel".AsLocalized())
                 {
                     await this.GetSearchedFeatureAsync(selectedItem);
                     SetAutoSuggestHidden(true);
@@ -908,7 +908,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 _startSearchBar.BecomeFirstResponder();
             }
-            else if (selectedItem != "Current Location")
+            else if (selectedItem != "CurrentLocationLabel".AsLocalized())
             {
                 SetAutoSuggestHidden(true);
             }
@@ -966,7 +966,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             else
             {
-                this.ShowLocationCard(searchText, "Location not found", true);
+                this.ShowLocationCard(searchText, "LocationNotFoundErrorTitle".AsLocalized(), true);
             }
         }
 
@@ -1042,7 +1042,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Geocode the locations selected by the user
             try
             {
-                if (_startSearchBar.Text != "Current Location")
+                if (_startSearchBar.Text != "CurrentLocationLabel".AsLocalized())
                 {
                     FromLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_startSearchBar.Text);
                     ToLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_endSearchBar.Text);

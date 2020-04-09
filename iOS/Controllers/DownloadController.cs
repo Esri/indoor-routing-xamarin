@@ -20,6 +20,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.ComponentModel;
     using System.IO;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
 
@@ -126,7 +127,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     {
                         this.InvokeOnMainThread(() =>
                         {
-                            this.ViewModel.Status = "Downloading Map...";
+                            this.ViewModel.Status = "MapDownloadInProgressStatusLabel".AsLocalized();
                             _progressView.Hidden = false;
                             _retryButton.Hidden = true;
                         });
@@ -196,8 +197,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 this.BeginInvokeOnMainThread(() =>
                 {
-                    var okAlertController = UIAlertController.Create("Download Error", "Failed to create download task, please retry", UIAlertControllerStyle.Alert);
-                    okAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                    var okAlertController = UIAlertController.Create("DownloadErrorAlertTitle".AsLocalized(), "DownloadErrorAlertGuidance".AsLocalized(), UIAlertControllerStyle.Alert);
+                    okAlertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
                     UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(okAlertController, true, null);
                 });
                 return;
@@ -220,7 +221,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _statusLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _statusLabel.TextAlignment = UITextAlignment.Center;
-            _statusLabel.Text = "Downloading Map...";
+            _statusLabel.Text = "MapDownloadInProgressStatusLabel".AsLocalized();
 
             View.AddSubviews(_progressView, _retryButton, _statusLabel);
 

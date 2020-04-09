@@ -1,4 +1,5 @@
 ﻿using System;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.UI.Controls;
 using UIKit;
 
@@ -34,12 +35,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _textblock.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -8)
             });
 
-            _closeButton = new UIBarButtonItem("Close", UIBarButtonItemStyle.Plain, null);
+            _closeButton = new UIBarButtonItem("ModalCloseButtonText".AsLocalized(), UIBarButtonItemStyle.Plain, null);
         }
 
         public override void ViewWillAppear(bool animated)
         {
-            Title = "Map Attribution";
+            Title = "AttributionModalViewTitle".AsLocalized();
 
             _textblock.Text = _mapView.AttributionText;
 

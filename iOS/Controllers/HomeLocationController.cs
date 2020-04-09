@@ -19,6 +19,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using UIKit;
 
@@ -105,7 +106,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
 
             HomeLocationSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
-            HomeLocationSearchBar.Placeholder = "Search for a location";
+            HomeLocationSearchBar.Placeholder = "LocationSearchBarPlaceholder".AsLocalized();
             HomeLocationSearchBar.BackgroundImage = new UIImage();
             HomeLocationSearchBar.ShowsCancelButton = true;
             HomeLocationSearchBar.Text = AppSettings.CurrentSettings.HomeLocation;

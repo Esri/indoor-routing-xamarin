@@ -20,6 +20,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.Collections.Generic;
     using System.Linq;
     using Esri.ArcGISRuntime.Data;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
 
@@ -95,24 +96,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 {
                     var item = this.items.ElementAt(indexPath.Row);
                     cell.TextLabel.Text = item.Attributes[AppSettings.CurrentSettings.LocatorFields[0]].ToString();
-                    cell.DetailTextLabel.Text = string.Format("Floor {0}", item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
+                    cell.DetailTextLabel.Text = $"{"FloorLabel".AsLocalized()} {item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]}";
 
                     return cell;
                 }
                 else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
-                    cell.TextLabel.Text = "Current Location";
+                    cell.TextLabel.Text = "CurrentLocationLabel".AsLocalized();
                     return cell;
                 }
                 else
                 {
-                    cell.TextLabel.Text = "Unknown Location";
+                    cell.TextLabel.Text = "UnknownLocationLabel".AsLocalized();
                     return cell;
                 }
             }
             catch
             {
-                cell.TextLabel.Text = "Unknown Location";
+                cell.TextLabel.Text = "UnknownLocationLabel".AsLocalized();
                 return cell;
             }
         }
