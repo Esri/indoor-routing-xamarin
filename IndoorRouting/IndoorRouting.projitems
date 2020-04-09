@@ -16,9 +16,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DownloadViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FloorSelectorViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\LabelsViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\AppStateViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\IdentifiedRoom.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Structures\" />
     <Folder Include="$(MSBuildThisFileDirectory)ViewModels\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Models\" />
   </ItemGroup>
 </Project>

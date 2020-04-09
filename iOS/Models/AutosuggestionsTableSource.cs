@@ -32,7 +32,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// The items int he table.
         /// </summary>
-        private readonly IEnumerable<SuggestResult> items;
+        private IEnumerable<SuggestResult> items;
 
         private List<string> _specialSettings = new List<string>();
 
@@ -49,13 +49,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="items">table items.</param>
         internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items, bool showSpecialItems)
         {
-            if (items != null)
-            {
-                this.items = items;
-                this.cellIdentifier = "cell_id";
-            }
+            // TODO - handle null items
+            this.items = items;
+            this.cellIdentifier = "cell_id";
             ResetSpecialSettings();
             ShouldShowSpecialItems = showSpecialItems;
+        }
+
+        public void UpdateSuggestions(IEnumerable<SuggestResult> items)
+        {
+            this.items = items ?? new List<SuggestResult>();
         }
 
         /// <summary>

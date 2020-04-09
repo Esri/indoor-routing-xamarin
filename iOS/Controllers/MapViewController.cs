@@ -17,22 +17,17 @@
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Esri.ArcGISRuntime.Symbology;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
-    using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
-    using Esri.ArcGISRuntime.Toolkit.UI.Controls;
     using Esri.ArcGISRuntime.UI;
     using Esri.ArcGISRuntime.UI.Controls;
     using Foundation;
@@ -48,43 +43,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private bool _isViewDoubleTapped;
 
-        /// <summary>
-        /// The route.
-        /// </summary>
-        private RouteResult _route;
-
-        /// <summary>
-        /// Gets or sets the route.
-        /// </summary>
-        /// <value>The route.</value>
-        public RouteResult Route
-        {
-            get
-            {
-                return _route;
-            }
-
-            set
-            {
-                _route = value;
-                _ = OnRouteChangedAsync();
-            }
-        }
-
         // Track previously-used search bar to know where to send selected search suggestions
         private UISearchBar _lastSelectedSearchBar;
-
-        /// <summary>
-        /// Gets or sets from location feature.
-        /// </summary>
-        /// <value>From location feature.</value>
-        public Feature FromLocationFeature { get; set; }
-
-        /// <summary>
-        /// Gets or sets to location feature.
-        /// </summary>
-        /// <value>To locationfeature.</value>
-        public Feature ToLocationFeature { get; set; }
 
         /// <summary>
         /// Gets or sets the map view model containing the common logic for dealing with the map
@@ -113,63 +73,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             this._mapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
 
-            // Handle text changing in the search bar
-            // Handle search bar events
-            this._locationBar.TextChanged += LocationSearch_TextChanged;
-            this._locationBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
-            this._locationBar.OnEditingStarted += _locationBar_OnEditingStarted;
-            this._locationBar.CancelButtonClicked += _locationBar_CancelButtonClicked;
-            if (this._startSearchBar != null)
-            {
-                _startSearchBar.TextChanged += LocationSearch_TextChanged;
-                _startSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
-                _startSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
-            }
-            if (_endSearchBar != null)
-            {
-                _endSearchBar.TextChanged += LocationSearch_TextChanged;
-                _endSearchBar.SearchButtonClicked += LocationSearch_SearchButtonClicked;
-                _endSearchBar.OnEditingStarted += _locationBar_OnEditingStarted;
-            }
-
-            if (_swapOriginDestinationButton != null)
-            {
-                _swapOriginDestinationButton.TouchUpInside += _swapOriginDestinationButton_TouchUpInside;
-            }
-
-            if (_cancelRouteSearchButton != null)
-            {
-                _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
-            }
-
             //  the settings button
             _settingsButton.TouchUpInside += _settingsButton_TouchUpInside;
 
-            // Search for route button
-            if (_searchRouteButton != null)
-            {
-                _searchRouteButton.TouchUpInside += RouteSearch_TouchUpInside;
-            }
-
             // Home button
             _homeButton.TouchUpInside += Home_TouchUpInside;
-
-            // Handle closing location card.
-            if (_closeLocationCardButton != null)
-            {
-                this._closeLocationCardButton.TouchUpInside += _closeLocationCardButton_TouchUpInside;
-            }
-
-            if (_clearRouteResultButton != null)
-            {
-                _clearRouteResultButton.TouchUpInside += _clearRouteResultButton_TouchUpInside;
-            }
-
-            // Handle searching for directions
-            if (_startDirectionsFromLocationCardButton != null)
-            {
-                _startDirectionsFromLocationCardButton.TouchUpInside += _startDirectionsFromLocationCardButton_TouchUpInside;
-            }
 
             if (_attributionImageButton != null)
             {
@@ -204,11 +112,61 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 this._mapView.LocationDisplay.IsEnabled = false;
             }
 
-            // If the routing is disabled, hide the directions button
-            if (_startDirectionsFromLocationCardButton != null)
+            // Listen for app state changes
+            AppStateViewModel.Instance.DidTransitionToState += AppState_Changed;
+            AppStateViewModel.Instance.PropertyChanged += AppState_PropertyChanged;
+        }
+
+        private void AppState_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppStateViewModel.CurrentRoute))
             {
-                _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+                _ = OnRouteChangedAsync();
             }
+        }
+
+        private async void AppState_Changed(object sender, AppStateViewModel.UIState newState)
+        {
+            _locationSearchCard.Hidden = true;
+            _locationCard.Hidden = true;
+            _routeSearchView.Hidden = true;
+            _routeResultView.Hidden = true;
+
+            switch (newState)
+            {
+                case AppStateViewModel.UIState.AwaitingSearch:
+                    _locationSearchCard.Hidden = false;
+                    return;
+                case AppStateViewModel.UIState.LocationFound:
+                    _locationCard.Hidden = false;
+                    return;
+                case AppStateViewModel.UIState.LocationNotFound:
+                    ShowErrorAndContinuteWithAction("LocationNotFound", () => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchInProgress));
+                    return;
+                case AppStateViewModel.UIState.PlanningRoute:
+                    _routeSearchView.Hidden = false;
+                    return;
+                case AppStateViewModel.UIState.RouteFound:
+                    _routeResultView.Hidden = false;
+                    return;
+                case AppStateViewModel.UIState.RouteNotFound:
+                    ShowErrorAndContinuteWithAction("RouteNotFound", () => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute));
+                    return;
+                case AppStateViewModel.UIState.SearchInProgress:
+                    _locationSearchCard.Hidden = false;
+                    return;
+                case AppStateViewModel.UIState.SearchFinished:
+                    if (AppStateViewModel.Instance.CurrentSearchTarget == AppStateViewModel.TargetSearchField.Feature)
+                    {
+                        await GetSearchedFeatureAsync(AppStateViewModel.Instance.FeatureSearchText);
+                    }
+                    else
+                    {
+                        _routeSearchView.Hidden = false;
+                    }
+                    return;
+            }
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
 
         private void _locationBar_CancelButtonClicked(object sender, EventArgs e)
@@ -216,7 +174,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             (sender as UISearchBar).Text = string.Empty;
             (sender as UISearchBar).ShowsCancelButton = false;
             (sender as UISearchBar).ResignFirstResponder();
-            SetAutoSuggestHidden(true);
         }
 
         private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
@@ -228,53 +185,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 _homeButton.Enabled = !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation);
                 _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
-                _startDirectionsFromLocationCardButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
                 _accessoryView.ReloadData();
             };
             
-        }
-
-        private void _startDirectionsFromLocationCardButton_TouchUpInside(object sender, EventArgs e)
-        {
-            _locationCard.Hidden = true;
-            _locationBar.Hidden = true;
-            _routeSearchView.Hidden = false;
-
-            // TODO - implement 'current location' behavior // see old RouteController.cs
-
-            // Copy searched value into origin, jump to entering destination
-            if (_locationCardPrimaryLabel.Text == AppSettings.CurrentSettings.HomeLocation)
-            {
-                _startSearchBar.Text = _locationCardPrimaryLabel.Text;
-                _endSearchBar.BecomeFirstResponder();
-                SetAutoSuggestHidden(false);
-            }
-            else
-            {
-                _endSearchBar.Text = _locationCardPrimaryLabel.Text;
-                _startSearchBar.BecomeFirstResponder();
-                SetAutoSuggestHidden(false);
-            }
-            
-            // expand bottom sheet
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
-        }
-
-        private async void _locationBar_OnEditingStarted(object sender, EventArgs e)
-        {
-            // Store most-recently interacted with search bar
-            _lastSelectedSearchBar = (UISearchBar)sender;
-
-            // Show search suggestions
-            SetAutoSuggestHidden(false);
-
-            // Populate with initial suggestions
-            await GetSuggestionsFromLocatorAsync("");
-        }
-
-        private void _closeLocationCardButton_TouchUpInside(object sender, EventArgs e)
-        {
-            SetLocationCardHidden(true);
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -295,33 +208,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             this._mapView.LocationDisplay.LocationChanged -= this.MapView_LocationChanged;
 
-            // Handle search bar events
-            this._locationBar.TextChanged -= LocationSearch_TextChanged;
-            this._locationBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
-            this._locationBar.OnEditingStarted -= _locationBar_OnEditingStarted;
-            this._locationBar.CancelButtonClicked -= _locationBar_CancelButtonClicked;
-            if (this._startSearchBar != null)
-            {
-                _startSearchBar.TextChanged -= LocationSearch_TextChanged;
-                _startSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
-                _startSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
-            }
-            if (_endSearchBar != null)
-            {
-                _endSearchBar.TextChanged -= LocationSearch_TextChanged;
-                _endSearchBar.SearchButtonClicked -= LocationSearch_SearchButtonClicked;
-                _endSearchBar.OnEditingStarted -= _locationBar_OnEditingStarted;
-            }
-            if (_cancelRouteSearchButton != null)
-            {
-                _cancelRouteSearchButton.TouchUpInside -= _cancelRouteSearchButton_TouchUpInside;
-            }
-
-            if (_clearRouteResultButton != null)
-            {
-                _clearRouteResultButton.TouchUpInside -= _clearRouteResultButton_TouchUpInside;
-            }
-
             if (_attributionImageButton != null)
             {
                 _attributionImageButton.TouchUpInside -= Attribution_Tapped;
@@ -336,31 +222,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // location button
             _locationButton.TouchUpInside -= CurrentLocationButton_TouchUpInside;
 
-            // Search for route button
-            if (_searchRouteButton != null)
-            {
-                _searchRouteButton.TouchUpInside -= RouteSearch_TouchUpInside;
-            }
-
-            if (_swapOriginDestinationButton != null)
-            {
-                _swapOriginDestinationButton.TouchUpInside -= _swapOriginDestinationButton_TouchUpInside;
-            }
-
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = false;
-
-            // Handle searching for directions
-            if (_startDirectionsFromLocationCardButton != null)
-            {
-                _startDirectionsFromLocationCardButton.TouchUpInside -= _startDirectionsFromLocationCardButton_TouchUpInside;
-            }
-
-            // Handle closing location card.
-            if (_closeLocationCardButton != null)
-            {
-                this._closeLocationCardButton.TouchUpInside -= _closeLocationCardButton_TouchUpInside;
-            }
         }
 
         /// <summary>
@@ -412,31 +275,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this._mapView.GraphicsOverlays.Add(routeGraphicsOverlay);
         }
 
-        private async void LocationSearch_TextChanged(object sender, EventArgs e)
+        private void ShowErrorAndContinuteWithAction(string message, Action action)
         {
-            // Store most-recently interacted with search bar
-            _lastSelectedSearchBar = (UISearchBar)sender;
-
-            // Call to populate autosuggestions 
-            await GetSuggestionsFromLocatorAsync(((UISearchBar)sender).Text);
-        }
-
-        private async void LocationSearch_SearchButtonClicked(object sender, EventArgs e)
-        {
-            // Store most-recently interacted with search bar
-            _lastSelectedSearchBar = (UISearchBar)sender;
-
-            var searchText = ((UISearchBar)sender).Text;
-
-            if (sender == _locationBar)
-            {
-                // Dismiss keyboard
-                ((UISearchBar)sender).EndEditing(true);
-
-                // Dismiss autosuggestions table
-                SetAutoSuggestHidden(true);
-                await GetSearchedFeatureAsync(searchText);
-            }
+            var alertController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), message, UIAlertControllerStyle.Alert);
+            alertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, x => action()));
+            this.PresentViewController(alertController, true, null);
         }
 
         /// <summary>
@@ -445,11 +288,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>The new route</returns>
         private async Task OnRouteChangedAsync()
         {
-            if (this.Route != null)
+            var newRoute = AppStateViewModel.Instance.CurrentRoute.Routes.FirstOrDefault();
+            if (newRoute == null)
             {
-                // get the route from the results
-                var newRoute = this.Route.Routes.FirstOrDefault();
-
+                this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+            }
+            else
+            {
                 // create a picture marker symbol for start pin
                 var uiImageStartPin = UIImage.FromBundle("StartCircle");
                 var startPin = await uiImageStartPin.ToRuntimeImageAsync();
@@ -460,117 +305,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 var endPin = await uiImageEndPin.ToRuntimeImageAsync();
                 var endMarker = new PictureMarkerSymbol(endPin);
 
-                if (newRoute != null)
+                // Create point graphics
+                var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
+                var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
+
+                // create a graphic to represent the routee
+                var routeSymbol = new SimpleLineSymbol();
+                routeSymbol.Width = 5;
+                routeSymbol.Style = SimpleLineSymbolStyle.Solid;
+                routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
+
+                var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
+
+                // Add graphics to overlay
+                this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
+                this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
+                this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
+                this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
+
+                // Hide the pins graphics overlay
+                this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
+
+                try
                 {
-                    StringBuilder walkTimeStringBuilder = new StringBuilder();
-
-                    // Add walk time and distance label
-                    if (newRoute.TotalTime.Hours > 0)
-                    {
-                        walkTimeStringBuilder.Append(string.Format("{0} h {1} m", newRoute.TotalTime.Hours, newRoute.TotalTime.Minutes));
-                    }
-                    else
-                    {
-                        walkTimeStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
-                    }
-
-                    var tableSource = new List<Feature>() { this.FromLocationFeature, this.ToLocationFeature };
-                    this.ShowRouteCard(tableSource, walkTimeStringBuilder.ToString());
-
-                    // Create point graphics
-                    var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
-                    var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
-
-                    // create a graphic to represent the routee
-                    var routeSymbol = new SimpleLineSymbol();
-                    routeSymbol.Width = 5;
-                    routeSymbol.Style = SimpleLineSymbolStyle.Solid;
-                    routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
-
-                    var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
-
-                    // Add graphics to overlay
-                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
-                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
-                    this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
-
-                    // Hide the pins graphics overlay
-                    this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
-
-                    try
-                    {
-                        await this._mapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
-                    }
-                    catch
-                    {
-                        // If panning to the new route fails, just move on
-                    }
+                    await this._mapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
                 }
-                else
+                catch
                 {
-                    this.ShowLocationCard("RoutErrorTitle".AsLocalized(), "RouteErrorGuidance".AsLocalized(), true);
+                    // If panning to the new route fails, just move on
                 }
             }
-            else
-            {
-                this.ShowLocationCard("RoutErrorTitle".AsLocalized(), "RouteErrorGuidance".AsLocalized(), true);
-            }
-        }
-
-        /// <summary>
-        /// Shows the route card.
-        /// </summary>
-        /// <param name="items">List of stops.</param>
-        /// <param name="walkTime">Walk time.</param>
-        private void ShowRouteCard(List<Feature> items, string walkTime)
-        {
-            this.InvokeOnMainThread(() =>
-            {
-                // Show the tableview and populate it
-                _routeResultStopsView.Source = new RouteTableSource(items);
-                // Necessary to trigger resize
-                _routeResultStopsView.ReloadData();
-
-                _walkTimeLabel.Text = walkTime;
-
-                // Hide and show cards
-                _routeResultView.Hidden = false;
-                _routeSearchView.Hidden = true;
-                _autoSuggestionsTableView.Hidden = true;
-                _locationCard.Hidden = true;
-                _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
-            });
-        }
-
-        /// <summary>
-        /// Shows the contact card and sets the fields on it depending of context.
-        /// </summary>
-        /// <param name="mainLabel">Main label.</param>
-        /// <param name="secondaryLabel">Secondary label.</param>
-        /// <param name="isRoute">If set to <c>true</c> is route.</param>
-        private void ShowLocationCard(string mainLabel, string secondaryLabel, bool isRoute)
-        {
-            this.InvokeOnMainThread(() =>
-            {
-                _locationCardPrimaryLabel.Text = mainLabel;
-                _locationCardSecondaryLabel.Text = secondaryLabel;
-                // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
-                // If the label is for the contact info, show the Directions button and fill the labels with the office info
-                SetLocationCardHidden(false);
-                _routeSearchView.Hidden = true;
-                _routeResultView.Hidden = true;
-                SetAutoSuggestHidden(true);
-            });
-        }
-
-        /// <summary>
-        /// Hides the contact card.
-        /// </summary>
-        private void HideContactCard()
-        {
-            _locationCard.Hidden = true;
-            _locationBar.Hidden = false;
         }
 
         /// <summary>
@@ -656,13 +420,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             else
             {
                 // If route card is visible, do not dismiss route
-                if (!_routeResultView.Hidden)
+                if (AppStateViewModel.Instance.CurrentState == AppStateViewModel.UIState.RouteFound)
                 {
                     // Create a new Alert Controller
                     UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
                     // Add Actions
-                    actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive, (action) => this.ClearRoute()));
+                    actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive,
+                        (action) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.AwaitingSearch)));
 
                     actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
 
@@ -671,7 +436,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
                     if (presentationPopover != null)
                     {
-                        presentationPopover.SourceView = _routeTravelModeImage;
+                        presentationPopover.SourceView = _bottomSheet.DisplayedContentView;
                         presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
                     }
 
@@ -693,72 +458,41 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
                         IdentifyLayerResult idResults = await this._mapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
-                        // create a picture marker symbol
-                        var uiImagePin = UIImage.FromBundle("MapPin");
-                        var mapPin = await uiImagePin.ToRuntimeImageAsync();
-                        var roomMarker = new PictureMarkerSymbol(mapPin);
-                        roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
+                        IdentifiedRoom room = IdentifiedRoom.ConstructFromIdentifyResult(idResults);
 
-                        var identifiedResult = idResults.GeoElements.First();
+                        AppStateViewModel.Instance.CurrentlyIdentifiedRoom = room;
 
-                        // Create graphic
-                        var mapPinGraphic = new Graphic(identifiedResult.Geometry.Extent.GetCenter(), roomMarker);
-
-                        // Add pin to mapview
-                        var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
-                        graphicsOverlay.Graphics.Clear();
-                        graphicsOverlay.Graphics.Add(mapPinGraphic);
-
-                        // Get room attribute from the settings. First attribute should be set as the searcheable one
-                        var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                        var roomNumber = identifiedResult.Attributes[roomAttribute];
-
-                        if (roomNumber != null)
+                        if (room != null)
                         {
-                            var employeeNameLabel = string.Empty;
-                            if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                            {
+                            
+                            // create a picture marker symbol
+                            // TODO - replace with renderer
+                            var uiImagePin = UIImage.FromBundle("MapPin");
+                            var mapPin = await uiImagePin.ToRuntimeImageAsync();
+                            var roomMarker = new PictureMarkerSymbol(mapPin);
+                            roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
 
-                                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                                var employeeName = identifiedResult.Attributes[employeeNameAttribute];
-                                employeeNameLabel = employeeName as string ?? string.Empty;
-                            }
+                            // Create graphic
+                            var mapPinGraphic = new Graphic(room.FeatureLocation.Extent.GetCenter(), roomMarker);
 
-                            this.ShowLocationCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
+                            // Add pin to mapview
+                            var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
+                            graphicsOverlay.Graphics.Clear();
+                            graphicsOverlay.Graphics.Add(mapPinGraphic);
+
+                            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
                         }
                         else
                         {
-                            this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
-                            this.HideContactCard();
+                            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationNotFound);
                         }
                     }
                     catch
                     {
-                        this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
-                        this.HideContactCard();
-                    }
-
-                    foreach(var bar in new[] { _locationBar, _startSearchBar, _endSearchBar })
-                    {
-                        if (bar != null && bar.IsFirstResponder)
-                        {
-                            bar.ResignFirstResponder();
-                        }
+                        AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationNotFound);
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Clears the route and hides route card.
-        /// </summary>
-        private void ClearRoute()
-        {
-            this._mapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-            this._mapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            Route = null;
-            _routeResultView.Hidden = true;
-            _locationBar.Hidden = false;
         }
 
         /// <summary>
@@ -860,61 +594,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         }
 
         /// <summary>
-        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
-        /// </summary>
-        /// <returns>The suggestions from locator</returns>
-        private async Task GetSuggestionsFromLocatorAsync(string text)
-        {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(text);
-            if (suggestions.Count > 0 || AppSettings.CurrentSettings.IsLocationServicesEnabled || !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
-            {
-                // Show the tableview with autosuggestions and populate it
-                var tableSource = new AutosuggestionsTableSource(suggestions, true);
-                tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
-                this._autoSuggestionsTableView.Source = tableSource;
-
-                this._autoSuggestionsTableView.ReloadData();
-
-                // show the auto suggestion view
-                SetAutoSuggestHidden(false);
-            }
-        }
-
-        /// <summary>
-        /// Get the value selected in the Autosuggestions Table
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Event args.</param>
-        private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
-        {
-            var selectedItem = e.SelectedItem;
-            this._lastSelectedSearchBar.Text = selectedItem;
-            this._lastSelectedSearchBar.ResignFirstResponder();
-            
-            if (_lastSelectedSearchBar == _locationBar)
-            {
-                if (selectedItem != "CurrentLocationLabel".AsLocalized())
-                {
-                    await this.GetSearchedFeatureAsync(selectedItem);
-                    SetAutoSuggestHidden(true);
-                }
-            }
-            // Advance to next field
-            else if (_lastSelectedSearchBar == _startSearchBar && String.IsNullOrWhiteSpace(_endSearchBar.Text))
-            {
-                _endSearchBar.BecomeFirstResponder();
-            }
-            else if (_lastSelectedSearchBar == _endSearchBar && String.IsNullOrWhiteSpace(_startSearchBar.Text))
-            {
-                _startSearchBar.BecomeFirstResponder();
-            }
-            else if (selectedItem != "CurrentLocationLabel".AsLocalized())
-            {
-                SetAutoSuggestHidden(true);
-            }
-        }
-
-        /// <summary>
         /// Zooms to geocode result of the searched feature
         /// </summary>
         /// <param name="searchText">Search text entered by user.</param>
@@ -944,29 +623,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
 
                 // Get the feature to populate the Contact Card
-                var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(searchText);
+                Feature roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(searchText);
+
+                IdentifiedRoom room = IdentifiedRoom.ConstructFromFeature(roomFeature);
+
+                AppStateViewModel.Instance.CurrentlyIdentifiedRoom = room;
 
                 if (roomFeature != null)
                 {
-                    // Get room attribute from the settings. First attribute should be set as the searcheable one
-                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                    var roomNumber = roomFeature.Attributes[roomAttribute];
-                    var roomNumberLabel = roomNumber ?? string.Empty;
-
-                    var employeeNameLabel = string.Empty;
-                    if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                    {
-                        var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                        var employeeName = roomFeature.Attributes[employeeNameAttribute];
-                        employeeNameLabel = employeeName as string ?? string.Empty;
-                    }
-
-                    this.ShowLocationCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
+                }
+                else
+                {
+                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationNotFound);
                 }
             }
             else
             {
-                this.ShowLocationCard(searchText, "LocationNotFoundErrorTitle".AsLocalized(), true);
+                AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationNotFound);
             }
         }
 
@@ -1013,87 +687,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 graphicsOverlay.Graphics.Clear();
                 graphicsOverlay.Graphics.Add(mapPinGraphic);
                 graphicsOverlay.IsVisible = true;
-                this.HideContactCard();
+
+                AppStateViewModel.Instance.CurrentlyIdentifiedRoom = await IdentifiedRoom.ConstructHome();
+
+                AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
             }
-
-            // Get the feature to populate the Contact Card
-            var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(AppSettings.CurrentSettings.HomeLocation);
-
-            if (roomFeature != null)
+            else
             {
-                // Get room attribute from the settings. First attribute should be set as the searcheable one
-                var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                var roomNumber = roomFeature.Attributes[roomAttribute];
-                var roomNumberLabel = roomNumber ?? string.Empty;
-
-                var employeeNameLabel = string.Empty;
-                if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                {
-                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                    var employeeName = roomFeature.Attributes[employeeNameAttribute];
-                    employeeNameLabel = employeeName as string ?? string.Empty;
-                }
-                this.ShowLocationCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
+                throw new Exception("This shouldn't happen; invalid home location");
             }
-        }
-
-        private async void RouteSearch_TouchUpInside(object sender, EventArgs e)
-        {
-            // Geocode the locations selected by the user
-            try
-            {
-                if (_startSearchBar.Text != "CurrentLocationLabel".AsLocalized())
-                {
-                    FromLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_startSearchBar.Text);
-                    ToLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_endSearchBar.Text);
-
-                    var fromLocationPoint = FromLocationFeature.Geometry.Extent.GetCenter();
-                    var toLocationPoint = ToLocationFeature.Geometry.Extent.GetCenter();
-
-                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
-
-                    Route = route;
-                }
-                else
-                {
-                    ToLocationFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(_endSearchBar.Text);
-
-                    var fromLocationPoint = LocationViewModel.Instance.CurrentLocation;
-                    var toLocationPoint = ToLocationFeature.Geometry.Extent.GetCenter();
-
-                    var route = await LocationViewModel.Instance.GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
-
-                    Route = route;
-                }
-            }
-            catch
-            {
-                // TODO - show error somehow
-                Route = null;
-            }
-        }
-
-        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e)
-        {
-            _startSearchBar.Text = string.Empty;
-            _endSearchBar.Text = string.Empty;
-            _routeSearchView.Hidden = true;
-            _locationBar.Hidden = false;
-            _locationCard.Hidden = true;
-            SetAutoSuggestHidden(true);
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
-        }
-
-        private void _clearRouteResultButton_TouchUpInside(object sender, EventArgs e)
-        {
-            this.ClearRoute();
-            _startSearchBar.Text = string.Empty;
-            _endSearchBar.Text = string.Empty;
-            _routeSearchView.Hidden = true;
-            _locationCard.Hidden = true;
-            _locationBar.Hidden = false;
-            SetAutoSuggestHidden(true);
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
     }
 }
