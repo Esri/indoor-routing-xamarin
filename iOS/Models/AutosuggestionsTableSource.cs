@@ -19,6 +19,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Foundation;
     using UIKit;
@@ -97,7 +98,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _specialSettings.Clear();
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
-                _specialSettings.Add("CurrentLocationLabel");
+                _specialSettings.Add("CurrentLocationLabel".AsLocalized());
             }
 
             if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
