@@ -4,6 +4,7 @@
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Esri.ArcGISRuntime.Toolkit.UI.Controls;
     using Esri.ArcGISRuntime.UI.Controls;
     using UIKit;
@@ -44,6 +45,9 @@
 
         // Route result components
         private RouteResultCard _routeResultView;
+
+        // Not found card
+        private LocationNotFoundCard _locationNotFoundCard;
 
         // Attribution image
         private UIButton _esriIcon;
@@ -162,6 +166,12 @@
                 Hidden = true
             };
 
+            _locationNotFoundCard = new LocationNotFoundCard
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Hidden = true
+            };
+
             ConfigureAttribution();
 
             UIStackView _containerView = new IntrinsicContentSizedStackView
@@ -171,6 +181,7 @@
             };
 
             _containerView.AddArrangedSubview(_locationSearchCard);
+            _containerView.AddArrangedSubview(_locationNotFoundCard);
             _containerView.AddArrangedSubview(_locationCard);
             _containerView.AddArrangedSubview(_routeSearchView);
             _containerView.AddArrangedSubview(_routeResultView);
@@ -184,7 +195,7 @@
                 _containerView.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
             });
 
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
         }
 
         public override void LoadView()

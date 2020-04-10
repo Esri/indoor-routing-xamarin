@@ -19,39 +19,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels
         public enum UIState
         {
             Downloading, //->AwaitingSearch
-            AwaitingSearch, //-> SearchInProgress
-            SearchInProgress, //->SearchFinished, AwaitingSearch
-            SearchFinished,//->PlanningRoute, LocationFound, LocationNotFound
-            LocationFound, //-> PlanningRoute, AwaitingSearch
-            LocationNotFound, //-> AwaitingSearch
+            ReadyWaiting, //-> SearchInProgress
+            SearchingForDestination,
+            SearchingForOrigin,
+            SearchingForFeature,
+            DestinationFound,
+            OriginFound,
+            FeatureSearchEntered,
             PlanningRoute, //-> RouteFound, RouteNotFound
-            RouteFound, //-> AwaitingSearch
-            RouteNotFound //-> AwaitingSearch
+            LocationFound, //-> PlanningRoute, AwaitingSearch
+            RouteFound, //-> AwaitingSearch, LocationFound
+            RouteNotFound, //-> AwaitingSearch
+            LocationNotFound, //-> AwaitingSearch
         }
-
-        public enum TargetSearchField
-        {
-            Feature, // feature on map home screen
-            Origin, // origin for route
-            Destination // destination for route
-        };
 
         public UIState CurrentState { get; private set; }
-
-        private TargetSearchField _currentSearchTarget = TargetSearchField.Feature;
-
-        public TargetSearchField CurrentSearchTarget
-        {
-            get => _currentSearchTarget;
-            set
-            {
-                if (value != _currentSearchTarget)
-                {
-                    _currentSearchTarget = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSearchTarget)));
-                }
-            }
-        }
 
         private IdentifiedRoom _currentlyIdentifiedRoom;
 
@@ -99,6 +81,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels
                 }
             }
         }
+
         public string OriginSearchText
         {
             get => _originSearchText;
@@ -111,6 +94,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels
                 }
             }
         }
+
         public string DestinationSearchText
         {
             get => _destinationSearchText;
@@ -182,6 +166,27 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels
         /// </summary>
         /// <value>To locationfeature.</value>
         public Feature ToLocationFeature { get; set; }
+
+        public void StartSearchFromFoundFeature()
+        {
+            if (CurrentlyIdentifiedRoom.IsHome)
+            {
+                OriginSearchText = string.Empty;
+                DestinationSearchText = CurrentlyIdentifiedRoom.RoomNumber;
+            }
+            else
+            {
+                OriginSearchText = CurrentlyIdentifiedRoom.RoomNumber;
+                DestinationSearchText = string.Empty;
+            }
+
+            TransitionToState(UIState.PlanningRoute);
+        }
+
+        public void CloseLocationInfo()
+        {
+            TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
+        }
 
         public static AppStateViewModel Instance { get; private set; }
 

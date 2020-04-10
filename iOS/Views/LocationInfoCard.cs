@@ -33,7 +33,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
-
             _primaryLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -95,8 +94,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _secondaryLabel.Text = AppStateViewModel.Instance.CurrentlyIdentifiedRoom?.EmployeeNameLabel ?? string.Empty;
         }
 
-        private void SearchDirections_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
+        private void SearchDirections_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.StartSearchFromFoundFeature();
 
-        private void Close_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.AwaitingSearch);
+        private void Close_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.CloseLocationInfo();
     }
 }

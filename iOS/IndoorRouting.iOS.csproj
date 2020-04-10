@@ -260,6 +260,8 @@
     <Compile Include="Views\RouteResultCard.cs" />
     <Compile Include="Views\LocationSearchCard.cs" />
     <Compile Include="Views\RoutePlanningCard.cs" />
+    <Compile Include="Views\LocationNotFoundCard.cs" />
+    <Compile Include="Views\PseudoTextFieldButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />

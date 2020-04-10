@@ -86,7 +86,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         internal void LoadMapView()
         {
-            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.AwaitingSearch);
+            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
             var navController = new UINavigationController();
             navController.PushViewController(new MapViewController(), false);
 
@@ -111,7 +111,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this.ViewModel.GetDataAsync().ConfigureAwait(false);
         }
 
-         /// <summary>
+        /// <summary>
         /// Fires when properties change in the DownloadViewModel
         /// </summary>
         /// <param name="sender">Sender element.</param>

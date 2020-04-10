@@ -23,6 +23,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 
         public bool IsHome { get; private set; } = false;
 
+        public bool IsCurrentLocation { get; private set; } = false;
+
         public static IdentifiedRoom ConstructFromIdentifyResult(IdentifyLayerResult rawResult)
         {
             GeoElement inputGeoElement = rawResult.GeoElements?.FirstOrDefault();
@@ -93,6 +95,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             room.IsHome = true;
 
             return room;
+        }
+
+        public static IdentifiedRoom ConstructCurrentLocation()
+        {
+            return new IdentifiedRoom
+            {
+                IsCurrentLocation = true,
+                RoomNumber = "Current Location"
+            };
         }
     }
 }

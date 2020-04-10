@@ -8,8 +8,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class RoutePlanningCard : UIView
     {
-        private UILabel _startTextPlaceholder;
-        private UILabel _endTextPlaceholder;
+        private PseudoTextFieldButton _startTextPlaceholder;
+        private PseudoTextFieldButton _endTextPlaceholder;
 
         private UIButton _searchRouteButton;
 
@@ -19,28 +19,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private UILabel _routeSearchHeader;
         private UIButton _swapOriginDestinationButton;
 
-        private UITapGestureRecognizer _originTapRecognizer;
-        private UITapGestureRecognizer _destinationTapRecognizer;
-
         public RoutePlanningCard()
         {
-            _startTextPlaceholder = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
-            _startTextPlaceholder.Layer.CornerRadius = 8;
-            _startTextPlaceholder.Layer.BorderColor = UIColor.SystemGrayColor.CGColor;
-            _startTextPlaceholder.Layer.BorderWidth = 2;
-            _startTextPlaceholder.UserInteractionEnabled = true;//for gesture recognizer
-            _startTextPlaceholder.BackgroundColor = UIColor.SystemBackgroundColor;
-            _startTextPlaceholder.TextColor = TintColor;
-            _startTextPlaceholder.ClipsToBounds = true;
+            _startTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _endTextPlaceholder = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
-            _endTextPlaceholder.Layer.CornerRadius = 8;
-            _endTextPlaceholder.Layer.BorderColor = UIColor.SystemGrayColor.CGColor;
-            _endTextPlaceholder.Layer.BorderWidth = 2;
-            _endTextPlaceholder.UserInteractionEnabled = true;//for gesture recognizer
-            _endTextPlaceholder.TextColor = TintColor;
-            _endTextPlaceholder.BackgroundColor = UIColor.SystemBackgroundColor;
-            _endTextPlaceholder.ClipsToBounds = true;
+            _endTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _searchRouteButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _searchRouteButton.SetTitle("SearchForRouteButtonText".AsLocalized(), UIControlState.Normal);
@@ -108,12 +91,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _searchRouteButton.TouchUpInside += _searchRouteButton_TouchUpInside;
             _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
             _swapOriginDestinationButton.TouchUpInside += _swapOriginDestinationButton_TouchUpInside;
-
-            _originTapRecognizer = new UITapGestureRecognizer(originTapped);
-            _destinationTapRecognizer = new UITapGestureRecognizer(destinationTapped);
-
-            _startTextPlaceholder.AddGestureRecognizer(_originTapRecognizer);
-            _endTextPlaceholder.AddGestureRecognizer(_destinationTapRecognizer);
+            _startTextPlaceholder.Tapped += originTapped;
+            _endTextPlaceholder.Tapped += destinationTapped;
 
             AppStateViewModel.Instance.PropertyChanged += AppState_PropertyChanged;
         }
@@ -127,27 +106,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             }
         }
 
-        private void originTapped()
-        {
-            AppStateViewModel.Instance.CurrentSearchTarget = AppStateViewModel.TargetSearchField.Origin;
-            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchInProgress);
-        }
+        private void originTapped(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchingForOrigin);
 
-        private void destinationTapped()
-        {
-            AppStateViewModel.Instance.CurrentSearchTarget = AppStateViewModel.TargetSearchField.Destination;
-            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchInProgress);
-        }
+        private void destinationTapped(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchingForDestination);
 
-        private void _searchRouteButton_TouchUpInside(object sender, EventArgs e)
-        {
-            AppStateViewModel.Instance.PerformRouteSearchAndUpdateState();
-        }
+        private void _searchRouteButton_TouchUpInside(object sender, EventArgs e) => AppStateViewModel.Instance.PerformRouteSearchAndUpdateState();
 
-        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e)
-        {
-            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
-        }
+        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
 
         private void _swapOriginDestinationButton_TouchUpInside(object sender, EventArgs e)
         {

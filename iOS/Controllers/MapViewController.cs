@@ -131,42 +131,60 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _locationCard.Hidden = true;
             _routeSearchView.Hidden = true;
             _routeResultView.Hidden = true;
+            _locationNotFoundCard.Hidden = true;
 
             switch (newState)
             {
-                case AppStateViewModel.UIState.AwaitingSearch:
+                case AppStateViewModel.UIState.ReadyWaiting:
                     _locationSearchCard.Hidden = false;
-                    return;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
                 case AppStateViewModel.UIState.LocationFound:
                     _locationCard.Hidden = false;
-                    return;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
                 case AppStateViewModel.UIState.LocationNotFound:
-                    ShowErrorAndContinuteWithAction("LocationNotFound", () => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchInProgress));
-                    return;
+                    _locationNotFoundCard.Hidden = false;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
                 case AppStateViewModel.UIState.PlanningRoute:
                     _routeSearchView.Hidden = false;
-                    return;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
                 case AppStateViewModel.UIState.RouteFound:
                     _routeResultView.Hidden = false;
-                    return;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
                 case AppStateViewModel.UIState.RouteNotFound:
                     ShowErrorAndContinuteWithAction("RouteNotFound", () => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute));
-                    return;
-                case AppStateViewModel.UIState.SearchInProgress:
+                    break;
+                case AppStateViewModel.UIState.Downloading:
+                    break;
+                case AppStateViewModel.UIState.SearchingForDestination:
                     _locationSearchCard.Hidden = false;
-                    return;
-                case AppStateViewModel.UIState.SearchFinished:
-                    if (AppStateViewModel.Instance.CurrentSearchTarget == AppStateViewModel.TargetSearchField.Feature)
-                    {
-                        await GetSearchedFeatureAsync(AppStateViewModel.Instance.FeatureSearchText);
-                    }
-                    else
-                    {
-                        _routeSearchView.Hidden = false;
-                    }
-                    return;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    break;
+                case AppStateViewModel.UIState.SearchingForOrigin:
+                    _locationSearchCard.Hidden = false;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    break;
+                case AppStateViewModel.UIState.SearchingForFeature:
+                    _locationSearchCard.Hidden = false;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    break;
+                case AppStateViewModel.UIState.DestinationFound:
+                    _routeSearchView.Hidden = false;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
+                case AppStateViewModel.UIState.OriginFound:
+                    _routeSearchView.Hidden = false;
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
+                case AppStateViewModel.UIState.FeatureSearchEntered:
+                    await GetSearchedFeatureAsync(AppStateViewModel.Instance.FeatureSearchText);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
             }
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
         }
 
         private void _locationBar_CancelButtonClicked(object sender, EventArgs e)
@@ -427,7 +445,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                     // Add Actions
                     actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive,
-                        (action) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.AwaitingSearch)));
+                        (action) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting)));
 
                     actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
 
@@ -600,6 +618,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>The searched feature</returns>
         private async Task GetSearchedFeatureAsync(string searchText)
         {
+            if (searchText == "Current Location")
+            {
+                AppStateViewModel.Instance.CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructCurrentLocation();
+            }
             var geocodeResult = await LocationViewModel.Instance.GetSearchedLocationAsync(searchText);
             this.ViewModel.SelectedFloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(searchText);
 
