@@ -124,6 +124,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private void suggestion_Selected(object sender, TableRowSelectedEventArgs<string> e)
         {
             _searchBar.Text = e.SelectedItem;
+            _viewModel.FeatureSearchText = string.Empty;
             _viewModel.CommitSearch(_searchBar.Text);
             // has to be done after, otherwise editing will be canceled
             _searchBar.ResignFirstResponder();
@@ -133,7 +134,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         private void search_editingStarted(object sender, EventArgs e) => _viewModel.StartEditingInLocationSearch();
 
-        private void CancelEditing() => _viewModel.StopEditingInLocationSearch();
+        private void CancelEditing()
+        {
+            _searchBar.Text = string.Empty;
+            _autoSuggestionsTableView.Hidden = true;
+            _viewModel.StopEditingInLocationSearch();
+        }
 
         private async Task UpdateTableView()
         {

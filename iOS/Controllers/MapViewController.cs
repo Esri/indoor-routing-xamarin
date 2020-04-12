@@ -27,7 +27,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Toolkit.UI.Controls;
     using Esri.ArcGISRuntime.UI;
@@ -46,9 +45,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         private bool _isViewDoubleTapped;
 
-        // Track previously-used search bar to know where to send selected search suggestions
-        private UISearchBar _lastSelectedSearchBar;
-
         /// <summary>
         /// Gets or sets the map view model containing the common logic for dealing with the map
         /// </summary>
@@ -57,6 +53,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private GraphicsOverlay _homeOverlay;
         private GraphicsOverlay _identifiedFeatureOverlay;
         private GraphicsOverlay _routeOverlay;
+        private PictureMarkerSymbol _routeStartSymbol;
+        private PictureMarkerSymbol _routeEndSymbol;
 
         /// <summary>
         /// Overrides the controller behavior before view is about to appear
@@ -143,6 +141,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                 // Turn layers on. If there is no floor selected, first floor will be displayed by default
                 this.ViewModel.SetFloorVisibility(true);
+
+                _innerFloorsTableViewShadow.Hidden = false;
             }
             else
             {
@@ -297,72 +297,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void ShowErrorAndContinuteWithAction(string message, Action action)
-        {
-            var alertController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), message, UIAlertControllerStyle.Alert);
-            alertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, x => action()));
-            this.PresentViewController(alertController, true, null);
-        }
-
-
-        /// <summary>
-        /// Fires when a new route is generated
-        /// </summary>
-        /// <returns>The new route</returns>
-        private async Task OnRouteChangedAsync()
-        {
-            var newRoute = ViewModel.CurrentRoute.Routes.FirstOrDefault();
-            if (newRoute == null)
-            {
-                _routeOverlay.Graphics.Clear();
-            }
-            else
-            {
-                // create a picture marker symbol for start pin
-                var uiImageStartPin = UIImage.FromBundle("StartCircle");
-                var startPin = await uiImageStartPin.ToRuntimeImageAsync();
-                var startMarker = new PictureMarkerSymbol(startPin);
-
-                // create a picture marker symbol for end pin
-                var uiImageEndPin = UIImage.FromBundle("EndCircle");
-                var endPin = await uiImageEndPin.ToRuntimeImageAsync();
-                var endMarker = new PictureMarkerSymbol(endPin);
-
-                // Create point graphics
-                var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
-                var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
-
-                // create a graphic to represent the routee
-                var routeSymbol = new SimpleLineSymbol();
-                routeSymbol.Width = 5;
-                routeSymbol.Style = SimpleLineSymbolStyle.Solid;
-                routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
-
-                var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
-
-                // Add graphics to overlay
-                _routeOverlay.Graphics.Clear();
-                _routeOverlay.Graphics.Add(routeGraphic);
-                _routeOverlay.Graphics.Add(startGraphic);
-                _routeOverlay.Graphics.Add(endGraphic);
-
-                // Hide the pins graphics overlay
-                _homeOverlay.IsVisible = false;
-                _identifiedFeatureOverlay.IsVisible = false;
-
-                ViewModel.CurrentViewpoint = new Viewpoint(newRoute.RouteGeometry); // TODO - create margin around route
-
-                try
-                {
-                    await this._mapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
-                }
-                catch
-                {
-                    // If panning to the new route fails, just move on
-                }
-            }
-        }
-
         /// <summary>
         /// Fires when properties change in the MapViewModel
         /// </summary>
@@ -383,42 +317,54 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     }
 
                     break;
-                case nameof(ViewModel.CurrentViewpoint):
-                    if (this.ViewModel.CurrentViewpoint != null)
-                    {
-                        await this._mapView.SetViewpointAsync(this.ViewModel.CurrentViewpoint);
-                    }
-
-                    break;
                 case nameof(ViewModel.HomeLocation):
-                    // create a picture marker symbol
-                    var uiImagePin = UIImage.FromBundle("HomePin");
-                    var mapPin = await uiImagePin.ToRuntimeImageAsync();
-                    var roomMarker = new PictureMarkerSymbol(mapPin);
-                    roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
-
-                    // Create graphic
-                    var mapPinGraphic = new Graphic(ViewModel.HomeLocation, roomMarker);
-
-                    // Add pin to map
-                    var graphicsOverlay = this._mapView.GraphicsOverlays["PinsGraphicsOverlay"];
-                    graphicsOverlay.Graphics.Clear();
-                    graphicsOverlay.Graphics.Add(mapPinGraphic);
-                    graphicsOverlay.IsVisible = true;
+                    _homeOverlay.Graphics.Clear();
+                    _homeOverlay.Graphics.Add(new Graphic(ViewModel.HomeLocation));
                     break;
                 case nameof(ViewModel.CurrentState):
                     UpdateUIForNewState();
                     break;
                 case nameof(ViewModel.CurrentlyIdentifiedRoom):
+                    _identifiedFeatureOverlay.Graphics.Clear();
                     if (ViewModel.CurrentlyIdentifiedRoom != null)
                     {
-                        _identifiedFeatureOverlay.Graphics.Clear();
+                        Geometry identifiedGeometry = ViewModel.CurrentlyIdentifiedRoom.FeatureLocation;
+                        MapPoint identifiedCenterPoint;
 
-                        _identifiedFeatureOverlay.Graphics.Add(new Graphic(ViewModel.CurrentlyIdentifiedRoom.FeatureLocation));
+                        if (identifiedGeometry is MapPoint mp)
+                        {
+                            identifiedCenterPoint = mp;
+                        }
+                        else
+                        {
+                            identifiedCenterPoint = identifiedGeometry.Extent.GetCenter();
+                        }
+
+                        if (identifiedGeometry != ViewModel.HomeLocation)
+                        {
+                            _identifiedFeatureOverlay.Graphics.Add(new Graphic(identifiedCenterPoint));
+                        }
+
+                        if (identifiedGeometry is MapPoint)
+                        {
+                            await _mapView.SetViewpointCenterAsync(identifiedCenterPoint, 150);
+                        }
+                        else
+                        {
+                            await _mapView.SetViewpointGeometryAsync(identifiedGeometry, 30);
+                        }
                     }
-                    else
+                    break;
+                case nameof(ViewModel.CurrentRoute):
+                    _routeOverlay.Graphics.Clear();
+
+                    var route = ViewModel.CurrentRoute?.Routes?.FirstOrDefault();
+                    if (route != null)
                     {
-                        _identifiedFeatureOverlay.Graphics.Clear();
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
+                        await this._mapView.SetViewpointGeometryAsync(route.RouteGeometry, 30);
                     }
                     break;
             }
@@ -429,21 +375,43 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Configure identify overlay
             _identifiedFeatureOverlay = new GraphicsOverlay();
 
-            var mapPin = await UIImage.FromBundle("MapPin").ToRuntimeImageAsync();
+            var pinImage = UIImage.FromBundle("MapPin");
+            var mapPin = await pinImage.ToRuntimeImageAsync();
             var roomMarker = new PictureMarkerSymbol(mapPin);
-            roomMarker.OffsetY = mapPin.Height * 0.65;
+            roomMarker.OffsetY = pinImage.Size.Height * 0.65;
 
             _identifiedFeatureOverlay.Renderer = new SimpleRenderer(roomMarker);
 
             // Configure home location overlay
             _homeOverlay = new GraphicsOverlay();
-            var homePin = await UIImage.FromBundle("HomePin").ToRuntimeImageAsync();
+            var homeImage = UIImage.FromBundle("HomePin");
+            var homePin = await homeImage.ToRuntimeImageAsync();
             var homeMarker = new PictureMarkerSymbol(homePin);
-            homeMarker.OffsetY = homePin.Height * 0.65;
+            homeMarker.OffsetY = homeImage.Size.Height * 0.65;
 
             _homeOverlay.Renderer = new SimpleRenderer(homeMarker);
 
             // configure route overlay
+            _routeOverlay = new GraphicsOverlay();
+
+            var routeSymbol = new SimpleLineSymbol
+            {
+                Width = 5,
+                Style = SimpleLineSymbolStyle.Solid,
+                Color = System.Drawing.Color.FromArgb(127, 18, 121, 193)
+            };
+
+            // line symbol renderer will be used for every graphic without its own symbol
+            _routeOverlay.Renderer = new SimpleRenderer(routeSymbol);
+
+            _routeStartSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("StartCircle").ToRuntimeImageAsync());
+
+            _routeEndSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("EndCircle").ToRuntimeImageAsync());
+
+            // Add graphics overlays to the map
+            _mapView.GraphicsOverlays.Add(_identifiedFeatureOverlay);
+            _mapView.GraphicsOverlays.Add(_homeOverlay);
+            _mapView.GraphicsOverlays.Add(_routeOverlay);
         }
 
         /// <summary>
@@ -451,10 +419,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Eevent args.</param>
-        private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e)
-        {
-            this._isViewDoubleTapped = true;
-        }
+        private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e) => this._isViewDoubleTapped = true;
 
         /// <summary>
         /// When view is tapped, clear the map of selection, close keyboard and bottom sheet
@@ -530,8 +495,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="sender">Sender control.</param>
         private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e)
         {
-            this._mapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
-            this._mapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
+            this._mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+            this._mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
             this._mapView.LocationDisplay.IsEnabled = true;
 
             this.ViewModel.CurrentViewpoint = new Viewpoint(_mapView.LocationDisplay.Location.Position, 150);
@@ -542,7 +507,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender control.</param>
         /// <param name="e">Event args.</param>
-        private void MapView_LocationChanged(object sender, Location e) => ViewModel.CurrentUserLocation = e.Position;
+        private void MapView_LocationChanged(object sender, Location e)  {}//ViewModel.CurrentUserLocation = e.Position;
 
         /// <summary>
         /// Gets the index of the table view row.
@@ -756,7 +721,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             });
         }
 
-        public override void LoadView()
+        public override async void LoadView()
         {
             base.LoadView();
             this.ViewModel = new MapViewModel();
@@ -764,6 +729,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             this.View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
 
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
+
+            await ConfigureGraphicsOverlays();
 
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };

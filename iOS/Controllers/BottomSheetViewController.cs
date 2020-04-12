@@ -32,6 +32,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public NSLayoutYAxisAnchor PanelTopAnchor { get; set; }
 
+        public bool AllowsMinimumHeight { get; set; } = false;
+
         public BottomSheetViewController(UIView container)
         {
             _containerView = container; // TODO - is there a better way?
@@ -150,10 +152,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     AnimateSwitchState(recognizer);
                 }
 
-                if (_heightConstraint.Constant == minHeight)
+                if (_heightConstraint.Constant == minHeight && AllowsMinimumHeight)
                 {
                     _currentState = BottomSheetState.minimized;
-                } else if (_heightConstraint.Constant == MaxHeightConstraint)
+                }
+                else if (_heightConstraint.Constant == MaxHeightConstraint)
                 {
                     _currentState = BottomSheetState.full;
                 }

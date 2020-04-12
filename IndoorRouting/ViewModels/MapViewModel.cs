@@ -31,7 +31,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
-    using Esri.ArcGISRuntime.UI.Controls;
 
     /// <summary>
     /// Map view model handles all business logic to do with the map navigation and layers
@@ -249,29 +248,34 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
         private void UpdateHomeLocation()
         {
-            this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
-
-            double x = 0, y = 0, wkid = 0;
-
-            for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
+            if (string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
-                switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
-                {
-                    case "X":
-                        x = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    case "Y":
-                        y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    case "WKID":
-                        wkid = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
-                        break;
-                    default:
-                        break;
-                }
+                HomeLocation = null;
             }
+            else
+            {
+                double x = 0, y = 0, wkid = 0;
 
-            HomeLocation = new MapPoint(x, y, new SpatialReference((int)wkid));
+                for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
+                {
+                    switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
+                    {
+                        case "X":
+                            x = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "Y":
+                            y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "WKID":
+                            wkid = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                HomeLocation = new MapPoint(x, y, new SpatialReference((int)wkid));
+            }
         }
 
         /// <summary>
@@ -280,14 +284,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <returns>The viewpoint with coordinates for the home location.</returns>
         public void MoveToHomeLocation()
         {
-            UpdateHomeLocation();// TODO do this automatically when the home is set in settings instead
+            UpdateHomeLocation();
 
             try
             {
                 if (HomeLocation != null)
                 {
-                    CurrentViewpoint = new Viewpoint(HomeLocation, 150);
+                    this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
                     CurrentlyIdentifiedRoom = new IdentifiedRoom { IsHome = true, FeatureLocation = HomeLocation, RoomNumber = AppSettings.CurrentSettings.HomeLocation };
+
+                    CurrentRoute = null;
+
+                    CurrentState = UIState.LocationFound;
                 }
             }
             catch
@@ -804,7 +812,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
         public void CloseLocationInfo() => CurrentState = UIState.ReadyWaiting;
 
-        public void CloseRouteResult() => CurrentState = UIState.PlanningRoute;
+        public void CloseRouteResult()
+        {
+            CurrentRoute = null;
+            CurrentState = UIState.PlanningRoute;
+        }
 
         public void ReturnToWaitingState() => CurrentState = UIState.ReadyWaiting;
 
@@ -828,7 +840,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             OriginSearchText = null;
             DestinationSearchText = null;
 
-            CurrentState = UIState.DestinationFound;
+            CurrentState = UIState.LocationFound;
         }
 
         public void StartEditingInLocationSearch()
@@ -853,13 +865,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        public void CommitSearch(string text)
+        public async Task CommitSearch(string text)
         {
             switch (CurrentState)
             {
                 case UIState.SearchingForFeature:
                     FeatureSearchText = text;
                     CurrentState = UIState.FeatureSearchEntered;
+                    await SearchFeatureAsync(FeatureSearchText);
                     break;
                 case UIState.SearchingForOrigin:
                     OriginSearchText = text;
@@ -892,34 +905,38 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             if (searchText == "Current Location")
             {
                 CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructCurrentLocation();
+                CurrentState = UIState.LocationFound;
+                // TODO - set floor based on user position?
+                SelectedFloorLevel = null;
+                return;
             }
-            var geocodeResult = await GetSearchedLocationAsync(searchText);
-            SelectedFloorLevel = await GetFloorLevelFromQueryAsync(searchText);
-
-            if (geocodeResult != null)
+            else
             {
+                var geocodeResult = await GetSearchedLocationAsync(searchText);
+                SelectedFloorLevel = await GetFloorLevelFromQueryAsync(searchText);
 
-                CurrentViewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
-
-                // Get the feature to populate the Contact Card
-                Feature roomFeature = await GetRoomFeatureAsync(searchText);
-
-                IdentifiedRoom room = IdentifiedRoom.ConstructFromFeature(roomFeature);
-
-                CurrentlyIdentifiedRoom = room;
-
-                if (roomFeature != null)
+                if (geocodeResult != null)
                 {
-                    CurrentState = UIState.LocationFound;
+                    // Get the feature to populate the Contact Card
+                    Feature roomFeature = await GetRoomFeatureAsync(searchText);
+
+                    IdentifiedRoom room = IdentifiedRoom.ConstructFromFeature(roomFeature);
+
+                    CurrentlyIdentifiedRoom = room;
+
+                    if (roomFeature != null)
+                    {
+                        CurrentState = UIState.LocationFound;
+                    }
+                    else
+                    {
+                        CurrentState = UIState.LocationNotFound;
+                    }
                 }
                 else
                 {
                     CurrentState = UIState.LocationNotFound;
                 }
-            }
-            else
-            {
-                CurrentState = UIState.LocationNotFound;
             }
         }
     }
