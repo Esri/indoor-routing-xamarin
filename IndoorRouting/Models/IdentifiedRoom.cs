@@ -13,17 +13,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 {
     public class IdentifiedRoom
     {
-        private IdentifiedRoom() { }
+        public Geometry.Geometry FeatureLocation { get; set; }
 
-        public Geometry.Geometry FeatureLocation { get; private set; }
+        public string RoomNumber { get; set; }
 
-        public string RoomNumber { get; private set; }
+        public string EmployeeNameLabel { get; set; }
 
-        public string EmployeeNameLabel { get; private set; }
+        public bool IsHome { get; set; } = false;
 
-        public bool IsHome { get; private set; } = false;
-
-        public bool IsCurrentLocation { get; private set; } = false;
+        public bool IsCurrentLocation { get; set; } = false;
 
         public static IdentifiedRoom ConstructFromIdentifyResult(IdentifyLayerResult rawResult)
         {
@@ -84,17 +82,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
                 };
             }
             return null;
-        }
-
-        public static async Task<IdentifiedRoom> ConstructHome()
-        {
-            // Get the feature to populate the Contact Card
-            var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(AppSettings.CurrentSettings.HomeLocation);
-
-            IdentifiedRoom room = ConstructFromFeature(roomFeature);
-            room.IsHome = true;
-
-            return room;
         }
 
         public static IdentifiedRoom ConstructCurrentLocation()

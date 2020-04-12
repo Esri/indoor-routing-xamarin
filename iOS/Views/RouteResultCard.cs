@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
 using UIKit;
 
@@ -12,14 +11,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class RouteResultCard : UIView
     {
+        private MapViewModel _viewModel;
+
         private SelfSizedTableView _stopsTable;
         private UIImageView _travelModeImageView;
         private UILabel _routeDurationLabel;
         private UIButton _closeButton;
         private UILabel _headerLabel;
 
-        public RouteResultCard()
+        internal RouteResultCard(MapViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             _stopsTable = new SelfSizedTableView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -74,17 +77,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             _closeButton.TouchUpInside += Close_Clicked;
 
-            AppStateViewModel.Instance.PropertyChanged += AppState_PropertyChanged;
+            _viewModel.PropertyChanged += AppState_PropertyChanged;
         }
 
         private void AppState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(AppStateViewModel.CurrentRoute))
+            if (e.PropertyName != nameof(_viewModel.CurrentRoute))
             {
                 return;
             }
 
-            RouteResult routeResult = AppStateViewModel.Instance.CurrentRoute;
+            RouteResult routeResult = _viewModel.CurrentRoute;
 
             if (routeResult == null)
             {
@@ -107,7 +110,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 walkTimeStringBuilder.Append(string.Format("{0} min", firstReoute.TotalTime.Minutes + 1));
             }
 
-            var tableSource = new List<Feature>() { AppStateViewModel.Instance.FromLocationFeature, AppStateViewModel.Instance.ToLocationFeature };
+            var tableSource = new List<Feature>() { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
 
             _stopsTable.Source = new RouteTableSource(tableSource);
             _stopsTable.ReloadData(); // TODO - is this necessary?
@@ -115,6 +118,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _routeDurationLabel.Text = walkTimeStringBuilder.ToString();
         }
 
-        private void Close_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
+        private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseRouteResult();
     }
 }

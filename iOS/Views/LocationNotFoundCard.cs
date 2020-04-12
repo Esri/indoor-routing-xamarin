@@ -1,17 +1,20 @@
 ﻿using System;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class LocationNotFoundCard : UIView
     {
+        private MapViewModel _viewModel;
+
         private UILabel _headerLabel;
         private UITextView _errorTextView;
         private CloseButton _dismissButton;
 
-        public LocationNotFoundCard()
+        internal LocationNotFoundCard(MapViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             _headerLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -51,16 +54,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _dismissButton.TouchUpInside += Dismiss_Clicked;
         }
 
-        private void Dismiss_Clicked(object sender, EventArgs e)
-        {
-            if (AppStateViewModel.Instance.CurrentState == AppStateViewModel.UIState.LocationNotFound)
-            {
-                AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
-            }
-            else
-            {
-                AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
-            }
-        }
+        private void Dismiss_Clicked(object sender, EventArgs e) => _viewModel.DismissLocationNotFound();
     }
 }

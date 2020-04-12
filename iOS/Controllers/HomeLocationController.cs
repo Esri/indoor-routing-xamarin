@@ -28,6 +28,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// </summary>
     internal partial class HomeLocationController : UIViewController
     {
+        private MapViewModel _viewModel;
 
         UITableView AutosuggestionsTableView { get; set; }
         UISearchBar HomeLocationSearchBar { get; set; }
@@ -98,7 +99,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        
+        public HomeLocationController(MapViewModel viewModel) : base()
+        {
+            _viewModel = viewModel;
+        }
 
         public override void LoadView()
         {
@@ -190,7 +194,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>Async task</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.HomeLocationSearchBar.Text);
+            var suggestions = await _viewModel.GetLocationSuggestionsAsync(this.HomeLocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
                 this.AutosuggestionsTableView.Hidden = true;
@@ -231,8 +235,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private async Task SetHomeLocationAsync(string locationText)
         {
             AppSettings.CurrentSettings.HomeLocation = locationText;
-            this.HomeLocation = await LocationViewModel.Instance.GetSearchedLocationAsync(locationText);
-            this.FloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(locationText);
+            this.HomeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
+            this.FloorLevel = await _viewModel.GetFloorLevelFromQueryAsync(locationText);
 
             Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
 

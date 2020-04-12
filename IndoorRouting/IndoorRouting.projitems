@@ -11,12 +11,9 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Structures\CoordinatesKeyValuePair.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\LocationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DownloadViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FloorSelectorViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\LabelsViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\AppStateViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\IdentifiedRoom.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -249,7 +249,6 @@
     <Compile Include="Controllers\BottomSheetViewController.cs" />
     <Compile Include="Views\ShadowContainerView.cs" />
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
-    <Compile Include="Controllers\MapViewController.Views.cs" />
     <Compile Include="Views\ViewExtensions.cs" />
     <Compile Include="Helpers\DismissableNavigationController.cs" />
     <Compile Include="Views\IntrinsicContentSizedStackView.cs" />

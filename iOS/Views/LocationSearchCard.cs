@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
-using Esri.ArcGISRuntime.Tasks.Geocoding;
 using UIKit;
+using static Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.MapViewModel;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class LocationSearchCard : UIView
     {
+        private MapViewModel _viewModel;
+
         private SelfSizedTableView _autoSuggestionsTableView;
         private AutosuggestionsTableSource _suggestionSource;
         private UISearchBar _searchBar;
@@ -19,8 +20,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         private const float searchBarMarginAdjustment = 4;
 
-        public LocationSearchCard()
+        internal LocationSearchCard(MapViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             _suggestionSource = new AutosuggestionsTableSource(null, true);
             _autoSuggestionsTableView = new SelfSizedTableView
             {
@@ -75,36 +78,43 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             _suggestionSource.TableRowSelected += suggestion_Selected;
 
-            AppStateViewModel.Instance.DidTransitionToState += AppState_Transitioned;
+            _viewModel.PropertyChanged += viewModel_PropertyChanged;
         }
 
-        private async void AppState_Transitioned(object sender, AppStateViewModel.UIState e)
+        private async void viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            switch (e)
+            if (e.PropertyName != nameof(_viewModel.CurrentState))
             {
-                case AppStateViewModel.UIState.ReadyWaiting:
+                return;
+            }
+
+            switch (_viewModel.CurrentState)
+            {
+                case UIState.ReadyWaiting:
+                case UIState.PlanningRoute:
                     _headerLabel.Hidden = true;
                     _searchBar.ShowsCancelButton = false;
                     _autoSuggestionsTableView.Hidden = true;
                     _searchBar.Text = string.Empty;
+                    _searchBar.ResignFirstResponder();
                     return;
-                case AppStateViewModel.UIState.SearchingForDestination:
+                case UIState.SearchingForDestination:
                     _headerLabel.Text = "Select Destination";
                     _headerLabel.Hidden = false;
-                    _searchBar.Text = AppStateViewModel.Instance.DestinationSearchText;
+                    _searchBar.Text = _viewModel.DestinationSearchText;
                     _searchBar.BecomeFirstResponder();
                     await UpdateTableView();
                     return;
-                case AppStateViewModel.UIState.SearchingForFeature:
+                case UIState.SearchingForFeature:
                     _headerLabel.Hidden = true;
                     _searchBar.ShowsCancelButton = true;
-                    _searchBar.Text = AppStateViewModel.Instance.FeatureSearchText;
+                    _searchBar.Text = _viewModel.FeatureSearchText;
                     await UpdateTableView();
                     return;
-                case AppStateViewModel.UIState.SearchingForOrigin:
+                case UIState.SearchingForOrigin:
                     _headerLabel.Text = "Select Origin";
                     _headerLabel.Hidden = false;
-                    _searchBar.Text = AppStateViewModel.Instance.OriginSearchText;
+                    _searchBar.Text = _viewModel.OriginSearchText;
                     _searchBar.BecomeFirstResponder();
                     await UpdateTableView();
                     return;
@@ -114,63 +124,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private void suggestion_Selected(object sender, TableRowSelectedEventArgs<string> e)
         {
             _searchBar.Text = e.SelectedItem;
-            CommitSearch(_searchBar.Text);
-        }
-
-        private void CommitSearch(string text)
-        {
-            switch (AppStateViewModel.Instance.CurrentState)
-            {
-                case AppStateViewModel.UIState.SearchingForFeature:
-                    AppStateViewModel.Instance.FeatureSearchText = text;
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.FeatureSearchEntered);
-                    break;
-                case AppStateViewModel.UIState.SearchingForOrigin:
-                    AppStateViewModel.Instance.OriginSearchText = text;
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
-                    break;
-                case AppStateViewModel.UIState.SearchingForDestination:
-                    AppStateViewModel.Instance.DestinationSearchText = text;
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
-                    break;
-            }
+            _viewModel.CommitSearch(_searchBar.Text);
             // has to be done after, otherwise editing will be canceled
             _searchBar.ResignFirstResponder();
         }
 
         private void search_CancelClicked(object sender, EventArgs e) => CancelEditing();
 
-        private async void search_editingStarted(object sender, EventArgs e)
-        {
-            if (AppStateViewModel.Instance.CurrentState == AppStateViewModel.UIState.ReadyWaiting)
-            {
-                AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchingForFeature);
-            }
+        private void search_editingStarted(object sender, EventArgs e) => _viewModel.StartEditingInLocationSearch();
 
-            await UpdateTableView();
-        }
-
-        private void CancelEditing()
-        {
-            _autoSuggestionsTableView.Hidden = true;
-            switch (AppStateViewModel.Instance.CurrentState)
-            {
-                case AppStateViewModel.UIState.SearchingForDestination:
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
-                    break;
-                case AppStateViewModel.UIState.SearchingForOrigin:
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.PlanningRoute);
-                    break;
-                case AppStateViewModel.UIState.SearchingForFeature:
-                    AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
-                    break;
-            }
-            _searchBar.ResignFirstResponder();
-        }
+        private void CancelEditing() => _viewModel.StopEditingInLocationSearch();
 
         private async Task UpdateTableView()
         {
-            var results = await LocationViewModel.Instance.GetLocationSuggestionsAsync(_searchBar.Text);
+            var results = await _viewModel.GetLocationSuggestionsAsync(_searchBar.Text);
             _suggestionSource.UpdateSuggestions(results);
             _autoSuggestionsTableView.ReloadData();
             _autoSuggestionsTableView.Hidden = false;
@@ -178,7 +145,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         private void search_EditingStopped(object sender, EventArgs e) => CancelEditing();
 
-        private void search_buttonClicked(object sender, EventArgs e) => CommitSearch(_searchBar.Text);
+        private void search_buttonClicked(object sender, EventArgs e) => _viewModel.CommitSearch(_searchBar.Text);
 
         private async void search_textChanged(object sender, UISearchBarTextChangedEventArgs e)
         {

@@ -21,7 +21,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.IO;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Foundation;
     using UIKit;
 
@@ -86,7 +85,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         internal void LoadMapView()
         {
-            AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.ReadyWaiting);
             var navController = new UINavigationController();
             navController.PushViewController(new MapViewController(), false);
 

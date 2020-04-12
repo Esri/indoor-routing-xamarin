@@ -19,7 +19,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Foundation;
     using UIKit;
 
@@ -50,9 +49,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // create a new window instance based on the screen size
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             Window.RootViewController = new DownloadController();
-
-            // Initialize application state machine
-            AppStateViewModel.Initialize(AppStateViewModel.UIState.Downloading);
 
             // make the window visible
             Window.MakeKeyAndVisible();

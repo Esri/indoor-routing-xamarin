@@ -1,19 +1,21 @@
 ﻿using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class LocationInfoCard : UIView
     {
+        private MapViewModel _viewModel;
         private UIButton _startDirectionsButton;
         private CloseButton _closeButton;
         private UILabel _primaryLabel;
         private UILabel _secondaryLabel;
 
-        public LocationInfoCard()
+        internal LocationInfoCard(MapViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             _startDirectionsButton = new UIButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
@@ -80,22 +82,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _startDirectionsButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
 
             // Wait for app state changes (particularly identify feature results)
-            AppStateViewModel.Instance.PropertyChanged += ViewModel_Changed;
+            _viewModel.PropertyChanged += ViewModel_Changed;
         }
 
         private void ViewModel_Changed(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(AppStateViewModel.Instance.CurrentlyIdentifiedRoom))
+            if (e.PropertyName != nameof(_viewModel.CurrentlyIdentifiedRoom))
             {
                 return;
             }
 
-            _primaryLabel.Text = AppStateViewModel.Instance.CurrentlyIdentifiedRoom?.RoomNumber ?? string.Empty;
-            _secondaryLabel.Text = AppStateViewModel.Instance.CurrentlyIdentifiedRoom?.EmployeeNameLabel ?? string.Empty;
+            _primaryLabel.Text = _viewModel.CurrentlyIdentifiedRoom?.RoomNumber ?? string.Empty;
+            _secondaryLabel.Text = _viewModel.CurrentlyIdentifiedRoom?.EmployeeNameLabel ?? string.Empty;
         }
 
-        private void SearchDirections_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.StartSearchFromFoundFeature();
+        private void SearchDirections_Clicked(object sender, EventArgs e) => _viewModel.StartSearchFromFoundFeature();
 
-        private void Close_Clicked(object sender, EventArgs e) => AppStateViewModel.Instance.CloseLocationInfo();
+        private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseLocationInfo();
     }
 }

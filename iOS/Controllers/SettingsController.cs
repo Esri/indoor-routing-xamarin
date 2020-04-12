@@ -30,13 +30,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     
     internal class SettingsController : UITableViewController
     {
+        private MapViewModel _viewModel;
+
         UITableView _SettingsTableView;
         UIBarButtonItem _closeButton;
         SettingsTableSource _tableSource;
 
-        public SettingsController()
+        public SettingsController(MapViewModel viewModel) : base()
         {
             Title = "Settings";
+            _viewModel = viewModel;
         }
 
         public override void LoadView()
@@ -88,7 +91,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             if (e.Row == 0)
             {
-                NavigationController.PushViewController(new HomeLocationController(), true);
+                NavigationController.PushViewController(new HomeLocationController(_viewModel), true);
             }
 
             _SettingsTableView.DeselectRow(e, true);
@@ -112,6 +115,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     {
         private UISwitch _locationSwitch;
         private UISwitch _routingSwitch;
+        private UISwitch _useOnlineBasemapSwitch;
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
@@ -150,11 +154,31 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     }
                     routingCell.AccessoryView = _routingSwitch;
 
-                    _routingSwitch.Enabled = LocationViewModel.Instance.Map.TransportationNetworks.Any();
-                        _routingSwitch.On = AppSettings.CurrentSettings.IsRoutingEnabled;
+                    //_routingSwitch.Enabled = MapViewModel.Instance.Map.TransportationNetworks.Any();
+                    _routingSwitch.On = AppSettings.CurrentSettings.IsRoutingEnabled;
                     return routingCell;
+                case 3:
+                    var useOnlineBasemapCell = tableView.DequeueReusableCell("OnlineBasemapCell") ?? new UITableViewCell(UITableViewCellStyle.Default, "UseOnlineBasemapCell");
+                    useOnlineBasemapCell.TextLabel.Text = "UseOnlineBasemapSettingLabel".AsLocalized();
+                    useOnlineBasemapCell.BackgroundColor = tableView.BackgroundColor;
+
+                    if (_useOnlineBasemapSwitch == null)
+                    {
+                        _useOnlineBasemapSwitch = new UISwitch();
+                        _useOnlineBasemapSwitch.ValueChanged += _useOnlineBasemapSwitch_ValueChanged;
+                    }
+                    useOnlineBasemapCell.AccessoryView = _useOnlineBasemapSwitch;
+
+                    _useOnlineBasemapSwitch.On = AppSettings.CurrentSettings.UseOnlineBasemap;
+                    return useOnlineBasemapCell;
             }
             throw new ArgumentOutOfRangeException(nameof(indexPath));
+        }
+
+        private void _useOnlineBasemapSwitch_ValueChanged(object sender, EventArgs e)
+        {
+            AppSettings.CurrentSettings.UseOnlineBasemap = ((UISwitch)sender).On;
+            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
         }
 
         private void _routingSwitch_ValueChanged(object sender, EventArgs e)
@@ -171,7 +195,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return 3;
+            return 4;
         }
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)

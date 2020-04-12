@@ -1,13 +1,14 @@
 ﻿using System;
 using UIKit;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using Foundation;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
     public class RoutePlanningCard : UIView
     {
+        private MapViewModel _viewModel;
+
         private PseudoTextFieldButton _startTextPlaceholder;
         private PseudoTextFieldButton _endTextPlaceholder;
 
@@ -19,8 +20,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private UILabel _routeSearchHeader;
         private UIButton _swapOriginDestinationButton;
 
-        public RoutePlanningCard()
+        internal RoutePlanningCard(MapViewModel viewModel)
         {
+            _viewModel = viewModel;
+
             _startTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _endTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -94,33 +97,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _startTextPlaceholder.Tapped += originTapped;
             _endTextPlaceholder.Tapped += destinationTapped;
 
-            AppStateViewModel.Instance.PropertyChanged += AppState_PropertyChanged;
+            _viewModel.PropertyChanged += AppState_PropertyChanged;
         }
 
         private void AppState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(AppStateViewModel.OriginSearchText) || e.PropertyName == nameof(AppStateViewModel.DestinationSearchText))
+            if (e.PropertyName == nameof(_viewModel.OriginSearchText) || e.PropertyName == nameof(_viewModel.DestinationSearchText))
             {
-                _startTextPlaceholder.Text = AppStateViewModel.Instance.OriginSearchText;
-                _endTextPlaceholder.Text = AppStateViewModel.Instance.DestinationSearchText;
+                _startTextPlaceholder.Text = _viewModel.OriginSearchText;
+                _endTextPlaceholder.Text = _viewModel.DestinationSearchText;
             }
         }
 
-        private void originTapped(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchingForOrigin);
+        private void originTapped(object sender, EventArgs e) => _viewModel.SelectOriginSearch();
 
-        private void destinationTapped(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.SearchingForDestination);
+        private void destinationTapped(object sender, EventArgs e) => _viewModel.SelectDestinationSearch();
 
-        private void _searchRouteButton_TouchUpInside(object sender, EventArgs e) => AppStateViewModel.Instance.PerformRouteSearchAndUpdateState();
+        private void _searchRouteButton_TouchUpInside(object sender, EventArgs e) => _viewModel.PerformRouteSearch();
 
-        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e) => AppStateViewModel.Instance.TransitionToState(AppStateViewModel.UIState.LocationFound);
+        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e) => _viewModel.CancelRouteSearch();
 
-        private void _swapOriginDestinationButton_TouchUpInside(object sender, EventArgs e)
-        {
-            string oldOriginSearch = AppStateViewModel.Instance.OriginSearchText;
-            string oldDestinationSearch = AppStateViewModel.Instance.DestinationSearchText;
-
-            AppStateViewModel.Instance.DestinationSearchText = oldOriginSearch;
-            AppStateViewModel.Instance.OriginSearchText = oldDestinationSearch;
-        }
+        private void _swapOriginDestinationButton_TouchUpInside(object sender, EventArgs e) => _viewModel.SwapOriginDestinationSearch();
     }
 }
