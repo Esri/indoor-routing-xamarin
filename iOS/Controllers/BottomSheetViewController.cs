@@ -15,7 +15,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             full
         };
 
-        private BottomSheetState _currentState = BottomSheetState.minimized;
+        private BottomSheetState _currentState = BottomSheetState.partial;
 
         private UIPanGestureRecognizer _gesture;
         private UIView _containerView;
@@ -186,8 +186,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         private nfloat GetPartialHeight()
         {
-            nfloat baseHeight = 0;
-            if (DisplayedContentView.Subviews.First() is IntrinsicContentSizedStackView stackView)
+            nfloat baseHeight;
+            if (DisplayedContentView.Subviews.FirstOrDefault() is IntrinsicContentSizedStackView stackView)
             {
                 baseHeight = stackView.SystemLayoutSizeFittingSize(new CoreGraphics.CGSize(-1, -1)).Height;
             }
@@ -279,19 +279,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     }
                     break;
             }
-        }
-
-        private nfloat logConstraintForHeight(nfloat constant)
-        {
-            return constant;
-        }
-
-        private void AnimateSnapToLimit()
-        {
-            UIView.Animate(1, 0, UIViewAnimationOptions.CurveEaseIn, () =>
-            {
-                _heightConstraint.Constant = minHeight;
-            }, null);
         }
 
         public UIView DisplayedContentView { get;  } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };

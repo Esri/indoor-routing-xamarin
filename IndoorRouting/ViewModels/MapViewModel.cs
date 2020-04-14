@@ -35,13 +35,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     /// <summary>
     /// Map view model handles all business logic to do with the map navigation and layers
     /// </summary>
-    internal class MapViewModel : INotifyPropertyChanged
+    public class MapViewModel : INotifyPropertyChanged
     {
-        /// <summary>
-        /// The default home location text.
-        /// </summary>
-        public const string DefaultHomeLocationText = "Set home location";
-
         /// <summary>
         /// The default floor level.
         /// </summary>
@@ -60,7 +55,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// The selected floor level.
         /// </summary>
-        private string selectedFloorLevel;
+        private string _selectedFloorLevel;
 
         /// <summary>
         /// Event handler property changed. 
@@ -127,20 +122,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private MapPoint _homeLocation;
-        public MapPoint HomeLocation
-        {
-            get => _homeLocation;
-            set
-            {
-                if (value != _homeLocation)
-                {
-                    _homeLocation = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         /// <summary>
         /// Gets or sets the selected floor level.
         /// </summary>
@@ -149,16 +130,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             get
             {
-                return this.selectedFloorLevel;
+                return this._selectedFloorLevel;
             }
 
             set
             {
-                if (this.selectedFloorLevel != value && value != null)
+                if (this._selectedFloorLevel != value)
                 {
-                    this.SetFloorVisibility(true);
-                    this.selectedFloorLevel = value;
+                    _selectedFloorLevel = value;
+
+                    if (_selectedFloorLevel != null)
+                    {
+                        _selectedFloorLevel = value;
+                    }
+                    else
+                    {
+                        _selectedFloorLevel = DefaultFloorLevel;
+                    }
                     this.OnPropertyChanged(nameof(this.SelectedFloorLevel));
+                    this.SetFloorVisibility(true);
                 }
             }
         }
@@ -246,11 +236,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private void UpdateHomeLocation()
+        /// <summary>
+        /// Moves map to home location.
+        /// </summary>
+        /// <returns>The viewpoint with coordinates for the home location.</returns>
+        public void MoveToHomeLocation()
         {
             if (string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
-                HomeLocation = null;
+                return;
             }
             else
             {
@@ -274,33 +268,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     }
                 }
 
-                HomeLocation = new MapPoint(x, y, new SpatialReference((int)wkid));
-            }
-        }
+                var homeLocation = new MapPoint(x, y, new SpatialReference((int)wkid));
 
-        /// <summary>
-        /// Moves map to home location.
-        /// </summary>
-        /// <returns>The viewpoint with coordinates for the home location.</returns>
-        public void MoveToHomeLocation()
-        {
-            UpdateHomeLocation();
+                this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
+                CurrentlyIdentifiedRoom = new IdentifiedRoom { IsHome = true, Geometry = homeLocation, RoomNumber = AppSettings.CurrentSettings.HomeLocation };
 
-            try
-            {
-                if (HomeLocation != null)
-                {
-                    this.SelectedFloorLevel = AppSettings.CurrentSettings.HomeFloorLevel;
-                    CurrentlyIdentifiedRoom = new IdentifiedRoom { IsHome = true, FeatureLocation = HomeLocation, RoomNumber = AppSettings.CurrentSettings.HomeLocation };
+                CurrentRoute = null;
 
-                    CurrentRoute = null;
-
-                    CurrentState = UIState.LocationFound;
-                }
-            }
-            catch
-            {
-                // TODO - log error
+                CurrentState = UIState.LocationFound;
             }
         }
 
@@ -321,9 +296,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 var featureLayer = opLayer as FeatureLayer;
 
-                if (this.SelectedFloorLevel == string.Empty)
+                if (string.IsNullOrEmpty(SelectedFloorLevel))
                 {
-                    this.SelectedFloorLevel = DefaultFloorLevel;
+                    SelectedFloorLevel = DefaultFloorLevel;
                 }
 
                 // select chosen floor
@@ -758,7 +733,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                 {
                     ToLocationFeature = await GetRoomFeatureAsync(DestinationSearchText);
 
-                    var fromLocationPoint = CurrentUserLocation;
+                    var fromLocationPoint = CurrentUserLocation; // TODO - 
                     var toLocationPoint = ToLocationFeature.Geometry.Extent.GetCenter();
 
                     var route = await GetRequestedRouteAsync(fromLocationPoint, toLocationPoint);
@@ -810,7 +785,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             CurrentState = UIState.PlanningRoute;
         }
 
-        public void CloseLocationInfo() => CurrentState = UIState.ReadyWaiting;
+        public void CloseLocationInfo()
+        {
+            CurrentlyIdentifiedRoom = null;
+            FeatureSearchText = null;
+            CurrentState = UIState.ReadyWaiting;
+        }
 
         public void CloseRouteResult()
         {
@@ -833,7 +813,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             OriginSearchText = oldDestinationSearch;
         }
 
-        public void DismissLocationNotFound() => CurrentState = UIState.ReadyWaiting;
+        public void DismissNotFound()
+        {
+            if (CurrentState == UIState.LocationNotFound)
+            {
+                CurrentState = UIState.SearchingForFeature;
+            }
+            else if (CurrentState == UIState.RouteNotFound)
+            {
+                CurrentState = UIState.PlanningRoute;
+            }
+        }
 
         public void CancelRouteSearch()
         {
@@ -860,12 +850,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     CurrentState = UIState.PlanningRoute;
                     break;
                 case UIState.SearchingForFeature:
+                    FeatureSearchText = null;
                     CurrentState = UIState.ReadyWaiting;
                     break;
             }
         }
 
-        public async Task CommitSearch(string text)
+        public async Task CommitSearchAsync(string text)
         {
             switch (CurrentState)
             {
@@ -895,6 +886,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        public void MoveToCurrentLocation()
+        {
+            CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructCurrentLocation();
+            CurrentState = UIState.LocationFound;
+            // TODO - set floor based on user position?
+            SelectedFloorLevel = null;
+            return;
+        }
+
+        public void SelectFloor(string floor)
+        {
+            SelectedFloorLevel = floor;
+        }
+
         /// <summary>
         /// Zooms to geocode result of the searched feature
         /// </summary>
@@ -904,11 +909,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             if (searchText == "Current Location")
             {
-                CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructCurrentLocation();
-                CurrentState = UIState.LocationFound;
-                // TODO - set floor based on user position?
-                SelectedFloorLevel = null;
-                return;
+                MoveToCurrentLocation();
             }
             else
             {

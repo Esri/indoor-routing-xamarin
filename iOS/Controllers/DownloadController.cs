@@ -86,7 +86,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         internal void LoadMapView()
         {
             var navController = new UINavigationController();
-            navController.PushViewController(new MapViewController(), false);
+            navController.PushViewController(new MapViewController(new MapViewModel()), false);
 
             // KeyWindow only works if the application loaded fully. If key window is null, use the first available windowo
             try

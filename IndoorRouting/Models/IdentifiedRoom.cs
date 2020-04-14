@@ -2,18 +2,35 @@
 // //     Copyright (c) Esri. All rights reserved.
 // // </copyright>
 // // <author>Mara Stoica</author>
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
-using Esri.ArcGISRuntime.Tasks.Geocoding;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 {
     public class IdentifiedRoom
     {
-        public Geometry.Geometry FeatureLocation { get; set; }
+        public Geometry.Geometry Geometry { get; set; }
+
+        public MapPoint CenterPoint
+        {
+            get
+            {
+                if (IsCurrentLocation)
+                {
+                    return null;
+                }
+                else if (Geometry is MapPoint mp)
+                {
+                    return mp;
+                }
+                else if (Geometry is Geometry.Geometry gm)
+                {
+                    return gm.Extent.GetCenter();
+                }
+                return null;
+            }
+        }
 
         public string RoomNumber { get; set; }
 
@@ -50,7 +67,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
                 return new IdentifiedRoom {
                     RoomNumber = roomNumber.ToString(),
                     EmployeeNameLabel = employeeNameLabel,
-                    FeatureLocation = inputGeoElement.Geometry };
+                    Geometry = inputGeoElement.Geometry };
             }
             else
             {
@@ -76,7 +93,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 
                 return new IdentifiedRoom
                 {
-                    FeatureLocation = feature.Geometry,
+                    Geometry = feature.Geometry,
                     RoomNumber = roomNumber?.ToString() ?? string.Empty,
                     EmployeeNameLabel = employeeNameLabel.ToString()
                 };

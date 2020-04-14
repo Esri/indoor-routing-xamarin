@@ -18,6 +18,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Foundation;
     using UIKit;
@@ -30,24 +31,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// The items in the table.
         /// </summary>
-        private readonly IEnumerable<string> items;
+        private ObservableCollection<string> items;
 
         /// <summary>
         /// The cell identifier.
         /// </summary>
-        private readonly string cellIdentifier;
+        private readonly string cellIdentifier = "floortablecell";
+
+        private MapViewModel _viewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal FloorsTableSource(IEnumerable<string> items)
+        internal FloorsTableSource(MapViewModel viewmodel)
         {
-            if (items != null)
-            {
-                this.items = items;
-                this.cellIdentifier = "cell_id";
-            }
+            _viewModel = viewmodel;
+
+            items = _viewModel.CurrentVisibleFloors;
         }
 
         /// <summary>
@@ -119,23 +120,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="indexPath">Index path.</param>
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            this.OnTableRowSelected(indexPath);
-        }
-
-        /// <summary>
-        /// Get the tableview item the user selected and call event handler
-        /// </summary>
-        /// <param name="itemIndexPath">Item index path.</param>
-        private void OnTableRowSelected(NSIndexPath itemIndexPath)
-        {
-            try
-            {
-                var item = this.items.ElementAt(itemIndexPath.Row);
-                this.TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(item, itemIndexPath));
-            }
-            catch 
-            { 
-            }
+            _viewModel.SelectFloor(items[indexPath.Row]);
         }
     }
 }

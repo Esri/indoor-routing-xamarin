@@ -27,9 +27,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _startDirectionsButton.SetTitleColor(UIColor.SystemGrayColor, UIControlState.Disabled);
             _startDirectionsButton.Layer.CornerRadius = 8;
 
-            // Handle searching for directions
-            _startDirectionsButton.TouchUpInside += SearchDirections_Clicked; ;
-
             _closeButton = new CloseButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
@@ -83,6 +80,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             // Wait for app state changes (particularly identify feature results)
             _viewModel.PropertyChanged += ViewModel_Changed;
+
+            // Handle searching for directions
+            _startDirectionsButton.TouchUpInside += SearchDirections_Clicked;
         }
 
         private void ViewModel_Changed(object sender, System.ComponentModel.PropertyChangedEventArgs e)

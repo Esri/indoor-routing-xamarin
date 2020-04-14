@@ -3,7 +3,7 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
-    public class LocationNotFoundCard : UIView
+    public class NotFoundCard : UIView
     {
         private MapViewModel _viewModel;
 
@@ -11,7 +11,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private UITextView _errorTextView;
         private CloseButton _dismissButton;
 
-        internal LocationNotFoundCard(MapViewModel viewModel)
+        internal NotFoundCard(MapViewModel viewModel)
         {
             _viewModel = viewModel;
 
@@ -20,7 +20,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Font = UIFont.BoldSystemFontOfSize(28),
                 TextColor = UIColor.LabelColor,
-                Text = "Location not found"
+                Text = "Not Found"
             };
 
             _errorTextView = new UITextView
@@ -52,8 +52,27 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             });
 
             _dismissButton.TouchUpInside += Dismiss_Clicked;
+
+            _viewModel.PropertyChanged += _viewModel_PropertyChanged;
         }
 
-        private void Dismiss_Clicked(object sender, EventArgs e) => _viewModel.DismissLocationNotFound();
+        private void _viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(_viewModel.CurrentState))
+            {
+                return;
+            }
+
+            if (_viewModel.CurrentState == MapViewModel.UIState.RouteNotFound)
+            {
+                _headerLabel.Text = "Route not found";
+            }
+            else if (_viewModel.CurrentState == MapViewModel.UIState.LocationNotFound)
+            {
+                _headerLabel.Text = "Location not found";
+            }
+        }
+
+        private void Dismiss_Clicked(object sender, EventArgs e) => _viewModel.DismissNotFound();
     }
 }

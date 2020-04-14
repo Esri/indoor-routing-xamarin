@@ -245,22 +245,24 @@
     <Compile Include="Models\FloorsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
-    <Compile Include="Helpers\SelfSizedTableView.cs" />
     <Compile Include="Controllers\BottomSheetViewController.cs" />
     <Compile Include="Views\ShadowContainerView.cs" />
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
-    <Compile Include="Views\ViewExtensions.cs" />
-    <Compile Include="Helpers\DismissableNavigationController.cs" />
     <Compile Include="Views\IntrinsicContentSizedStackView.cs" />
     <Compile Include="Views\CloseButton.cs" />
     <Compile Include="Controllers\AttributionViewController.cs" />
     <Compile Include="Helpers\LocalizationExtension.cs" />
-    <Compile Include="Views\LocationInfoCard.cs" />
-    <Compile Include="Views\RouteResultCard.cs" />
-    <Compile Include="Views\LocationSearchCard.cs" />
-    <Compile Include="Views\RoutePlanningCard.cs" />
-    <Compile Include="Views\LocationNotFoundCard.cs" />
     <Compile Include="Views\PseudoTextFieldButton.cs" />
+    <Compile Include="Controllers\DismissableNavigationController.cs" />
+    <Compile Include="Views\SelfSizedTableView.cs" />
+    <Compile Include="Helpers\ViewExtensions.cs" />
+    <Compile Include="Controllers\MapViewController.Views.cs" />
+    <Compile Include="Views\FloorsTableView.cs" />
+    <Compile Include="Views\MapViewCards\LocationSearchCard.cs" />
+    <Compile Include="Views\MapViewCards\LocationNotFoundCard.cs" />
+    <Compile Include="Views\MapViewCards\LocationInfoCard.cs" />
+    <Compile Include="Views\MapViewCards\RoutePlanningCard.cs" />
+    <Compile Include="Views\MapViewCards\RouteResultCard.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
@@ -280,6 +282,7 @@
     <Folder Include="Assets.xcassets\esri.imageset\" />
     <Folder Include="Resources\" />
     <Folder Include="Resources\base.lproj\" />
+    <Folder Include="Views\MapViewCards\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\base.lproj\Localizable.strings" />

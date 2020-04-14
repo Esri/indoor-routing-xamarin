@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using UIKit;
@@ -90,14 +89,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             switch (_viewModel.CurrentState)
             {
-                case UIState.ReadyWaiting:
-                case UIState.PlanningRoute:
-                    _headerLabel.Hidden = true;
-                    _searchBar.ShowsCancelButton = false;
-                    _autoSuggestionsTableView.Hidden = true;
-                    _searchBar.Text = string.Empty;
-                    _searchBar.ResignFirstResponder();
-                    return;
                 case UIState.SearchingForDestination:
                     _headerLabel.Text = "Select Destination";
                     _headerLabel.Hidden = false;
@@ -118,14 +109,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                     _searchBar.BecomeFirstResponder();
                     await UpdateTableView();
                     return;
+                default:
+                    _headerLabel.Hidden = true;
+                    _searchBar.ShowsCancelButton = false;
+                    _autoSuggestionsTableView.Hidden = true;
+                    _searchBar.Text = string.Empty;
+                    _searchBar.ResignFirstResponder();
+                    return;
+
             }
         }
 
-        private void suggestion_Selected(object sender, TableRowSelectedEventArgs<string> e)
+        private async void suggestion_Selected(object sender, TableRowSelectedEventArgs<string> e)
         {
             _searchBar.Text = e.SelectedItem;
             _viewModel.FeatureSearchText = string.Empty;
-            _viewModel.CommitSearch(_searchBar.Text);
+            await _viewModel.CommitSearchAsync(_searchBar.Text);
             // has to be done after, otherwise editing will be canceled
             _searchBar.ResignFirstResponder();
         }
@@ -151,7 +150,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         private void search_EditingStopped(object sender, EventArgs e) => CancelEditing();
 
-        private void search_buttonClicked(object sender, EventArgs e) => _viewModel.CommitSearch(_searchBar.Text);
+        private void search_buttonClicked(object sender, EventArgs e) => _viewModel.CommitSearchAsync(_searchBar.Text);
 
         private async void search_textChanged(object sender, UISearchBarTextChangedEventArgs e)
         {

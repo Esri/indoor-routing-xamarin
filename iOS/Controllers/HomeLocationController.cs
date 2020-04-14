@@ -234,9 +234,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>Async task</returns>
         private async Task SetHomeLocationAsync(string locationText)
         {
-            AppSettings.CurrentSettings.HomeLocation = locationText;
             this.HomeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
             this.FloorLevel = await _viewModel.GetFloorLevelFromQueryAsync(locationText);
+            AppSettings.CurrentSettings.HomeLocation = locationText;
 
             Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
 

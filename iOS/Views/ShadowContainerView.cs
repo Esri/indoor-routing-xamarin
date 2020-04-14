@@ -18,7 +18,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             Layer.ShadowColor = UIColor.Black.CGColor;
             Layer.ShadowRadius = 1;
-            Layer.CornerRadius = 8;
+            //Layer.CornerRadius = 8;
             Layer.ShadowOpacity = 0.5f;
             Layer.ShadowOffset = new CoreGraphics.CGSize(0, 0);
 
