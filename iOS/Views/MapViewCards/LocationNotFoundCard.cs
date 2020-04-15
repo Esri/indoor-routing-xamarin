@@ -1,4 +1,5 @@
 ﻿using System;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
@@ -63,11 +64,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 return;
             }
 
-            if (_viewModel.CurrentState == MapViewModel.UIState.RouteNotFound)
+            if (_viewModel.CurrentState == UIState.RouteNotFound)
             {
                 _headerLabel.Text = "Route not found";
             }
-            else if (_viewModel.CurrentState == MapViewModel.UIState.LocationNotFound)
+            else if (_viewModel.CurrentState == UIState.LocationNotFound)
             {
                 _headerLabel.Text = "Location not found";
             }

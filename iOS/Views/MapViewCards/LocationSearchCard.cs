@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using UIKit;
 using static Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.MapViewModel;
 
@@ -80,7 +81,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _viewModel.PropertyChanged += viewModel_PropertyChanged;
         }
 
-        private async void viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(_viewModel.CurrentState))
             {
@@ -94,20 +95,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.DestinationSearchText;
                     _searchBar.BecomeFirstResponder();
-                    await UpdateTableView();
+                    UpdateTableView();
                     return;
                 case UIState.SearchingForFeature:
                     _headerLabel.Hidden = true;
                     _searchBar.ShowsCancelButton = true;
                     _searchBar.Text = _viewModel.FeatureSearchText;
-                    await UpdateTableView();
+                    UpdateTableView();
                     return;
                 case UIState.SearchingForOrigin:
                     _headerLabel.Text = "Select Origin";
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.OriginSearchText;
                     _searchBar.BecomeFirstResponder();
-                    await UpdateTableView();
+                    UpdateTableView();
                     return;
                 default:
                     _headerLabel.Hidden = true;
@@ -124,7 +125,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             _searchBar.Text = e.SelectedItem;
             _viewModel.FeatureSearchText = string.Empty;
-            await _viewModel.CommitSearchAsync(_searchBar.Text);
+            try
+            {
+                await _viewModel.CommitSearchAsync(_searchBar.Text);
+            }
+            catch (Exception)
+            {
+                // TODO - log exception
+            }
             // has to be done after, otherwise editing will be canceled
             _searchBar.ResignFirstResponder();
         }
@@ -140,21 +148,28 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _viewModel.StopEditingInLocationSearch();
         }
 
-        private async Task UpdateTableView()
+        private async void UpdateTableView()
         {
-            var results = await _viewModel.GetLocationSuggestionsAsync(_searchBar.Text);
-            _suggestionSource.UpdateSuggestions(results);
-            _autoSuggestionsTableView.ReloadData();
-            _autoSuggestionsTableView.Hidden = false;
+            try
+            {
+                var results = await _viewModel.GetLocationSuggestionsAsync(_searchBar.Text);
+                _suggestionSource.UpdateSuggestions(results);
+                _autoSuggestionsTableView.ReloadData();
+                _autoSuggestionsTableView.Hidden = false;
+            }
+            catch (Exception)
+            {
+                // TODO - log exceptions
+            }
         }
 
         private void search_EditingStopped(object sender, EventArgs e) => CancelEditing();
 
         private void search_buttonClicked(object sender, EventArgs e) => _viewModel.CommitSearchAsync(_searchBar.Text);
 
-        private async void search_textChanged(object sender, UISearchBarTextChangedEventArgs e)
+        private void search_textChanged(object sender, UISearchBarTextChangedEventArgs e)
         {
-            await UpdateTableView();
+            UpdateTableView();
         }
     }
 }

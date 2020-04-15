@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DownloadViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FloorSelectorViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\IdentifiedRoom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewUIState.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Structures\" />

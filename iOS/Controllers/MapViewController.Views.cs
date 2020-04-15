@@ -28,6 +28,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Toolkit.UI.Controls;
     using Esri.ArcGISRuntime.UI;
@@ -113,7 +114,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             SetAttributionForCurrentState();
         }
 
-        public override async void LoadView()
+        public override void LoadView()
         {
             base.LoadView();
 
@@ -122,8 +123,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // Create the map view
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
-            await ConfigureMapView();
-
+            ConfigureMapView();
+            
             // Create and set up accessory buttons
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);

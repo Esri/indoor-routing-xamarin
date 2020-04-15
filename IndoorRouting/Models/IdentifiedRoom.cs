@@ -40,6 +40,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 
         public bool IsCurrentLocation { get; set; } = false;
 
+        public string Floor { get; set; }
+
+        private IdentifiedRoom() { }
+
         public static IdentifiedRoom ConstructFromIdentifyResult(IdentifyLayerResult rawResult)
         {
             GeoElement inputGeoElement = rawResult.GeoElements?.FirstOrDefault();
@@ -60,14 +64,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
                 {
 
                     string employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                    string employeeName = inputGeoElement.Attributes[employeeNameAttribute].ToString();
-                    employeeNameLabel = employeeName as string ?? string.Empty;
+                    employeeNameLabel = inputGeoElement.Attributes[employeeNameAttribute]?.ToString() ?? string.Empty;
                 }
 
                 return new IdentifiedRoom {
                     RoomNumber = roomNumber.ToString(),
                     EmployeeNameLabel = employeeNameLabel,
-                    Geometry = inputGeoElement.Geometry };
+                    Geometry = inputGeoElement.Geometry,
+                    Floor = inputGeoElement.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString()
+                };
             }
             else
             {
@@ -95,10 +100,51 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
                 {
                     Geometry = feature.Geometry,
                     RoomNumber = roomNumber?.ToString() ?? string.Empty,
-                    EmployeeNameLabel = employeeNameLabel.ToString()
+                    EmployeeNameLabel = employeeNameLabel.ToString(),
+                    Floor = feature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString()
                 };
             }
             return null;
+        }
+
+        public static IdentifiedRoom ConstructHome()
+        {
+            if (string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
+            {
+                return null;
+            }
+            else
+            {
+                double x = 0, y = 0, wkid = 0;
+
+                for (int i = 0; i < AppSettings.CurrentSettings.HomeCoordinates.Length; i++)
+                {
+                    switch (AppSettings.CurrentSettings.HomeCoordinates[i].Key)
+                    {
+                        case "X":
+                            x = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "Y":
+                            y = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        case "WKID":
+                            wkid = AppSettings.CurrentSettings.HomeCoordinates[i].Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                var homeLocation = new MapPoint(x, y, new SpatialReference((int)wkid));
+
+                return new IdentifiedRoom
+                {
+                    IsHome = true,
+                    Geometry = homeLocation,
+                    RoomNumber = AppSettings.CurrentSettings.HomeLocation,
+                    Floor = AppSettings.CurrentSettings.HomeFloorLevel
+                };
+            }
         }
 
         public static IdentifiedRoom ConstructCurrentLocation()

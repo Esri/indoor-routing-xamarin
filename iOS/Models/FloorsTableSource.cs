@@ -18,7 +18,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using Foundation;
     using UIKit;
@@ -28,11 +27,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     /// </summary>
     internal class FloorsTableSource : UITableViewSource
     {
-        /// <summary>
-        /// The items in the table.
-        /// </summary>
-        private ObservableCollection<string> items;
-
         /// <summary>
         /// The cell identifier.
         /// </summary>
@@ -44,17 +38,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal FloorsTableSource(MapViewModel viewmodel)
+        internal FloorsTableSource(MapViewModel viewmodel) : base()
         {
             _viewModel = viewmodel;
-
-            items = _viewModel.CurrentVisibleFloors;
         }
-
-        /// <summary>
-        /// Occurs when table row selected.
-        /// </summary>
-        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -66,7 +53,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                return this.items.Count();
+                return _viewModel?.CurrentVisibleFloors?.Count() ?? 0;
             }
             catch
             {
@@ -88,12 +75,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             if (cell == null)
             {
                 cell = new UITableViewCell(UITableViewCellStyle.Default, this.cellIdentifier);
-            }
-
-            try
-            {
-                var item = this.items.ElementAt(indexPath.Row);
-                cell.TextLabel.Text = item;
                 cell.BackgroundColor = UIColor.Clear;
                 cell.SelectedBackgroundView = new UIView();
                 cell.SelectedBackgroundView.BackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
@@ -104,12 +85,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 cell.SeparatorInset = UIEdgeInsets.Zero;
                 cell.LayoutMargins = UIEdgeInsets.Zero;
                 cell.PreservesSuperviewLayoutMargins = false;
+            }
+
+            try
+            {
+                cell.TextLabel.Text = _viewModel.CurrentVisibleFloors.ElementAt(indexPath.Row);
 
                 return cell;
             }
             catch
             {
-                return null;
+                throw new InvalidOperationException();
             }
         }
 
@@ -120,7 +106,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="indexPath">Index path.</param>
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            _viewModel.SelectFloor(items[indexPath.Row]);
+            _viewModel.SelectFloor(_viewModel?.CurrentVisibleFloors?.ElementAt(indexPath.Row));
         }
     }
 }
