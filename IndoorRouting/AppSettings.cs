@@ -270,7 +270,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         /// <value>The home floor level.</value>
         [XmlElement]
-        public string HomeFloorLevel // TODO - why isn't this part of home coordinates?
+        public string HomeFloorLevel
         {
             get => _homeFloorLevel;
             set

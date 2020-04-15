@@ -17,9 +17,12 @@
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Threading.Tasks;
+    using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using UIKit;
 
@@ -177,24 +180,34 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                var homeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
-                //var floorLevel = await _viewModel.GetFloorLevelFromQueryAsync(locationText);
-                // TODO - re-enable saving the floor level
-
-                AppSettings.CurrentSettings.HomeLocation = locationText;
-                AppSettings.CurrentSettings.HomeCoordinates = new CoordinatesKeyValuePair<string, double>[]
-                    {
+                GeocodeResult homeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
+                Feature homeFeature = await _viewModel.GetRoomFeatureAsync(locationText);
+                if (homeFeature != null)
+                {
+                    AppSettings.CurrentSettings.HomeCoordinates = new CoordinatesKeyValuePair<string, double>[]
+                        {
                     new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
                     new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
                     new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
-                    };
-                //AppSettings.CurrentSettings.HomeFloorLevel = floorLevel; // TODO - re-enable saving the floor level
+                        };
+                    AppSettings.CurrentSettings.HomeFloorLevel = homeFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
+                    AppSettings.CurrentSettings.HomeLocation = locationText;
+                    
+                }
+                else
+                {
+                    AppSettings.CurrentSettings.HomeCoordinates = null;
+                    AppSettings.CurrentSettings.HomeFloorLevel = null;
+                    AppSettings.CurrentSettings.HomeLocation = null;
+                }
 
                 _ = Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                _viewModel.UpdateHomeLocation();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // TODO - log error
+                Debug.WriteLine(ex);
             }
             
             NavigationController.PopViewController(true);

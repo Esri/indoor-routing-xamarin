@@ -11,7 +11,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private UITextView _textblock;
         private UIBarButtonItem _closeButton;
 
-        public AttributionViewController(MapView mapView) : base()
+        public AttributionViewController(MapView mapView)
         {
             _mapView = mapView;
         }
@@ -19,7 +19,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         public override void LoadView()
         {
             base.LoadView();
-
             View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
 
             _textblock = new UITextView { TranslatesAutoresizingMaskIntoConstraints = false };

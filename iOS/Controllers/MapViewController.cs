@@ -182,7 +182,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void _mapView_NavigationCompleted(object sender, EventArgs e) => _viewModel.CurrentViewpoint = _mapView.GetCurrentViewpoint(ViewpointType.CenterAndScale);
+        private void _mapView_NavigationCompleted(object sender, EventArgs e)
+        {
+            _viewModel.CurrentViewArea = _mapView.VisibleArea.Extent;
+            SetAttributionForCurrentState();
+        }
 
         /// <summary>
         /// When view is double tapped, set flag so the tapped event doesn't fire
@@ -258,13 +262,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
         {
-            // TODO - keep navigation and settings controllers around instead of re-creating each time
             DismissableNavigationController navController = new DismissableNavigationController(new SettingsController(_viewModel));
 
             navController.DidDismiss += (o, x) =>
             {
-                _homeButton.Enabled = !String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation);
-                _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
                 _accessoryView.ReloadData();
             };
 
@@ -281,14 +282,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private async void Attribution_Tapped(object sender, EventArgs e)
         {
-            if (_attributionController == null)
-            {
-                _attributionController = new AttributionViewController(_mapView);
-            }
-
             try
             {
-                await PresentViewControllerAsync(new UINavigationController(_attributionController), true);
+                await PresentViewControllerAsync(new UINavigationController(new AttributionViewController(_mapView)), true);
             }
             catch (Exception)
             {

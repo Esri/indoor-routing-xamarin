@@ -81,7 +81,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _tableSource.TableRowSelected += _tableSource_TableRowSelected;
 
             // reload any changed settings
-            // TODO - switch app settings to follow MVVM pattern, listen for updates
             _SettingsTableView.ReloadData();
 
             base.ViewWillAppear(animated);

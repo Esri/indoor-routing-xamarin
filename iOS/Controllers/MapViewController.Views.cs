@@ -78,8 +78,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private UIButton _attributionImageButton;
         private UIStackView _attributionStack;
         private UIView _shadowedAttribution;
-
-        private AttributionViewController _attributionController;
         #endregion view fields
 
         #region ios lifecycle methods
@@ -105,6 +103,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = false;
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+            SetAttributionForCurrentState();
         }
 
         public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
@@ -249,6 +254,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 BackgroundColor = UIColor.Clear
             };
 
+            _routeResultView.RelayoutRequested += _routeResultView_RelayoutRequested;
+
             _locationSearchCard = new LocationSearchCard(_viewModel)
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -381,16 +388,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     if (_homeButton != null)
                     {
                         _homeButton.Hidden = !settings.IsHomeSet;
+                        _accessoryView.ReloadData();
                     }
                     break;
                 case nameof(AppSettings.IsLocationServicesEnabled):
                     if (_locationButton != null)
                     {
                         _locationButton.Hidden = !settings.IsLocationServicesEnabled;
+                        _accessoryView.ReloadData();
                     }
-                    break;
-                case nameof(AppSettings.HomeLocation):
-                    _viewModel?.MoveToHomeLocation();
                     break;
                 case nameof(AppSettings.MapViewMinScale):
                     if (_mapView?.Map != null)
@@ -501,7 +507,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             // handle settings changes
             AppSettings.CurrentSettings.PropertyChanged += CurrentSettings_PropertyChanged;
+
+            if (_routeResultView != null)
+            {
+                _routeResultView.RelayoutRequested += _routeResultView_RelayoutRequested;
+            }
         }
+
+        private void _routeResultView_RelayoutRequested(object sender, EventArgs e) => _bottomSheet?.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
 
         private void UnsubscribeFromEvents()
         {
@@ -541,6 +554,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // set up events
             _viewModel.PropertyChanged -= ViewModelPropertyChanged;
             AppSettings.CurrentSettings.PropertyChanged -= CurrentSettings_PropertyChanged;
+
+            if (_routeResultView != null)
+            {
+                _routeResultView.RelayoutRequested -= _routeResultView_RelayoutRequested;
+            }
         }
         #endregion event subscription management
     }

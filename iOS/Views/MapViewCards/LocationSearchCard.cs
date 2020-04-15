@@ -18,8 +18,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         private UIStackView _containerStack;
 
-        private const float searchBarMarginAdjustment = 4;
-
         internal LocationSearchCard(MapViewModel viewModel)
         {
             _viewModel = viewModel;
@@ -67,7 +65,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 _containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, 8),
                 _containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -8),
                 _containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, 8),
-                BottomAnchor.ConstraintEqualTo(_containerStack.BottomAnchor)
+                BottomAnchor.ConstraintEqualTo(_containerStack.BottomAnchor, 8)
             });
 
             _searchBar.TextChanged += search_textChanged;
@@ -101,6 +99,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                     _headerLabel.Hidden = true;
                     _searchBar.ShowsCancelButton = true;
                     _searchBar.Text = _viewModel.FeatureSearchText;
+                    _searchBar.BecomeFirstResponder();
                     UpdateTableView();
                     return;
                 case UIState.SearchingForOrigin:

@@ -113,11 +113,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             var tableSource = new List<Feature>() { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
 
             _stopsTable.Source = new RouteTableSource(tableSource);
-            _stopsTable.ReloadData(); // TODO - is this necessary?
+
+            // necessary so that table is reloaded before layout is requested
+            _stopsTable.ReloadData();
 
             _routeDurationLabel.Text = walkTimeStringBuilder.ToString();
+
+            RelayoutRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseRouteResult();
+
+        public event EventHandler RelayoutRequested;
     }
 }

@@ -10,8 +10,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
     {
         private MapViewModel _viewModel;
 
-        private FloorsTableSource _source;
-
         public FloorsTableView(MapViewModel viewModel) : base()
         {
             _viewModel = viewModel;
@@ -21,26 +19,35 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             BackgroundColor = UIColor.Clear;
             BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
 
-            Source = _source = new FloorsTableSource(viewModel);
+            Source = new FloorsTableSource(viewModel);
 
             _viewModel.PropertyChanged += _viewModel_PropertyChanged;
         }
 
         private void _viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            InvokeOnMainThread(() =>
+            BeginInvokeOnMainThread(() =>
             {
-                if (e.PropertyName == nameof(MapViewModel.SelectedFloorLevel) || e.PropertyName == nameof(MapViewModel.CurrentVisibleFloors))
+                if (e.PropertyName == nameof(_viewModel.SelectedFloorLevel) || e.PropertyName == nameof(_viewModel.CurrentVisibleFloors))
                 {
                     ReloadData();
                     UpdateSelectedFloor();
+
+                    if (_viewModel.CurrentVisibleFloors != null)
+                    {
+                        Hidden = _viewModel.CurrentVisibleFloors?.Count() < 2;
+                    }
+                    else
+                    {
+                        Hidden = true;
+                    }
                 }
             });
         }
 
         private void UpdateSelectedFloor()
         {
-            if (_viewModel.SelectedFloorLevel != null)
+            if (_viewModel.SelectedFloorLevel != null && _viewModel.CurrentVisibleFloors != null)
             {
                 var selectedFloorNSIndex = GetTableViewRowIndex(_viewModel.SelectedFloorLevel, _viewModel.CurrentVisibleFloors.ToArray(), 0);
                 if (selectedFloorNSIndex != null)

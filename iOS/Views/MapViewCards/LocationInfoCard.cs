@@ -81,8 +81,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             // Wait for app state changes (particularly identify feature results)
             _viewModel.PropertyChanged += ViewModel_Changed;
 
+            AppSettings.CurrentSettings.PropertyChanged += CurrentSettings_PropertyChanged;
+
             // Handle searching for directions
             _startDirectionsButton.TouchUpInside += SearchDirections_Clicked;
+        }
+
+        private void CurrentSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.IsRoutingEnabled))
+            {
+                _startDirectionsButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+            }
         }
 
         private void ViewModel_Changed(object sender, System.ComponentModel.PropertyChangedEventArgs e)

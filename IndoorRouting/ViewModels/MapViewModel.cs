@@ -52,7 +52,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// The viewpoint of the map.
         /// </summary>
-        private Viewpoint _currentViewpoint;
+        private Envelope _currentVisibleArea;
 
         /// <summary>
         /// The selected floor level.
@@ -95,15 +95,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// Gets or sets the viewpoint.
         /// </summary>
         /// <value>The viewpoint.</value>
-        public Viewpoint CurrentViewpoint
+        public Envelope CurrentViewArea
         {
-            get => _currentViewpoint;
+            get => _currentVisibleArea;
 
             set
             {
-                if (_currentViewpoint != value)
+                if (_currentVisibleArea != value)
                 {
-                    _currentViewpoint = value;
+                    _currentVisibleArea = value;
                     OnPropertyChanged();
                     UpdateFloors();
                 }
@@ -241,7 +241,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     _currentlyIdentifiedRoom = value;
                     if (_currentlyIdentifiedRoom?.Floor != null)
                     {
-                        _selectedFloorLevel = _currentlyIdentifiedRoom.Floor;
+                        SelectedFloorLevel = _currentlyIdentifiedRoom.Floor;
                     }
 
                     OnPropertyChanged();
@@ -283,7 +283,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                         var queryParams = new QueryParameters()
                         {
                             ReturnGeometry = false,
-                            Geometry = CurrentViewpoint.TargetGeometry
+                            Geometry = CurrentViewArea
                         };
 
                         // Query the feature table 
@@ -296,6 +296,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                                                             .Select(gr => gr.First().Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString())
                                                             .OrderBy(f => f).ToList();
                         }
+
+                        if (string.IsNullOrEmpty(SelectedFloorLevel) || !CurrentVisibleFloors.Contains(SelectedFloorLevel))
+                        {
+                            SelectFloor(CurrentVisibleFloors.FirstOrDefault());
+                        }
+                        
                         this.SetFloorVisibility(true);
                     }
                     catch
@@ -574,7 +580,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-
         /// <summary>
         /// Changes the visibility of the rooms and walls layers based on floor selected
         /// </summary>
@@ -592,7 +597,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        //TODO restructure this further
         public async void PerformRouteSearch()
         {
             try
@@ -640,13 +644,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
             if (CurrentlyIdentifiedRoom?.IsHome == true)
             {
-                OriginSearchText = string.Empty;
-                DestinationSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
+                OriginSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
+                DestinationSearchText = string.Empty;
             }
             else
             {
-                OriginSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
-                DestinationSearchText = string.Empty;
+                OriginSearchText = string.Empty;
+                DestinationSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
             }
 
             CurrentState = UIState.PlanningRoute;
@@ -766,6 +770,29 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             CurrentState = UIState.LocationFound;
 
             SelectedFloorLevel = null; // Enhancement - set floor based on user position
+        }
+
+        /// <summary>
+        /// ONLY CALL AFTER UPDATING APPSETTINGS
+        /// </summary>
+        public void UpdateHomeLocation()
+        {
+            if (CurrentlyIdentifiedRoom?.IsHome == true)
+            {
+                var newHome = IdentifiedRoom.ConstructHome();
+
+                if (newHome == null)
+                {
+                    var oldHome = CurrentlyIdentifiedRoom;
+                    CurrentlyIdentifiedRoom = null;
+                    oldHome.IsHome = false;
+                    CurrentlyIdentifiedRoom = oldHome;
+                }
+                else
+                {
+                    CurrentlyIdentifiedRoom = newHome;
+                }
+            }
         }
 
         public void SelectFloor(string floor) => SelectedFloorLevel = floor;
