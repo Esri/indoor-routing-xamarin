@@ -25,7 +25,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _viewModel = viewModel;
 
             _startTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
-
             _endTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _searchRouteButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -39,6 +38,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "OriginRouteSearchFieldLabel".AsLocalized() };
             _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DestinationRouteSearchFieldLabel".AsLocalized() };
+
+            _searchStartLabel.SetContentHuggingPriority((float)UILayoutPriority.DefaultHigh, UILayoutConstraintAxis.Horizontal);
 
             _routeSearchHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DirectionsPanelHeader".AsLocalized() };
             _routeSearchHeader.TextColor = UIColor.LabelColor;

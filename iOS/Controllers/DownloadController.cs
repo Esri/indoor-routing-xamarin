@@ -61,14 +61,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
-            this.InitializeNSUrlSession();
 
-            // When the application has finished loading, bring in the settings
-            string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            AppSettings.CurrentSettings = await AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).ConfigureAwait(false);
+            try
+            {
+                this.InitializeNSUrlSession();
 
-            // Call GetData to download or load the mmpk
-            await this.ViewModel.GetDataAsync().ConfigureAwait(false);
+                // When the application has finished loading, bring in the settings
+                string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                AppSettings.CurrentSettings = await AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).ConfigureAwait(false);
+
+                // Call GetData to download or load the mmpk
+                await this.ViewModel.GetDataAsync().ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // TODO - log exception
+                System.Threading.Thread.CurrentThread.Abort();
+            }
         }
 
         /// <summary>

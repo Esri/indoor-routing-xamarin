@@ -26,7 +26,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
     using Esri.ArcGISRuntime.Symbology;
+    using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
     using Esri.ArcGISRuntime.UI;
     using Esri.ArcGISRuntime.UI.Controls;
     using UIKit;
@@ -50,114 +52,134 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         private PictureMarkerSymbol _routeStartSymbol;
         private PictureMarkerSymbol _routeEndSymbol;
 
-        private async Task ConfigureMapView()
+        private async void ConfigureMapView()
         {
-            // Configure location display
-            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-            _mapView.LocationDisplay.InitialZoomScale = 150;
-            _mapView.LocationDisplay.IsEnabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
-
-            // Configure identify overlay
-            _identifiedFeatureOverlay = new GraphicsOverlay();
-
-            var pinImage = UIImage.FromBundle("MapPin");
-            var mapPin = await pinImage.ToRuntimeImageAsync();
-            var roomMarker = new PictureMarkerSymbol(mapPin);
-            roomMarker.OffsetY = pinImage.Size.Height * 0.65;
-
-            _identifiedFeatureOverlay.Renderer = new SimpleRenderer(roomMarker);
-
-            // Configure home location overlay
-            _homeOverlay = new GraphicsOverlay();
-            var homeImage = UIImage.FromBundle("HomePin");
-            var homePin = await homeImage.ToRuntimeImageAsync();
-            var homeMarker = new PictureMarkerSymbol(homePin);
-            homeMarker.OffsetY = homeImage.Size.Height * 0.65;
-
-            _homeOverlay.Renderer = new SimpleRenderer(homeMarker);
-
-            // configure route overlay
-            _routeOverlay = new GraphicsOverlay();
-
-            var routeSymbol = new SimpleLineSymbol
+            try
             {
-                Width = 5,
-                Style = SimpleLineSymbolStyle.Solid,
-                Color = System.Drawing.Color.FromArgb(127, 18, 121, 193)
-            };
+                // Configure location display
+                _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                _mapView.LocationDisplay.InitialZoomScale = 150;
+                _mapView.LocationDisplay.IsEnabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
+            }
+            catch (Exception)
+            {
+                // TODO - log error and show warning to user
+            }
 
-            // line symbol renderer will be used for every graphic without its own symbol
-            _routeOverlay.Renderer = new SimpleRenderer(routeSymbol);
+            try
+            {
+                // Configure identify overlay
+                _identifiedFeatureOverlay = new GraphicsOverlay();
 
-            _routeStartSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("StartCircle").ToRuntimeImageAsync());
+                var pinImage = UIImage.FromBundle("MapPin");
+                var mapPin = await pinImage.ToRuntimeImageAsync();
+                var roomMarker = new PictureMarkerSymbol(mapPin);
+                roomMarker.OffsetY = pinImage.Size.Height * 0.65;
 
-            _routeEndSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("EndCircle").ToRuntimeImageAsync());
+                _identifiedFeatureOverlay.Renderer = new SimpleRenderer(roomMarker);
 
-            // Add graphics overlays to the map
-            _mapView.GraphicsOverlays.Add(_identifiedFeatureOverlay);
-            _mapView.GraphicsOverlays.Add(_homeOverlay);
-            _mapView.GraphicsOverlays.Add(_routeOverlay);
+                // Configure home location overlay
+                _homeOverlay = new GraphicsOverlay();
+                var homeImage = UIImage.FromBundle("HomePin");
+                var homePin = await homeImage.ToRuntimeImageAsync();
+                var homeMarker = new PictureMarkerSymbol(homePin);
+                homeMarker.OffsetY = homeImage.Size.Height * 0.65;
+
+                _homeOverlay.Renderer = new SimpleRenderer(homeMarker);
+
+                // configure route overlay
+                _routeOverlay = new GraphicsOverlay();
+
+                var routeSymbol = new SimpleLineSymbol
+                {
+                    Width = 5,
+                    Style = SimpleLineSymbolStyle.Solid,
+                    Color = System.Drawing.Color.FromArgb(127, 18, 121, 193)
+                };
+
+                // line symbol renderer will be used for every graphic without its own symbol
+                _routeOverlay.Renderer = new SimpleRenderer(routeSymbol);
+
+                _routeStartSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("StartCircle").ToRuntimeImageAsync());
+
+                _routeEndSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("EndCircle").ToRuntimeImageAsync());
+
+                // Add graphics overlays to the map
+                _mapView.GraphicsOverlays.Add(_identifiedFeatureOverlay);
+                _mapView.GraphicsOverlays.Add(_homeOverlay);
+                _mapView.GraphicsOverlays.Add(_routeOverlay);
+            }
+            catch (Exception)
+            {
+                // TODO - log error
+                System.Threading.Thread.CurrentThread.Abort();
+            }
         }
 
-        private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            InvokeOnMainThread(async () =>
+            switch (e.PropertyName)
             {
-                switch (e.PropertyName)
-                {
-                    case nameof(_viewModel.Map):
-                        if (_viewModel.Map != null)
-                        {
-                            // Add the map to the MapView to be displayed
-                            _mapView.Map = _viewModel.Map;
+                case nameof(_viewModel.Map):
+                    if (_viewModel.Map != null)
+                    {
+                        // Add the map to the MapView to be displayed
+                        _mapView.Map = _viewModel.Map;
 
-                            // Update attribution visibility in case it changed.
-                            SetAttributionForCurrentState();
-                        }
+                        // Update attribution visibility in case it changed.
+                        SetAttributionForCurrentState();
+                    }
 
-                        break;
-                    case nameof(_viewModel.CurrentState):
-                        UpdateUIForNewState();
-                        break;
-                    case nameof(_viewModel.CurrentlyIdentifiedRoom):
-                        _identifiedFeatureOverlay.Graphics.Clear();
-                        _homeOverlay.Graphics.Clear();
-                        // Turn off location display unless actively viewing current location
-                        _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
-                        if (_viewModel.CurrentlyIdentifiedRoom is IdentifiedRoom room)
+                    break;
+                case nameof(_viewModel.CurrentState):
+                    UpdateUIForNewState();
+                    if (_viewModel.CurrentState == UIState.LocationFound || _viewModel.CurrentState == UIState.PlanningRoute)
+                    {
+                        _identifiedFeatureOverlay.IsVisible = true;
+                        _homeOverlay.IsVisible = true;
+                    }
+                    break;
+                case nameof(_viewModel.CurrentlyIdentifiedRoom):
+                    _identifiedFeatureOverlay.Graphics.Clear();
+                    _homeOverlay.Graphics.Clear();
+                    // Turn off location display unless actively viewing current location
+                    _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                    if (_viewModel.CurrentlyIdentifiedRoom is IdentifiedRoom room)
+                    {
+                        if (room.IsHome)
                         {
-                            if (room.IsHome)
-                            {
-                                _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                                await _mapView.SetViewpointCenterAsync(room.CenterPoint, 150);
-                            }
-                            else if (_viewModel.CurrentlyIdentifiedRoom.IsCurrentLocation)
-                            {
-                                _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-                                await _mapView.SetViewpointCenterAsync(_mapView.LocationDisplay.MapLocation, 150);
-                            }
-                            else
-                            {
-                                _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                                await _mapView.SetViewpointGeometryAsync(room.Geometry, 30);
-                            }
+                            _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
+                            try { await _mapView.SetViewpointCenterAsync(room.CenterPoint, 150); } catch (Exception) { } // TODO - log error
                         }
-                        break;
-                    case nameof(_viewModel.CurrentRoute):
-                        _routeOverlay.Graphics.Clear();
+                        else if (_viewModel.CurrentlyIdentifiedRoom.IsCurrentLocation)
+                        {
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                            try { await _mapView.SetViewpointCenterAsync(_mapView.LocationDisplay.MapLocation, 150); } catch (Exception) { } // TODO - log error
+                        }
+                        else
+                        {
+                            _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
+                            try { await _mapView.SetViewpointGeometryAsync(room.Geometry, 30); } catch (Exception) { } // TODO - log error
+                        }
+                    }
+                    // need to explicitly request re-layout because identified room can change without UI state changing
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    break;
+                case nameof(_viewModel.CurrentRoute):
+                    _routeOverlay.Graphics.Clear();
 
-                        var route = _viewModel.CurrentRoute?.Routes?.FirstOrDefault();
-                        if (route != null)
-                        {
-                            _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
-                            _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
-                            _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
-                            await _mapView.SetViewpointGeometryAsync(route.RouteGeometry, 30);
-                        }
-                        break;
-                }
-            });
-            
+                    if (_viewModel.CurrentRoute?.Routes?.FirstOrDefault() is Route route)
+                    {
+                        _identifiedFeatureOverlay.IsVisible = false;
+                        _homeOverlay.IsVisible = false;
+
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
+                        try { await _mapView.SetViewpointGeometryAsync(route.RouteGeometry, 30); } catch (Exception) { } // TODO - log error
+                    }
+                    break;
+            }
         }
 
         private void _mapView_NavigationCompleted(object sender, EventArgs e) => _viewModel.CurrentViewpoint = _mapView.GetCurrentViewpoint(ViewpointType.CenterAndScale);
@@ -176,45 +198,45 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="e">Eevent args.</param>
         private async void MapView_GeoViewTapped(object sender, GeoViewInputEventArgs e)
         {
-            // Wait for double tap to fire
-            await Task.Delay(500);
+            try
+            {
+                // Wait for double tap to fire
+                await Task.Delay(500);
 
-            // If view has been double tapped, set tapped to handled and flag back to false
-            // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
-            if (_isViewDoubleTapped == true)
-            {
-                e.Handled = true;
-                _isViewDoubleTapped = false;
-            }
-            else
-            {
-                // If route card is visible, do not dismiss route
-                if (_viewModel.CurrentState == UIState.RouteFound)
+                // If view has been double tapped, set tapped to handled and flag back to false
+                // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
+                if (_isViewDoubleTapped == true)
                 {
-                    // Create a new Alert Controller
-                    UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-
-                    // Add Actions
-                    actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive,
-                        (action) => _viewModel.ReturnToWaitingState()));
-
-                    actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
-
-                    // Required for iPad - You must specify a source for the Action Sheet since it is
-                    // displayed as a popover
-                    UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
-                    if (presentationPopover != null)
-                    {
-                        presentationPopover.SourceView = _bottomSheet.DisplayedContentView;
-                        presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
-                    }
-
-                    // Display the alert
-                    PresentViewController(actionSheetAlert, true, null);
+                    e.Handled = true;
+                    _isViewDoubleTapped = false;
                 }
                 else
                 {
-                    try
+                    // If route card is visible, do not dismiss route
+                    if (_viewModel.CurrentState == UIState.RouteFound)
+                    {
+                        // Create a new Alert Controller
+                        UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+
+                        // Add Actions
+                        actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive,
+                            (action) => _viewModel.ReturnToWaitingState()));
+
+                        actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
+
+                        // Required for iPad - You must specify a source for the Action Sheet since it is
+                        // displayed as a popover
+                        UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
+                        if (presentationPopover != null)
+                        {
+                            presentationPopover.SourceView = _bottomSheet.DisplayedContentView;
+                            presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
+                        }
+
+                        // Display the alert
+                        PresentViewController(actionSheetAlert, true, null);
+                    }
+                    else
                     {
                         // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
                         IdentifyLayerResult idResults = await _mapView.IdentifyLayerAsync(
@@ -226,18 +248,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                         _viewModel.IdentifyRoomFromLayerResult(idResults);
                     }
-                    catch
-                    {
-                        // TODO - log error
-                    }
                 }
+            }
+            catch (Exception)
+            {
+                // TODO - log exceptions.
             }
         }
 
         private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
         {
+            // TODO - keep navigation and settings controllers around instead of re-creating each time
             DismissableNavigationController navController = new DismissableNavigationController(new SettingsController(_viewModel));
-            await PresentViewControllerAsync(navController, true);
 
             navController.DidDismiss += (o, x) =>
             {
@@ -245,6 +267,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _locationButton.Enabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
                 _accessoryView.ReloadData();
             };
+
+            try
+            {
+                await PresentViewControllerAsync(navController, true);
+            }
+            catch (Exception)
+            {
+                // TODO - log exception
+                // TODO - show error
+            }
         }
 
         private async void Attribution_Tapped(object sender, EventArgs e)
@@ -254,7 +286,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _attributionController = new AttributionViewController(_mapView);
             }
 
-            await PresentViewControllerAsync(new UINavigationController(_attributionController), true);
+            try
+            {
+                await PresentViewControllerAsync(new UINavigationController(_attributionController), true);
+            }
+            catch (Exception)
+            {
+                // TODO - log exception and show error
+            }
         }
 
         /// <summary>

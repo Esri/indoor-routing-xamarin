@@ -10,6 +10,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
     {
         private MapViewModel _viewModel;
 
+        private FloorsTableSource _source;
+
         public FloorsTableView(MapViewModel viewModel) : base()
         {
             _viewModel = viewModel;
@@ -19,30 +21,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             BackgroundColor = UIColor.Clear;
             BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
 
-            Source = new FloorsTableSource(viewModel);
+            Source = _source = new FloorsTableSource(viewModel);
 
             _viewModel.PropertyChanged += _viewModel_PropertyChanged;
-            _viewModel.CurrentVisibleFloors.CollectionChanged += CurrentVisibleFloors_CollectionChanged;
-        }
-
-        private void CurrentVisibleFloors_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            BeginInvokeOnMainThread(ReloadData);
         }
 
         private void _viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            BeginInvokeOnMainThread(() => {
-                if (e.PropertyName == nameof(MapViewModel.SelectedFloorLevel) && _viewModel.CurrentVisibleFloors.Any())
+            InvokeOnMainThread(() =>
+            {
+                if (e.PropertyName == nameof(MapViewModel.SelectedFloorLevel) || e.PropertyName == nameof(MapViewModel.CurrentVisibleFloors))
                 {
-
-                    var selectedFloorNSIndex = GetTableViewRowIndex(_viewModel.SelectedFloorLevel, _viewModel.CurrentVisibleFloors.ToArray(), 0);
-                    if (selectedFloorNSIndex != null)
-                    {
-                        SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
-                    }
+                    ReloadData();
+                    UpdateSelectedFloor();
                 }
             });
+        }
+
+        private void UpdateSelectedFloor()
+        {
+            if (_viewModel.SelectedFloorLevel != null)
+            {
+                var selectedFloorNSIndex = GetTableViewRowIndex(_viewModel.SelectedFloorLevel, _viewModel.CurrentVisibleFloors.ToArray(), 0);
+                if (selectedFloorNSIndex != null)
+                {
+                    SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+                }
+            }
         }
 
         /// <summary>
@@ -63,6 +68,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 return null;
             }
+        }
+
+        public override void ReloadData()
+        {
+            base.ReloadData();
         }
     }
 }

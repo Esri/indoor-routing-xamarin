@@ -33,72 +33,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         UITableView AutosuggestionsTableView { get; set; }
         UISearchBar HomeLocationSearchBar { get; set; }
 
-        /// <summary>
-        /// The home location.
-        /// </summary>
-        private GeocodeResult homeLocation;
-
-        /// <summary>
-        /// The home floor level.
-        /// </summary>
-        private string floorLevel;
-
-        /// <summary>
-        /// Gets the coordinates for the home location
-        /// </summary>
-        public GeocodeResult HomeLocation
-        {
-            get
-            {
-                return this.homeLocation;
-            }
-
-            private set
-            {
-                if (this.homeLocation != value && value != null)
-                {
-                    this.homeLocation = value;
-
-                    // Save extent of home location and floor level to Settings file
-                    CoordinatesKeyValuePair<string, double>[] homeCoordinates =
-                    {
-                    new CoordinatesKeyValuePair<string, double>("X", this.homeLocation.DisplayLocation.X),
-                    new CoordinatesKeyValuePair<string, double>("Y", this.homeLocation.DisplayLocation.Y),
-                    new CoordinatesKeyValuePair<string, double>("WKID", this.homeLocation.DisplayLocation.SpatialReference.Wkid)
-                    };
-
-                    AppSettings.CurrentSettings.HomeCoordinates = homeCoordinates;
-
-                    // Save user settings
-                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the floor level for the home location.
-        /// </summary>
-        /// <value>The floor level.</value>
-        public string FloorLevel
-        {
-            get
-            {
-                return this.floorLevel;
-            }
-
-            set
-            {
-                if (this.floorLevel != value && value != string.Empty)
-                {
-                    this.floorLevel = value;
-                    AppSettings.CurrentSettings.HomeFloorLevel = this.floorLevel;
-
-                    // Save user settings
-                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
-                }
-            }
-        }
-
         public HomeLocationController(MapViewModel viewModel) : base()
         {
             _viewModel = viewModel;
@@ -169,22 +103,29 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             base.ViewWillAppear(animated);
         }
 
-        private async void HomeLocationSearchBar_SearchButtonClicked(object sender, EventArgs e)
+        private void HomeLocationSearchBar_SearchButtonClicked(object sender, EventArgs e)
         {
             var locationText = ((UISearchBar)sender).Text;
-            await SetHomeLocationAsync(locationText);
+            SetHomeLocationAsync(locationText);
         }
 
         private async void HomeLocationSearchBar_TextChanged(object sender, UISearchBarTextChangedEventArgs e)
         {
-            // This is the method that is called when the user searchess
-            await GetSuggestionsFromLocatorAsync();
+            try
+            {
+                // This is the method that is called when the user searchess
+                await GetSuggestionsFromLocatorAsync();
+            }
+            catch (Exception)
+            {
+                // TODO - log exception
+            }
         }
 
-        private async void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
+        private void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
         {
             this.HomeLocationSearchBar.Text = "";
-            await this.SetHomeLocationAsync("");
+            this.SetHomeLocationAsync("");
 
         }
 
@@ -217,13 +158,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
+        private void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             var selectedItem = e.SelectedItem;
             if (selectedItem != null)
             {
-                this.HomeLocationSearchBar.Text = selectedItem;
-                await this.SetHomeLocationAsync(selectedItem);
+                HomeLocationSearchBar.Text = selectedItem;
+                SetHomeLocationAsync(selectedItem);
             }
         }
 
@@ -232,14 +173,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="locationText">Location text.</param>
         /// <returns>Async task</returns>
-        private async Task SetHomeLocationAsync(string locationText)
+        private async void SetHomeLocationAsync(string locationText)
         {
-            this.HomeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
-            this.FloorLevel = await _viewModel.GetFloorLevelFromQueryAsync(locationText);
-            AppSettings.CurrentSettings.HomeLocation = locationText;
+            try
+            {
+                var homeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
+                //var floorLevel = await _viewModel.GetFloorLevelFromQueryAsync(locationText);
+                // TODO - re-enable saving the floor level
 
-            Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                AppSettings.CurrentSettings.HomeLocation = locationText;
+                AppSettings.CurrentSettings.HomeCoordinates = new CoordinatesKeyValuePair<string, double>[]
+                    {
+                    new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+                    new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+                    new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+                    };
+                //AppSettings.CurrentSettings.HomeFloorLevel = floorLevel; // TODO - re-enable saving the floor level
 
+                _ = Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+            }
+            catch (Exception)
+            {
+                // TODO - log error
+            }
+            
             NavigationController.PopViewController(true);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreGraphics;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
@@ -8,6 +9,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private readonly UILabel _label;
         private readonly UITapGestureRecognizer _tapRecognizer;
         private readonly UIVisualEffectView _backgroundView;
+
+        private const int margin = 8;
 
         public string Text
         {
@@ -45,10 +48,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 _backgroundView.TopAnchor.ConstraintEqualTo(TopAnchor),
                 _backgroundView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor),
                 _backgroundView.BottomAnchor.ConstraintEqualTo(BottomAnchor),
-                _label.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, 8),
-                _label.TopAnchor.ConstraintEqualTo(TopAnchor, 8),
-                _label.BottomAnchor.ConstraintEqualTo(BottomAnchor, -8),
-                _label.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -8)
+                _label.LeadingAnchor.ConstraintEqualTo(_backgroundView.LeadingAnchor, margin),
+                _label.TopAnchor.ConstraintEqualTo(_backgroundView.TopAnchor, margin),
+                _label.BottomAnchor.ConstraintEqualTo(_backgroundView.BottomAnchor, -margin),
+                _label.TrailingAnchor.ConstraintEqualTo(_backgroundView.TrailingAnchor, -margin)
             });
 
             Layer.CornerRadius = 8;

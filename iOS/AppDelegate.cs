@@ -76,21 +76,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// Overrides the behavior of the application when it has entered background mode
         /// </summary>
         /// <param name="application">Main Application.</param>
-        public override async void DidEnterBackground(UIApplication application)
+        public override void DidEnterBackground(UIApplication application)
         {
             // TODO - this is causing crash on backgrounding
             // Begin Finite-Length Task.
             this.taskID = UIApplication.SharedApplication.BeginBackgroundTask(null);
 
             // Start saving the user choices.
-            await Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
-
-            // End Finite-Length Task, finished.
-            if (this.taskID != -1)
-            {
-                UIApplication.SharedApplication.EndBackgroundTask(this.taskID);
-                this.taskID = -1;
-            }
+            _ = Task.Run(() => {
+                try
+                {
+                    AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml"));
+                    UIApplication.SharedApplication.EndBackgroundTask(this.taskID);
+                }
+                catch (Exception)
+                {
+                    // TODO - log exception
+                }
+            });
         }
 
         /// <summary>
