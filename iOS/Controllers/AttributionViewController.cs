@@ -19,19 +19,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         public override void LoadView()
         {
             base.LoadView();
-            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor };
 
             _textblock = new UITextView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _textblock.TextColor = UIColor.LabelColor;
+            _textblock.TextColor = ApplicationTheme.ForegroundColor;
 
             View.AddSubview(_textblock);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _textblock.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, 8),
-                _textblock.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, 8),
-                _textblock.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
-                _textblock.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -8)
+                _textblock.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
+                _textblock.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
+                _textblock.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -ApplicationTheme.Margin),
+                _textblock.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -ApplicationTheme.Margin)
             });
 
             _closeButton = new UIBarButtonItem("ModalCloseButtonText".AsLocalized(), UIBarButtonItemStyle.Plain, null);

@@ -6,7 +6,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
 {
     public class DismissableNavigationController : UINavigationController
     {
-        public DismissableNavigationController(UIViewController controller) : base(controller) { }
+        public DismissableNavigationController(UIViewController controller) : base(controller)
+        {
+            NavigationBar.TintColor = ApplicationTheme.ActionBackgroundColor;
+        }
 
         public override void DismissModalViewController(bool animated)
         {

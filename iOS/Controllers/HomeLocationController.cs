@@ -17,12 +17,10 @@
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
     using UIKit;
 
@@ -44,7 +42,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void LoadView()
         {
             base.LoadView();
-            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
             HomeLocationSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
             HomeLocationSearchBar.Placeholder = "LocationSearchBarPlaceholder".AsLocalized();
@@ -119,9 +117,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // This is the method that is called when the user searchess
                 await GetSuggestionsFromLocatorAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exception
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 
@@ -206,8 +204,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             catch (Exception ex)
             {
-                // TODO - log error
-                Debug.WriteLine(ex);
+                ErrorLogger.Instance.LogException(ex);
             }
             
             NavigationController.PopViewController(true);

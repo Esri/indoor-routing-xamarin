@@ -10,8 +10,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         private readonly UITapGestureRecognizer _tapRecognizer;
         private readonly UIVisualEffectView _backgroundView;
 
-        private const int margin = 8;
-
         public string Text
         {
             get => _label?.Text ?? "";
@@ -37,7 +35,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _label = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.LinkColor
+                TextColor = ApplicationTheme.ActionBackgroundColor
             };
 
             _backgroundView.ContentView.AddSubview(_label);
@@ -48,13 +46,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 _backgroundView.TopAnchor.ConstraintEqualTo(TopAnchor),
                 _backgroundView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor),
                 _backgroundView.BottomAnchor.ConstraintEqualTo(BottomAnchor),
-                _label.LeadingAnchor.ConstraintEqualTo(_backgroundView.LeadingAnchor, margin),
-                _label.TopAnchor.ConstraintEqualTo(_backgroundView.TopAnchor, margin),
-                _label.BottomAnchor.ConstraintEqualTo(_backgroundView.BottomAnchor, -margin),
-                _label.TrailingAnchor.ConstraintEqualTo(_backgroundView.TrailingAnchor, -margin)
+                _label.LeadingAnchor.ConstraintEqualTo(_backgroundView.LeadingAnchor, ApplicationTheme.Margin),
+                _label.TopAnchor.ConstraintEqualTo(_backgroundView.TopAnchor, ApplicationTheme.Margin),
+                _label.BottomAnchor.ConstraintEqualTo(_backgroundView.BottomAnchor, -ApplicationTheme.Margin),
+                _label.TrailingAnchor.ConstraintEqualTo(_backgroundView.TrailingAnchor, -ApplicationTheme.Margin)
             });
 
-            Layer.CornerRadius = 8;
+            Layer.CornerRadius = ApplicationTheme.CornerRadius;
             Layer.BorderColor = UIColor.SystemGrayColor.CGColor;
             Layer.BorderWidth = 2;
             UserInteractionEnabled = true; //for gesture recognizer

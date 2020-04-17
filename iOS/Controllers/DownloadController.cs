@@ -19,7 +19,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System;
     using System.ComponentModel;
     using System.IO;
-    using System.Threading.Tasks;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
@@ -73,9 +72,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 // Call GetData to download or load the mmpk
                 await this.ViewModel.GetDataAsync().ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exception
+                ErrorLogger.Instance.LogException(ex);
+
+                // Crash app since this is an invalid state.
                 System.Threading.Thread.CurrentThread.Abort();
             }
         }
@@ -223,7 +224,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             ViewModel = new DownloadViewModel();
 
-            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
             _progressView = new UIProgressView { TranslatesAutoresizingMaskIntoConstraints = false };
             _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };

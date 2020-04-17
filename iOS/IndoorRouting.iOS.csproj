@@ -246,15 +246,10 @@
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
     <Compile Include="Controllers\BottomSheetViewController.cs" />
-    <Compile Include="Views\ShadowContainerView.cs" />
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
-    <Compile Include="Views\IntrinsicContentSizedStackView.cs" />
-    <Compile Include="Views\CloseButton.cs" />
     <Compile Include="Controllers\AttributionViewController.cs" />
     <Compile Include="Helpers\LocalizationExtension.cs" />
-    <Compile Include="Views\PseudoTextFieldButton.cs" />
     <Compile Include="Controllers\DismissableNavigationController.cs" />
-    <Compile Include="Views\SelfSizedTableView.cs" />
     <Compile Include="Helpers\ViewExtensions.cs" />
     <Compile Include="Controllers\MapViewController.Views.cs" />
     <Compile Include="Views\FloorsTableView.cs" />
@@ -263,6 +258,13 @@
     <Compile Include="Views\MapViewCards\LocationInfoCard.cs" />
     <Compile Include="Views\MapViewCards\RoutePlanningCard.cs" />
     <Compile Include="Views\MapViewCards\RouteResultCard.cs" />
+    <Compile Include="ApplicationTheme.cs" />
+    <Compile Include="Views\Controls\CloseButton.cs" />
+    <Compile Include="Views\Controls\IntrinsicContentSizedStackView.cs" />
+    <Compile Include="Views\Controls\PseudoTextFieldButton.cs" />
+    <Compile Include="Views\Controls\SelfSizedTableView.cs" />
+    <Compile Include="Views\Controls\ShadowContainerView.cs" />
+    <Compile Include="Views\Controls\ActionButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
@@ -283,6 +285,7 @@
     <Folder Include="Resources\" />
     <Folder Include="Resources\base.lproj\" />
     <Folder Include="Views\MapViewCards\" />
+    <Folder Include="Views\Controls\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\base.lproj\Localizable.strings" />

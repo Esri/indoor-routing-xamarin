@@ -500,9 +500,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     serializer.Serialize(fileStream, CurrentSettings);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // TODO - log error
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 

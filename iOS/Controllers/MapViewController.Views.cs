@@ -18,24 +18,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.ComponentModel;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.Geometry;
-    using Esri.ArcGISRuntime.Location;
     using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
-    using Esri.ArcGISRuntime.Symbology;
     using Esri.ArcGISRuntime.Toolkit.UI.Controls;
-    using Esri.ArcGISRuntime.UI;
     using Esri.ArcGISRuntime.UI.Controls;
-    using Foundation;
     using UIKit;
-    using static Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.MapViewModel;
 
     /// <summary>
     /// Map view controller.
@@ -124,7 +114,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             base.LoadView();
 
             // Create the view
-            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor };
 
             // Create the map view
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
@@ -144,7 +134,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Axis = UILayoutConstraintAxis.Vertical,
-                Spacing = 8,
+                Spacing = ApplicationTheme.Margin,
                 Distribution = UIStackViewDistribution.EqualSpacing
             };
 
@@ -175,17 +165,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _mapView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
                 _mapView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
                 // top-right floating buttons
-                _topRightStack.TopAnchor.ConstraintEqualTo(_topBlur.BottomAnchor, 8),
-                _topRightStack.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
+                _topRightStack.TopAnchor.ConstraintEqualTo(_topBlur.BottomAnchor, ApplicationTheme.Margin),
+                _topRightStack.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -ApplicationTheme.Margin),
                 // compass sizing
-                _compass.WidthAnchor.ConstraintEqualTo(48),
-                _compass.HeightAnchor.ConstraintEqualTo(48),
+                _compass.WidthAnchor.ConstraintEqualTo(ApplicationTheme.SideWidgetWidth),
+                _compass.HeightAnchor.ConstraintEqualTo(_compass.WidthAnchor),
                 // right panel accessories
                 accessoryShadowContainer.HeightAnchor.ConstraintEqualTo(_accessoryView.HeightAnchor),
-                accessoryShadowContainer.WidthAnchor.ConstraintEqualTo(48),
+                accessoryShadowContainer.WidthAnchor.ConstraintEqualTo(ApplicationTheme.SideWidgetWidth),
                 // floors view
                 _innerFloorsTableViewShadow.WidthAnchor.ConstraintEqualTo(accessoryShadowContainer.WidthAnchor),
-                _innerFloorsTableViewShadow.HeightAnchor.ConstraintLessThanOrEqualTo(240),
+                _innerFloorsTableViewShadow.HeightAnchor.ConstraintLessThanOrEqualTo(ApplicationTheme.FloorWidthMaxHeight),
                 // Top blur (to make handlebar and system area easy to see)
                 _topBlur.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
                 _topBlur.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
@@ -309,7 +299,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Axis = UILayoutConstraintAxis.Horizontal,
                 Alignment = UIStackViewAlignment.Trailing,
-                Spacing = 8
+                Spacing = ApplicationTheme.Margin
             };
 
             _attributionImageButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, TintColor = UIColor.SystemBackgroundColor };
@@ -336,9 +326,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _shadowedAttribution.BottomAnchor.ConstraintEqualTo(_bottomSheet.PanelTopAnchor, -8),
-                _shadowedAttribution.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -8),
-                _esriIcon.HeightAnchor.ConstraintEqualTo(22),
+                _shadowedAttribution.BottomAnchor.ConstraintEqualTo(_bottomSheet.PanelTopAnchor, -ApplicationTheme.Margin),
+                _shadowedAttribution.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -ApplicationTheme.Margin),
+                _esriIcon.HeightAnchor.ConstraintEqualTo(22), // arbitrary values based on height of icon
                 _esriIcon.WidthAnchor.ConstraintEqualTo(63)
             });
 

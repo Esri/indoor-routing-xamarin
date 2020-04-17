@@ -28,7 +28,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         internal UIButton _containedButton;
         public AccessoryViewCell()
         {
-            TintColor = UIColor.FromName("AccessoryButtonColor"); // TODO - is this useful?
+            // TODO - document `AccessoryButtonColor`
+            TintColor = UIColor.FromName("AccessoryButtonColor");
             BackgroundColor = UIColor.Clear;
         }
 

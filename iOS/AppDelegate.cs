@@ -78,7 +78,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="application">Main Application.</param>
         public override void DidEnterBackground(UIApplication application)
         {
-            // TODO - this is causing crash on backgrounding
             // Begin Finite-Length Task.
             this.taskID = UIApplication.SharedApplication.BeginBackgroundTask(null);
 
@@ -89,9 +88,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml"));
                     UIApplication.SharedApplication.EndBackgroundTask(this.taskID);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // TODO - log exception
+                    ErrorLogger.Instance.LogException(ex);
                 }
             });
         }

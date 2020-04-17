@@ -14,10 +14,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             _viewModel = viewModel;
 
-            Layer.CornerRadius = 8;
-            SeparatorColor = UIColor.SystemGrayColor;
+            Layer.CornerRadius = ApplicationTheme.CornerRadius;
+            SeparatorColor = ApplicationTheme.SeparatorColor;
             BackgroundColor = UIColor.Clear;
-            BackgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
+            BackgroundView = new UIVisualEffectView(ApplicationTheme.PanelBackgroundMaterial);
 
             Source = new FloorsTableSource(viewModel);
 

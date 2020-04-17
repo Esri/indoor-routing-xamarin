@@ -14,17 +14,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         public ShadowContainerView(UIView childView)
         {
-            TranslatesAutoresizingMaskIntoConstraints = false; // TODO - is this a good idea?
+            TranslatesAutoresizingMaskIntoConstraints = false;
 
             Layer.ShadowColor = UIColor.Black.CGColor;
             Layer.ShadowRadius = 1;
-            //Layer.CornerRadius = 8;
             Layer.ShadowOpacity = 0.5f;
             Layer.ShadowOffset = new CoreGraphics.CGSize(0, 0);
 
             _innerContainer = new UIView();
             _innerContainer.ClipsToBounds = true;
-            _innerContainer.Layer.CornerRadius = 8;
+            _innerContainer.Layer.CornerRadius = ApplicationTheme.CornerRadius;
             _innerContainer.TranslatesAutoresizingMaskIntoConstraints = false;
 
             AddSubview(_innerContainer);
@@ -32,7 +31,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _innerContainer.AddSubview(childView);
             childView.TranslatesAutoresizingMaskIntoConstraints = false;
 
-            childView.Layer.CornerRadius = 8;
+            childView.Layer.CornerRadius = ApplicationTheme.CornerRadius;
             childView.ClipsToBounds = true;
 
             NSLayoutConstraint.ActivateConstraints(new[]

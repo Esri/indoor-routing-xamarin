@@ -1,5 +1,6 @@
 ﻿using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
@@ -7,7 +8,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
     public class LocationInfoCard : UIView
     {
         private MapViewModel _viewModel;
-        private UIButton _startDirectionsButton;
+        private ActionButton _startDirectionsButton;
         private CloseButton _closeButton;
         private UILabel _primaryLabel;
         private UILabel _secondaryLabel;
@@ -16,16 +17,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             _viewModel = viewModel;
 
-            _startDirectionsButton = new UIButton
+            _startDirectionsButton = new ActionButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
             _startDirectionsButton.SetTitle("FindDirectionsButtonText".AsLocalized(), UIControlState.Normal);
-            _startDirectionsButton.BackgroundColor = UIColor.SystemBlueColor;
-            _startDirectionsButton.SetTitleColor(UIColor.White, UIControlState.Normal);
-            _startDirectionsButton.SetTitleColor(UIColor.SystemGrayColor, UIControlState.Disabled);
-            _startDirectionsButton.Layer.CornerRadius = 8;
 
             _closeButton = new CloseButton
             {
@@ -38,7 +35,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 TextColor = UIColor.LabelColor
             };
 
-            _primaryLabel.Font = _primaryLabel.Font.WithSize(18);
+            _primaryLabel.Font = ApplicationTheme.HeaderFont;
 
             _secondaryLabel = new UILabel
             {
@@ -50,26 +47,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _primaryLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 8),
-                _primaryLabel.TopAnchor.ConstraintEqualTo(this.TopAnchor, 8),
-                _primaryLabel.TrailingAnchor.ConstraintEqualTo(_closeButton.LeadingAnchor, -8),
+                _primaryLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
+                _primaryLabel.TopAnchor.ConstraintEqualTo(this.TopAnchor, ApplicationTheme.Margin),
+                _primaryLabel.TrailingAnchor.ConstraintEqualTo(_closeButton.LeadingAnchor, -ApplicationTheme.Margin),
                 //
                 _secondaryLabel.LeadingAnchor.ConstraintEqualTo(_primaryLabel.LeadingAnchor),
                 _secondaryLabel.TrailingAnchor.ConstraintEqualTo(_primaryLabel.TrailingAnchor),
-                _secondaryLabel.TopAnchor.ConstraintEqualTo(_primaryLabel.BottomAnchor, 8),
+                _secondaryLabel.TopAnchor.ConstraintEqualTo(_primaryLabel.BottomAnchor, ApplicationTheme.Margin),
                 //
-                _closeButton.TopAnchor.ConstraintEqualTo(this.TopAnchor, 8),
-                _closeButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -8),
+                _closeButton.TopAnchor.ConstraintEqualTo(this.TopAnchor, ApplicationTheme.Margin),
+                _closeButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
                 _closeButton.WidthAnchor.ConstraintEqualTo(32),
                 _closeButton.HeightAnchor.ConstraintEqualTo(32),
                 //
-                _startDirectionsButton.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 8),
-                _startDirectionsButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -8),
-                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_secondaryLabel.BottomAnchor, 8),
-                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_closeButton.BottomAnchor, 8),
+                _startDirectionsButton.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
+                _startDirectionsButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
+                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_secondaryLabel.BottomAnchor, ApplicationTheme.Margin),
+                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_closeButton.BottomAnchor, ApplicationTheme.Margin),
                 _startDirectionsButton.HeightAnchor.ConstraintEqualTo(44),
                 //
-                this.BottomAnchor.ConstraintEqualTo(_startDirectionsButton.BottomAnchor, 8)
+                this.BottomAnchor.ConstraintEqualTo(_startDirectionsButton.BottomAnchor, ApplicationTheme.Margin)
             });
 
             // Handle closing location card.

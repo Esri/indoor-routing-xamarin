@@ -18,6 +18,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.Tasks.Geocoding;
@@ -49,9 +50,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="items">table items.</param>
         internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items, bool showSpecialItems)
         {
-            // TODO - handle null items
-            this.items = items;
-            this.cellIdentifier = "cell_id";
+            this.items = items ?? new List<SuggestResult>();
+            cellIdentifier = "cell_id";
             ResetSpecialSettings();
             ShouldShowSpecialItems = showSpecialItems;
         }

@@ -46,7 +46,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             base.LoadView();
 
-            View = new UIView { BackgroundColor = UIColor.SystemBackgroundColor };
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
             _SettingsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false };
             _SettingsTableView.BackgroundColor = UIColor.Clear;

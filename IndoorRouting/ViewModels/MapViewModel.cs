@@ -314,9 +314,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     CurrentVisibleFloors = null;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log this
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 

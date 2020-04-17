@@ -1,4 +1,5 @@
 ﻿using System;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using UIKit;
 
@@ -19,37 +20,38 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _headerLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                Font = UIFont.BoldSystemFontOfSize(28),
-                TextColor = UIColor.LabelColor,
-                Text = "Not Found"
+                Font = ApplicationTheme.HeaderFont,
+                TextColor = ApplicationTheme.ForegroundColor,
+                Text = "NotFoundTitle".AsLocalized()
             };
 
             _errorTextView = new UITextView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.LabelColor
-            };// TODO - ever set this
+                TextColor = ApplicationTheme.ForegroundColor,
+                Text = "NotFoundCardMessage".AsLocalized()
+            };
 
             _dismissButton = new CloseButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
-            this.AddSubviews(_headerLabel, _errorTextView, _dismissButton);
+            AddSubviews(_headerLabel, _errorTextView, _dismissButton);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _headerLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 8),
+                _headerLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
                 _headerLabel.CenterYAnchor.ConstraintEqualTo(_dismissButton.CenterYAnchor),
-                _headerLabel.TrailingAnchor.ConstraintEqualTo(_dismissButton.LeadingAnchor, -8),
-                _dismissButton.TopAnchor.ConstraintEqualTo(TopAnchor, 8),
-                _dismissButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -8),
+                _headerLabel.TrailingAnchor.ConstraintEqualTo(_dismissButton.LeadingAnchor, -ApplicationTheme.Margin),
+                _dismissButton.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                _dismissButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 _dismissButton.WidthAnchor.ConstraintEqualTo(32),
                 _dismissButton.HeightAnchor.ConstraintEqualTo(32),
-                _errorTextView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, 8),
-                _errorTextView.TopAnchor.ConstraintEqualTo(_dismissButton.BottomAnchor, 8),
-                _errorTextView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -8),
-                BottomAnchor.ConstraintEqualTo(_errorTextView.BottomAnchor, 8)
+                _errorTextView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                _errorTextView.TopAnchor.ConstraintEqualTo(_dismissButton.BottomAnchor, ApplicationTheme.Margin),
+                _errorTextView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                BottomAnchor.ConstraintEqualTo(_errorTextView.BottomAnchor, ApplicationTheme.Margin)
             });
 
             _dismissButton.TouchUpInside += Dismiss_Clicked;
@@ -66,11 +68,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             if (_viewModel.CurrentState == UIState.RouteNotFound)
             {
-                _headerLabel.Text = "Route not found";
+                _headerLabel.Text = "RouteNotFoundCardTitle".AsLocalized();
             }
             else if (_viewModel.CurrentState == UIState.LocationNotFound)
             {
-                _headerLabel.Text = "Location not found";
+                _headerLabel.Text = "LocationNotFoundCardTitle".AsLocalized();
             }
         }
 

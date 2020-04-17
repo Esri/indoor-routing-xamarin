@@ -38,14 +38,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 BackgroundImage = new UIImage(),
                 Placeholder = "LocationSearchBarPlaceholder".AsLocalized(),
                 SearchBarStyle = UISearchBarStyle.Minimal,
-                ShowsCancelButton = false
+                ShowsCancelButton = false,
+                TintColor = ApplicationTheme.ActionBackgroundColor
             };
 
             _headerLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.LabelColor,
-                Font = UIFont.BoldSystemFontOfSize(28)
+                TextColor = ApplicationTheme.ForegroundColor,
+                Font = ApplicationTheme.HeaderFont
             };
 
             _containerStack = new UIStackView
@@ -62,10 +63,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, 8),
-                _containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -8),
-                _containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, 8),
-                BottomAnchor.ConstraintEqualTo(_containerStack.BottomAnchor, 8)
+                _containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                _containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                _containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                BottomAnchor.ConstraintEqualTo(_containerStack.BottomAnchor, ApplicationTheme.Margin)
             });
 
             _searchBar.TextChanged += search_textChanged;
@@ -128,9 +129,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 await _viewModel.CommitSearchAsync(_searchBar.Text);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exception
+                ErrorLogger.Instance.LogException(ex);
             }
             // has to be done after, otherwise editing will be canceled
             _searchBar.ResignFirstResponder();
@@ -156,9 +157,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 _autoSuggestionsTableView.ReloadData();
                 _autoSuggestionsTableView.Hidden = false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exceptions
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 

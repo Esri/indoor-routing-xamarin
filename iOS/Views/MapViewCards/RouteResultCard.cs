@@ -42,36 +42,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _closeButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
             _headerLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "RouteResultHeader".AsLocalized() };
-            _headerLabel.Font = UIFont.BoldSystemFontOfSize(28);
-            _headerLabel.TextColor = UIColor.LabelColor;
+            _headerLabel.Font = ApplicationTheme.HeaderFont;
+            _headerLabel.TextColor = ApplicationTheme.ForegroundColor;
 
             this.AddSubviews(_stopsTable, _travelModeImageView, _routeDurationLabel, _closeButton, _headerLabel);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 // result header
-                _headerLabel.TopAnchor.ConstraintEqualTo(this.TopAnchor, 8),
-                _headerLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 8),
-                _headerLabel.TrailingAnchor.ConstraintEqualTo(_closeButton.LeadingAnchor, -8),
+                _headerLabel.TopAnchor.ConstraintEqualTo(this.TopAnchor, ApplicationTheme.Margin),
+                _headerLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
+                _headerLabel.TrailingAnchor.ConstraintEqualTo(_closeButton.LeadingAnchor, -ApplicationTheme.Margin),
                 //clear button
-                _closeButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -8),
+                _closeButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
                 _closeButton.CenterYAnchor.ConstraintEqualTo(_headerLabel.CenterYAnchor),
                 _closeButton.WidthAnchor.ConstraintEqualTo(32),
                 _closeButton.HeightAnchor.ConstraintEqualTo(32),
                 // stops view
                 _stopsTable.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor),
-                _stopsTable.TopAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor, 8),
-                _stopsTable.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -8),
+                _stopsTable.TopAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor, ApplicationTheme.Margin),
+                _stopsTable.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
                 // image
-                _travelModeImageView.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, 8),
+                _travelModeImageView.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
                 _travelModeImageView.TopAnchor.ConstraintEqualTo(_routeDurationLabel.TopAnchor),
                 _travelModeImageView.BottomAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor),
                 _travelModeImageView.WidthAnchor.ConstraintEqualTo(32),
                 // walk time label
-                _routeDurationLabel.TopAnchor.ConstraintEqualTo(_headerLabel.BottomAnchor, 8),
-                _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(_travelModeImageView.TrailingAnchor, 8),
+                _routeDurationLabel.TopAnchor.ConstraintEqualTo(_headerLabel.BottomAnchor, ApplicationTheme.Margin),
+                _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(_travelModeImageView.TrailingAnchor, ApplicationTheme.Margin),
                 //
-                this.BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, 8)
+                this.BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, ApplicationTheme.Margin)
             });
 
 
@@ -100,7 +100,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             Route firstReoute = routeResult.Routes.First();
 
             // Add walk time and distance label
-            // TODO - improve this
             if (firstReoute.TotalTime.Hours > 0)
             {
                 walkTimeStringBuilder.Append(string.Format("{0} h {1} m", firstReoute.TotalTime.Hours, firstReoute.TotalTime.Minutes));

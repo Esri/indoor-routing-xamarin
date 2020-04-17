@@ -77,8 +77,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 cell = new UITableViewCell(UITableViewCellStyle.Default, this.cellIdentifier);
                 cell.BackgroundColor = UIColor.Clear;
                 cell.SelectedBackgroundView = new UIView();
-                cell.SelectedBackgroundView.BackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
-                cell.TextLabel.HighlightedTextColor = UIColor.White;
+                cell.SelectedBackgroundView.BackgroundColor = ApplicationTheme.SelectionBackgroundColor;
+                cell.TextLabel.HighlightedTextColor = ApplicationTheme.SelectionForegroundColor;
                 cell.TextLabel.TextAlignment = UITextAlignment.Center;
 
                 // show separator full width

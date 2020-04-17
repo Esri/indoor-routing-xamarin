@@ -21,8 +21,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using System.Linq;
     using System.Threading.Tasks;
     using Esri.ArcGISRuntime.Data;
+    using Esri.ArcGISRuntime.Geometry;
     using Esri.ArcGISRuntime.Location;
-    using Esri.ArcGISRuntime.Mapping;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
@@ -32,7 +32,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     using Esri.ArcGISRuntime.UI;
     using Esri.ArcGISRuntime.UI.Controls;
     using UIKit;
-    using static Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.MapViewModel;
 
     /// <summary>
     /// Map view controller.
@@ -61,9 +60,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _mapView.LocationDisplay.InitialZoomScale = 150;
                 _mapView.LocationDisplay.IsEnabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log error and show warning to user
+                ErrorLogger.Instance.LogException(ex);
+                ShowError("UnableToEnableLocationDisplayErrorTitle".AsLocalized(), "UnableToEnabledLocationDisplayErrorMessage".AsLocalized());
             }
 
             try
@@ -109,14 +109,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _mapView.GraphicsOverlays.Add(_homeOverlay);
                 _mapView.GraphicsOverlays.Add(_routeOverlay);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log error
-                System.Threading.Thread.CurrentThread.Abort();
+                ErrorLogger.Instance.LogException(ex);
+                // Show error and crash app since this is an invalid state.
+                ShowError("UnableToConfigureMapErrorTitle".AsLocalized(), "ApplicationWillCloseDueToErrorMessage".AsLocalized(), null, System.Threading.Thread.CurrentThread.Abort);
             }
         }
 
-        private async void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -149,17 +150,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         if (room.IsHome)
                         {
                             _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                            try { await _mapView.SetViewpointCenterAsync(room.CenterPoint, 150); } catch (Exception) { } // TODO - log error
+                            TrySetViewpoint(room.CenterPoint, 150);
                         }
                         else if (_viewModel.CurrentlyIdentifiedRoom.IsCurrentLocation)
                         {
                             _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-                            try { await _mapView.SetViewpointCenterAsync(_mapView.LocationDisplay.MapLocation, 150); } catch (Exception) { } // TODO - log error
+                            TrySetViewpoint(_mapView.LocationDisplay.MapLocation, 150);
                         }
                         else
                         {
                             _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                            try { await _mapView.SetViewpointGeometryAsync(room.Geometry, 30); } catch (Exception) { } // TODO - log error
+                            TrySetViewpoint(room.Geometry, 30);
                         }
                     }
                     // need to explicitly request re-layout because identified room can change without UI state changing
@@ -176,9 +177,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
-                        try { await _mapView.SetViewpointGeometryAsync(route.RouteGeometry, 30); } catch (Exception) { } // TODO - log error
+                        TrySetViewpoint(route.RouteGeometry, 30);
                     }
                     break;
+            }
+        }
+
+        private async void TrySetViewpoint(MapPoint centerPoint, double scale)
+        {
+            try
+            {
+                await _mapView.SetViewpointCenterAsync(centerPoint, scale);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
+
+        private async void TrySetViewpoint(Geometry geometry, double padding)
+        {
+            try
+            {
+                await _mapView.SetViewpointGeometryAsync(geometry, padding);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 
@@ -254,9 +279,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exceptions.
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 
@@ -273,10 +298,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 await PresentViewControllerAsync(navController, true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exception
-                // TODO - show error
+                ErrorLogger.Instance.LogException(ex);
+                ShowError("UnableToShowSettingsErrorTitle".AsLocalized(), null, _settingsButton);
             }
         }
 
@@ -286,9 +311,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 await PresentViewControllerAsync(new UINavigationController(new AttributionViewController(_mapView)), true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO - log exception and show error
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 
@@ -310,5 +335,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="sender">Sender control.</param>
         /// <param name="e">Event args.</param>
         private void MapView_LocationChanged(object sender, Location e)  => _viewModel.CurrentUserLocation = e.Position;
+
+        private void ShowError(string title, string message, UIView sourceView = null, Action completion = null)
+        {
+            UIAlertControllerStyle preferredStyle = sourceView == null ? UIAlertControllerStyle.Alert : UIAlertControllerStyle.ActionSheet;
+
+            // Create a new Alert Controller
+            UIAlertController actionSheetAlert = UIAlertController.Create(title, message, preferredStyle);
+
+            // Add Actions
+            actionSheetAlert.AddAction(UIAlertAction.Create("ErrorMessageOK".AsLocalized(), UIAlertActionStyle.Default, (value) => completion()));
+
+            if (sourceView != null)
+            {
+                // Required for iPad - You must specify a source for the Action Sheet since it is displayed as a popover
+                UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
+                if (presentationPopover != null)
+                {
+                    presentationPopover.SourceView = sourceView;
+                    presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                }
+            }
+
+            // Display the alert
+            PresentViewController(actionSheetAlert, true, null);
+        }
     }
 }
