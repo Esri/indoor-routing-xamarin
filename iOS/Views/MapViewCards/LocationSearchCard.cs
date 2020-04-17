@@ -26,10 +26,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _autoSuggestionsTableView = new SelfSizedTableView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                Hidden = false,
+                Hidden = true, // must be hidden by default for voiceover
                 BackgroundColor = UIColor.Clear,
                 SeparatorColor = UIColor.SystemGrayColor,
-                Source = _suggestionSource
+                Source = _suggestionSource,
             };
 
             _searchBar = new UISearchBar

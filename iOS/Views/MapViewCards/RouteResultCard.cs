@@ -5,6 +5,7 @@ using System.Text;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
@@ -119,6 +120,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _routeDurationLabel.Text = walkTimeStringBuilder.ToString();
 
             RelayoutRequested?.Invoke(this, EventArgs.Empty);
+
+            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route found".AsLocalized());
         }
 
         private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseRouteResult();

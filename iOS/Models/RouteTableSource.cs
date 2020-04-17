@@ -111,10 +111,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     return cell;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                cell.TextLabel.Text = "UnknownLocationLabel".AsLocalized();
-                return cell;
+                ErrorLogger.Instance.LogException(ex);
+                throw;
             }
         }
     } 

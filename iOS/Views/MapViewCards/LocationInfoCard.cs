@@ -1,6 +1,7 @@
 ﻿using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
+using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
@@ -101,6 +102,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             _primaryLabel.Text = _viewModel.CurrentlyIdentifiedRoom?.RoomNumber ?? string.Empty;
             _secondaryLabel.Text = _viewModel.CurrentlyIdentifiedRoom?.EmployeeNameLabel ?? string.Empty;
+
+            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Room found".AsLocalized());
         }
 
         private void SearchDirections_Clicked(object sender, EventArgs e) => _viewModel.StartSearchFromFoundFeature();

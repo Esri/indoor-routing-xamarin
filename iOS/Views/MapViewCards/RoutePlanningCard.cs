@@ -79,7 +79,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_swapOriginDestinationButton.LeadingAnchor),
                 _searchRouteButton.TopAnchor.ConstraintEqualTo(_endTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
                 _searchRouteButton.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _searchRouteButton.HeightAnchor.ConstraintEqualTo(44),
                 // swap origin and destinations button
                 _swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(44),
                 _swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
@@ -104,6 +103,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 _startTextPlaceholder.Text = _viewModel.OriginSearchText;
                 _endTextPlaceholder.Text = _viewModel.DestinationSearchText;
+                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Planning route with selected location".AsLocalized());
             }
         }
 

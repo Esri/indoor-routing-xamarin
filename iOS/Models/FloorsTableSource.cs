@@ -17,8 +17,8 @@
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
     using Foundation;
     using UIKit;
 
@@ -90,12 +90,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             try
             {
                 cell.TextLabel.Text = _viewModel.CurrentVisibleFloors.ElementAt(indexPath.Row);
+                cell.AccessibilityLabel = "Floor: ".AsLocalized() + cell.TextLabel.Text;
+                cell.AccessibilityHint = "Select to show this floor".AsLocalized();
 
                 return cell;
             }
-            catch
+            catch(Exception ex)
             {
-                throw new InvalidOperationException();
+                ErrorLogger.Instance.LogException(ex);
+                throw;
             }
         }
 

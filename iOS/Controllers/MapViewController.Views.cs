@@ -123,12 +123,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Create and set up accessory buttons
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);
+            _settingsButton.AccessibilityLabel = "Show settings".AsLocalized();
+            _settingsButton.AccessibilityHint = "Open settings for this app".AsLocalized();
 
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsHomeSet };
             _homeButton.SetImage(UIImage.FromBundle("home"), UIControlState.Normal);
+            _homeButton.AccessibilityLabel = "Go home".AsLocalized();
+            _homeButton.AccessibilityHint = "Select your home location".AsLocalized();
 
             _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled };
             _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
+            _locationButton.AccessibilityLabel = "Go to current location".AsLocalized();
+            _locationButton.AccessibilityHint = "Select your device's current location".AsLocalized();
 
             _topRightStack = new IntrinsicContentSizedStackView
             {
