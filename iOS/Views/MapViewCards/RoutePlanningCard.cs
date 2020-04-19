@@ -1,25 +1,31 @@
-﻿using System;
-using UIKit;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Foundation;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
+using Foundation;
+using UIKit;
 
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
-    public class RoutePlanningCard : UIView
+    public sealed class RoutePlanningCard : UIView
     {
-        private MapViewModel _viewModel;
+        private readonly MapViewModel _viewModel;
 
-        private PseudoTextFieldButton _startTextPlaceholder;
-        private PseudoTextFieldButton _endTextPlaceholder;
-
-        private ActionButton _searchRouteButton;
-
-        private UILabel _searchStartLabel;
-        private UILabel _searchEndLabel;
-        private UIButton _cancelRouteSearchButton;
-        private UILabel _routeSearchHeader;
-        private UIButton _swapOriginDestinationButton;
+        private readonly PseudoTextFieldButton _startTextPlaceholder;
+        private readonly PseudoTextFieldButton _endTextPlaceholder;
 
         internal RoutePlanningCard(MapViewModel viewModel)
         {
@@ -28,93 +34,97 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _startTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _endTextPlaceholder = new PseudoTextFieldButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _searchRouteButton = new ActionButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _searchRouteButton.SetTitle("SearchForRouteButtonText".AsLocalized(), UIControlState.Normal);
+            var searchRouteButton = new ActionButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            searchRouteButton.SetTitle("SearchForRouteButtonText".Localize(), UIControlState.Normal);
 
-            _cancelRouteSearchButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            UIButton cancelRouteSearchButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "OriginRouteSearchFieldLabel".AsLocalized() };
-            _searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DestinationRouteSearchFieldLabel".AsLocalized() };
+            var searchStartLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "OriginRouteSearchFieldLabel".Localize() };
+            var searchEndLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DestinationRouteSearchFieldLabel".Localize() };
 
-            _searchStartLabel.SetContentHuggingPriority((float)UILayoutPriority.DefaultHigh, UILayoutConstraintAxis.Horizontal);
+            searchStartLabel.SetContentHuggingPriority((float)UILayoutPriority.DefaultHigh, UILayoutConstraintAxis.Horizontal);
 
-            _routeSearchHeader = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "DirectionsPanelHeader".AsLocalized() };
-            _routeSearchHeader.TextColor = ApplicationTheme.ForegroundColor;
-            _routeSearchHeader.Font = ApplicationTheme.HeaderFont;
+            var routeSearchHeader = new UILabel
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Text = "DirectionsPanelHeader".Localize(),
+                TextColor = ApplicationTheme.ForegroundColor,
+                Font = ApplicationTheme.HeaderFont
+            };
 
             // swap origin and destination button
-            _swapOriginDestinationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _swapOriginDestinationButton.SetImage(UIImage.FromBundle("arrow-up-down"), UIControlState.Normal);
-            _swapOriginDestinationButton.TintColor = ApplicationTheme.ForegroundColor;
+            var swapOriginDestinationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            swapOriginDestinationButton.SetImage(UIImage.FromBundle("arrow-up-down"), UIControlState.Normal);
+            swapOriginDestinationButton.TintColor = ApplicationTheme.ForegroundColor;
 
-            this.AddSubviews(_startTextPlaceholder, _endTextPlaceholder, _searchRouteButton, _searchStartLabel, _searchEndLabel, _cancelRouteSearchButton, _routeSearchHeader, _swapOriginDestinationButton);
+            AddSubviews(_startTextPlaceholder, _endTextPlaceholder, searchRouteButton, searchStartLabel, searchEndLabel, cancelRouteSearchButton, routeSearchHeader, swapOriginDestinationButton);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 // label
-                _routeSearchHeader.TopAnchor.ConstraintEqualTo(this.TopAnchor, ApplicationTheme.Margin),
-                _routeSearchHeader.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _routeSearchHeader.TrailingAnchor.ConstraintEqualTo(_cancelRouteSearchButton.LeadingAnchor, -ApplicationTheme.Margin),
+                routeSearchHeader.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                routeSearchHeader.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                routeSearchHeader.TrailingAnchor.ConstraintEqualTo(cancelRouteSearchButton.LeadingAnchor, -ApplicationTheme.Margin),
                 // close button
-                _cancelRouteSearchButton.CenterYAnchor.ConstraintEqualTo(_routeSearchHeader.CenterYAnchor),
-                _cancelRouteSearchButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
-                _cancelRouteSearchButton.HeightAnchor.ConstraintEqualTo(32),
-                _cancelRouteSearchButton.WidthAnchor.ConstraintEqualTo(32),
+                cancelRouteSearchButton.CenterYAnchor.ConstraintEqualTo(routeSearchHeader.CenterYAnchor),
+                cancelRouteSearchButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                cancelRouteSearchButton.HeightAnchor.ConstraintEqualTo(32),
+                cancelRouteSearchButton.WidthAnchor.ConstraintEqualTo(32),
                 // labels
-                _searchStartLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _searchStartLabel.CenterYAnchor.ConstraintEqualTo(_startTextPlaceholder.CenterYAnchor),
-                _searchEndLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _searchEndLabel.CenterYAnchor.ConstraintEqualTo(_endTextPlaceholder.CenterYAnchor),
-                _searchEndLabel.TrailingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor),
+                searchStartLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                searchStartLabel.CenterYAnchor.ConstraintEqualTo(_startTextPlaceholder.CenterYAnchor),
+                searchEndLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                searchEndLabel.CenterYAnchor.ConstraintEqualTo(_endTextPlaceholder.CenterYAnchor),
+                searchEndLabel.TrailingAnchor.ConstraintEqualTo(searchStartLabel.TrailingAnchor),
                 // search bars
-                _startTextPlaceholder.LeadingAnchor.ConstraintEqualTo(_searchStartLabel.TrailingAnchor, ApplicationTheme.Margin),
-                _startTextPlaceholder.TopAnchor.ConstraintEqualTo(_routeSearchHeader.BottomAnchor, ApplicationTheme.Margin),
-                _startTextPlaceholder.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
+                _startTextPlaceholder.LeadingAnchor.ConstraintEqualTo(searchStartLabel.TrailingAnchor, ApplicationTheme.Margin),
+                _startTextPlaceholder.TopAnchor.ConstraintEqualTo(routeSearchHeader.BottomAnchor, ApplicationTheme.Margin),
+                _startTextPlaceholder.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 _startTextPlaceholder.HeightAnchor.ConstraintEqualTo(44),
                 _endTextPlaceholder.LeadingAnchor.ConstraintEqualTo(_startTextPlaceholder.LeadingAnchor),
                 _endTextPlaceholder.TrailingAnchor.ConstraintEqualTo(_startTextPlaceholder.TrailingAnchor),
                 _endTextPlaceholder.TopAnchor.ConstraintEqualTo(_startTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
                 _endTextPlaceholder.HeightAnchor.ConstraintEqualTo(44),
                 // search button
-                _searchRouteButton.TrailingAnchor.ConstraintEqualTo(_swapOriginDestinationButton.LeadingAnchor),
-                _searchRouteButton.TopAnchor.ConstraintEqualTo(_endTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
-                _searchRouteButton.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
+                searchRouteButton.TrailingAnchor.ConstraintEqualTo(swapOriginDestinationButton.LeadingAnchor),
+                searchRouteButton.TopAnchor.ConstraintEqualTo(_endTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
+                searchRouteButton.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 // swap origin and destinations button
-                _swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(44),
-                _swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
-                _swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
-                _swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(_searchRouteButton.CenterYAnchor),
+                swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(44),
+                swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
+                swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(searchRouteButton.CenterYAnchor),
                 // update bottom size
-                this.BottomAnchor.ConstraintEqualTo(_searchRouteButton.BottomAnchor, ApplicationTheme.Margin)
+                BottomAnchor.ConstraintEqualTo(searchRouteButton.BottomAnchor, ApplicationTheme.Margin)
             });
 
-            _searchRouteButton.TouchUpInside += _searchRouteButton_TouchUpInside;
-            _cancelRouteSearchButton.TouchUpInside += _cancelRouteSearchButton_TouchUpInside;
-            _swapOriginDestinationButton.TouchUpInside += _swapOriginDestinationButton_TouchUpInside;
-            _startTextPlaceholder.Tapped += originTapped;
-            _endTextPlaceholder.Tapped += destinationTapped;
+            searchRouteButton.TouchUpInside += SearchRouteButton_Clicked;
+            cancelRouteSearchButton.TouchUpInside += CancelRouteSearchButton_Clicked;
+            swapOriginDestinationButton.TouchUpInside += SwapOriginDestinationButton_Clicked;
+            _startTextPlaceholder.Tapped += EditOriginField_Clicked;
+            _endTextPlaceholder.Tapped += EditDestinationField_Clicked;
 
-            _viewModel.PropertyChanged += AppState_PropertyChanged;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void AppState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(_viewModel.OriginSearchText) || e.PropertyName == nameof(_viewModel.DestinationSearchText))
             {
                 _startTextPlaceholder.Text = _viewModel.OriginSearchText;
                 _endTextPlaceholder.Text = _viewModel.DestinationSearchText;
-                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Planning route with selected location".AsLocalized());
+                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Planning route with selected location".Localize());
             }
         }
 
-        private void originTapped(object sender, EventArgs e) => _viewModel.SelectOriginSearch();
+        private void EditOriginField_Clicked(object sender, EventArgs e) => _viewModel.SelectOriginSearch();
 
-        private void destinationTapped(object sender, EventArgs e) => _viewModel.SelectDestinationSearch();
+        private void EditDestinationField_Clicked(object sender, EventArgs e) => _viewModel.SelectDestinationSearch();
 
-        private void _searchRouteButton_TouchUpInside(object sender, EventArgs e) => _viewModel.PerformRouteSearch();
+        private void SearchRouteButton_Clicked(object sender, EventArgs e) => _viewModel.PerformRouteSearch();
 
-        private void _cancelRouteSearchButton_TouchUpInside(object sender, EventArgs e) => _viewModel.CancelRouteSearch();
+        private void CancelRouteSearchButton_Clicked(object sender, EventArgs e) => _viewModel.CancelRouteSearch();
 
-        private void _swapOriginDestinationButton_TouchUpInside(object sender, EventArgs e) => _viewModel.SwapOriginDestinationSearch();
+        private void SwapOriginDestinationButton_Clicked(object sender, EventArgs e) => _viewModel.SwapOriginDestinationSearch();
     }
 }

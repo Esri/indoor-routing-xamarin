@@ -1,38 +1,37 @@
-﻿// <copyright file="MapViewController.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using System.ComponentModel;
-    using Esri.ArcGISRuntime.Mapping;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
-    using Esri.ArcGISRuntime.Toolkit.UI.Controls;
-    using Esri.ArcGISRuntime.UI.Controls;
-    using UIKit;
+﻿// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.ComponentModel;
+using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
+using Esri.ArcGISRuntime.Toolkit.UI.Controls;
+using Esri.ArcGISRuntime.UI.Controls;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
+{
     /// <summary>
     /// Map view controller.
     /// </summary>
     public partial class MapViewController : UIViewController
     {
-        public MapViewController(MapViewModel viewModel) : base()
+        public MapViewController(MapViewModel viewModel)
         {
             _viewModel = viewModel;
         }
@@ -123,18 +122,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Create and set up accessory buttons
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);
-            _settingsButton.AccessibilityLabel = "Show settings".AsLocalized();
-            _settingsButton.AccessibilityHint = "Open settings for this app".AsLocalized();
+            _settingsButton.AccessibilityLabel = "Show settings".Localize();
+            _settingsButton.AccessibilityHint = "Open settings for this app".Localize();
 
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsHomeSet };
             _homeButton.SetImage(UIImage.FromBundle("home"), UIControlState.Normal);
-            _homeButton.AccessibilityLabel = "Go home".AsLocalized();
-            _homeButton.AccessibilityHint = "Select your home location".AsLocalized();
+            _homeButton.AccessibilityLabel = "Go home".Localize();
+            _homeButton.AccessibilityHint = "Select your home location".Localize();
 
             _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled };
             _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
-            _locationButton.AccessibilityLabel = "Go to current location".AsLocalized();
-            _locationButton.AccessibilityHint = "Select your device's current location".AsLocalized();
+            _locationButton.AccessibilityLabel = "Go to current location".Localize();
+            _locationButton.AccessibilityHint = "Select your device's current location".Localize();
 
             _topRightStack = new IntrinsicContentSizedStackView
             {
@@ -164,7 +163,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _topRightStack.AddArrangedSubview(_innerFloorsTableViewShadow);
             _topRightStack.AddArrangedSubview(_compass);
 
-            NSLayoutConstraint.ActivateConstraints(new NSLayoutConstraint[]
+            NSLayoutConstraint.ActivateConstraints(new[]
             {
                 _mapView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
                 _mapView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
@@ -196,7 +195,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// Overrides default behavior when view has loaded. 
         /// </summary>
-        public async override void ViewDidLoad()
+        public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
 
@@ -206,18 +205,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
             catch (Exception ex)
             {
-                var genericError = "MapLoadError".AsLocalized();
+                var genericError = "MapLoadError".Localize();
 
                 InvokeOnMainThread(() =>
                 {
-                    var detailsController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), ex.Message, UIAlertControllerStyle.Alert);
-                    detailsController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
+                    var detailsController = UIAlertController.Create("ErrorDetailAlertTitle".Localize(), ex.Message, UIAlertControllerStyle.Alert);
+                    detailsController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".Localize(), UIAlertActionStyle.Default, null));
 
-                    var alertController = UIAlertController.Create("ErrorDetailAlertTitle".AsLocalized(), genericError, UIAlertControllerStyle.Alert);
-                    alertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
+                    var alertController = UIAlertController.Create("ErrorDetailAlertTitle".Localize(), genericError, UIAlertControllerStyle.Alert);
+                    alertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".Localize(), UIAlertActionStyle.Default, null));
                     alertController.AddAction(
                         UIAlertAction.Create(
-                            "ErrorAlertDetailsButtonText".AsLocalized(),
+                            "ErrorAlertDetailsButtonText".Localize(),
                             UIAlertActionStyle.Default,
                             (obj) => { PresentViewController(detailsController, true, null); }));
                     PresentViewController(alertController, true, null);
@@ -250,7 +249,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 BackgroundColor = UIColor.Clear
             };
 
-            _routeResultView.RelayoutRequested += _routeResultView_RelayoutRequested;
+            _routeResultView.RelayoutRequested += RouteCard_LayoutRequested;
 
             _locationSearchCard = new LocationSearchCard(_viewModel)
             {
@@ -273,29 +272,29 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             ConfigureAttribution();
 
-            UIStackView _containerView = new IntrinsicContentSizedStackView
+            UIStackView containerView = new IntrinsicContentSizedStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Axis = UILayoutConstraintAxis.Vertical
             };
 
-            _containerView.AddArrangedSubview(_locationSearchCard);
-            _containerView.AddArrangedSubview(_notFoundCard);
-            _containerView.AddArrangedSubview(_locationCard);
-            _containerView.AddArrangedSubview(_routeSearchView);
-            _containerView.AddArrangedSubview(_routeResultView);
+            containerView.AddArrangedSubview(_locationSearchCard);
+            containerView.AddArrangedSubview(_notFoundCard);
+            containerView.AddArrangedSubview(_locationCard);
+            containerView.AddArrangedSubview(_routeSearchView);
+            containerView.AddArrangedSubview(_routeResultView);
 
-            _bottomSheet.DisplayedContentView.AddSubview(_containerView);
+            _bottomSheet.DisplayedContentView.AddSubview(containerView);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _containerView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
-                _containerView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
-                _containerView.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
+                containerView.LeadingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.LeadingAnchor),
+                containerView.TrailingAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TrailingAnchor),
+                containerView.TopAnchor.ConstraintEqualTo(_bottomSheet.DisplayedContentView.TopAnchor)
             });
 
             // set initial height
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
         }
 
         private void ConfigureAttribution()
@@ -324,7 +323,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _attributionStack.AddArrangedSubview(_esriIcon);
             _attributionStack.AddArrangedSubview(_attributionImageButton);
 
-            // put mapview attribution directly above map so it is under accesory views
+            // put map attribution directly above map so it is under accessory views
             _shadowedAttribution = _attributionStack.EncapsulateInShadowView();
             View.InsertSubviewAbove(_shadowedAttribution, _mapView);
 
@@ -409,7 +408,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void UpdateUIForNewState()
+        private void UpdateUiForNewState()
         {
             _locationSearchCard.Hidden = true;
             _locationCard.Hidden = true;
@@ -419,52 +418,52 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             switch (_viewModel.CurrentState)
             {
-                case UIState.ReadyWaiting:
+                case UiState.ReadyWaiting:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.LocationFound:
+                case UiState.LocationFound:
                     _locationCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.LocationNotFound:
+                case UiState.LocationNotFound:
                     _notFoundCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.PlanningRoute:
+                case UiState.PlanningRoute:
                     _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.RouteFound:
+                case UiState.RouteFound:
                     _routeResultView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.RouteNotFound:
+                case UiState.RouteNotFound:
                     _notFoundCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.SearchingForDestination:
+                case UiState.SearchingForDestination:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
                     break;
-                case UIState.SearchingForOrigin:
+                case UiState.SearchingForOrigin:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
                     break;
-                case UIState.SearchingForFeature:
+                case UiState.SearchingForFeature:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.full);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
                     break;
-                case UIState.DestinationFound:
+                case UiState.DestinationFound:
                     _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.OriginFound:
+                case UiState.OriginFound:
                     _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
-                case UIState.FeatureSearchEntered:
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                case UiState.FeatureSearchEntered:
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
             }
         }
@@ -477,7 +476,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _viewModel.PropertyChanged += ViewModelPropertyChanged;
 
             // Handle the user moving the map 
-            _mapView.NavigationCompleted += _mapView_NavigationCompleted;
+            _mapView.NavigationCompleted += MapView_NavigationCompleted;
 
             // Handle the user tapping on the map
             _mapView.GeoViewTapped += MapView_GeoViewTapped;
@@ -488,7 +487,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _mapView.LocationDisplay.LocationChanged += MapView_LocationChanged;
 
             //  the settings button
-            _settingsButton.TouchUpInside += _settingsButton_TouchUpInside;
+            _settingsButton.TouchUpInside += SettingsButton_Clicked;
 
             // Home button
             _homeButton.TouchUpInside += Home_TouchUpInside;
@@ -506,11 +505,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             if (_routeResultView != null)
             {
-                _routeResultView.RelayoutRequested += _routeResultView_RelayoutRequested;
+                _routeResultView.RelayoutRequested += RouteCard_LayoutRequested;
             }
         }
 
-        private void _routeResultView_RelayoutRequested(object sender, EventArgs e) => _bottomSheet?.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+        private void RouteCard_LayoutRequested(object sender, EventArgs e) => _bottomSheet?.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
 
         private void UnsubscribeFromEvents()
         {
@@ -518,7 +517,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             _viewModel.PropertyChanged -= ViewModelPropertyChanged;
 
             // Handle the user moving the map 
-            _mapView.NavigationCompleted -= _mapView_NavigationCompleted;
+            _mapView.NavigationCompleted -= MapView_NavigationCompleted;
 
             // Handle the user tapping on the map
             _mapView.GeoViewTapped -= MapView_GeoViewTapped;
@@ -534,7 +533,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
 
             //  the settings button
-            _settingsButton.TouchUpInside -= _settingsButton_TouchUpInside;
+            _settingsButton.TouchUpInside -= SettingsButton_Clicked;
 
             // Home button
             _homeButton.TouchUpInside -= Home_TouchUpInside;
@@ -553,7 +552,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             if (_routeResultView != null)
             {
-                _routeResultView.RelayoutRequested -= _routeResultView_RelayoutRequested;
+                _routeResultView.RelayoutRequested -= RouteCard_LayoutRequested;
             }
         }
         #endregion event subscription management

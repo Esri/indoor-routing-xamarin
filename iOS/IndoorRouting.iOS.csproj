@@ -191,39 +191,105 @@
     <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AccessoryButtonColor.colorset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%401x.png" />
-    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%403x.png" />
-    <ImageAsset Include="Assets.xcassets\walking.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%402x.png" />
-    <ImageAsset Include="Assets.xcassets\home.imageset\home%402x.png" />
-    <ImageAsset Include="Assets.xcassets\home.imageset\home%403x.png" />
-    <ImageAsset Include="Assets.xcassets\home.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\home.imageset\home%401x.png" />
-    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%401x.png" />
-    <ImageAsset Include="Assets.xcassets\gear.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%402x.png" />
-    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%403x.png" />
-    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%401x.png" />
-    <ImageAsset Include="Assets.xcassets\gps-on.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%402x.png" />
-    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%403x.png" />
-    <ImageAsset Include="Assets.xcassets\x.imageset\x%401x.png" />
-    <ImageAsset Include="Assets.xcassets\x.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\x.imageset\x%403x.png" />
-    <ImageAsset Include="Assets.xcassets\x.imageset\x%402x.png" />
-    <ImageAsset Include="Assets.xcassets\esri.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%401x-1.png" />
-    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%402x-1.png" />
-    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%403x-1.png" />
-    <ImageAsset Include="Assets.xcassets\information.imageset\information%401x.png" />
-    <ImageAsset Include="Assets.xcassets\information.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\information.imageset\information%402x.png" />
-    <ImageAsset Include="Assets.xcassets\information.imageset\information%403x.png" />
-    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%401x.png" />
-    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%403x.png" />
-    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AccessoryButtonColor.colorset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\walking.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%401x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%402x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%403x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -279,13 +345,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Views\" />
     <Folder Include="Assets.xcassets\AccessoryButtonColor.colorset\" />
     <Folder Include="Assets.xcassets\esri.imageset\" />
-    <Folder Include="Resources\" />
-    <Folder Include="Resources\base.lproj\" />
-    <Folder Include="Views\MapViewCards\" />
-    <Folder Include="Views\Controls\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\base.lproj\Localizable.strings" />

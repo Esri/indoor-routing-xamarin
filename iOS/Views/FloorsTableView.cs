@@ -1,16 +1,31 @@
-﻿using System;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Linq;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
-    public class FloorsTableView : SelfSizedTableView
+    public sealed class FloorsTableView : SelfSizedTableView
     {
-        private MapViewModel _viewModel;
+        private readonly MapViewModel _viewModel;
 
-        public FloorsTableView(MapViewModel viewModel) : base()
+        public FloorsTableView(MapViewModel viewModel)
         {
             _viewModel = viewModel;
 
@@ -21,10 +36,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             Source = new FloorsTableSource(viewModel);
 
-            _viewModel.PropertyChanged += _viewModel_PropertyChanged;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void _viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             BeginInvokeOnMainThread(() =>
             {
@@ -49,10 +64,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             if (_viewModel.SelectedFloorLevel != null && _viewModel.CurrentVisibleFloors != null)
             {
-                var selectedFloorNSIndex = GetTableViewRowIndex(_viewModel.SelectedFloorLevel, _viewModel.CurrentVisibleFloors.ToArray(), 0);
-                if (selectedFloorNSIndex != null)
+                var selectedFloorNsIndex = GetTableViewRowIndex(_viewModel.SelectedFloorLevel, _viewModel.CurrentVisibleFloors.ToArray(), 0);
+                if (selectedFloorNsIndex != null)
                 {
-                    SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
+                    SelectRow(selectedFloorNsIndex, false, UITableViewScrollPosition.None);
                 }
             }
         }
@@ -75,11 +90,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 return null;
             }
-        }
-
-        public override void ReloadData()
-        {
-            base.ReloadData();
         }
     }
 }

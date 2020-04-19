@@ -1,19 +1,19 @@
-﻿// <copyright file="AppDelegate.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
     using System;
@@ -32,7 +32,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <summary>
         /// The task identifier, will hold the value of the finite background task
         /// </summary>
-        private nint taskID = -1;
+        private nint _taskId = -1;
 
         /// <summary>
         /// Gets or sets the main window.
@@ -47,8 +47,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             // create a new window instance based on the screen size
-            Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            Window.RootViewController = new DownloadController();
+            Window = new UIWindow(UIScreen.MainScreen.Bounds) {RootViewController = new DownloadController()};
 
             // make the window visible
             Window.MakeKeyAndVisible();
@@ -79,14 +78,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void DidEnterBackground(UIApplication application)
         {
             // Begin Finite-Length Task.
-            this.taskID = UIApplication.SharedApplication.BeginBackgroundTask(null);
+            _taskId = UIApplication.SharedApplication.BeginBackgroundTask(null);
 
             // Start saving the user choices.
-            _ = Task.Run(() => {
+            Task.Run(() => {
                 try
                 {
                     AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml"));
-                    UIApplication.SharedApplication.EndBackgroundTask(this.taskID);
+                    UIApplication.SharedApplication.EndBackgroundTask(_taskId);
                 }
                 catch (Exception ex)
                 {

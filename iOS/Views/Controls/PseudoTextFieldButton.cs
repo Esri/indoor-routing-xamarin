@@ -1,14 +1,25 @@
-﻿using System;
-using CoreGraphics;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using UIKit;
 
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
-    public class PseudoTextFieldButton : UIView
+    public sealed class PseudoTextFieldButton : UIView
     {
         private readonly UILabel _label;
-        private readonly UITapGestureRecognizer _tapRecognizer;
-        private readonly UIVisualEffectView _backgroundView;
 
         public string Text
         {
@@ -26,11 +37,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         public PseudoTextFieldButton()
         {
-            _backgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent))
+            var backgroundView = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent))
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
-            AddSubview(_backgroundView);
+            AddSubview(backgroundView);
 
             _label = new UILabel
             {
@@ -38,18 +49,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 TextColor = ApplicationTheme.ActionBackgroundColor
             };
 
-            _backgroundView.ContentView.AddSubview(_label);
+            backgroundView.ContentView.AddSubview(_label);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _backgroundView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor),
-                _backgroundView.TopAnchor.ConstraintEqualTo(TopAnchor),
-                _backgroundView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor),
-                _backgroundView.BottomAnchor.ConstraintEqualTo(BottomAnchor),
-                _label.LeadingAnchor.ConstraintEqualTo(_backgroundView.LeadingAnchor, ApplicationTheme.Margin),
-                _label.TopAnchor.ConstraintEqualTo(_backgroundView.TopAnchor, ApplicationTheme.Margin),
-                _label.BottomAnchor.ConstraintEqualTo(_backgroundView.BottomAnchor, -ApplicationTheme.Margin),
-                _label.TrailingAnchor.ConstraintEqualTo(_backgroundView.TrailingAnchor, -ApplicationTheme.Margin)
+                backgroundView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor),
+                backgroundView.TopAnchor.ConstraintEqualTo(TopAnchor),
+                backgroundView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor),
+                backgroundView.BottomAnchor.ConstraintEqualTo(BottomAnchor),
+                _label.LeadingAnchor.ConstraintEqualTo(backgroundView.LeadingAnchor, ApplicationTheme.Margin),
+                _label.TopAnchor.ConstraintEqualTo(backgroundView.TopAnchor, ApplicationTheme.Margin),
+                _label.BottomAnchor.ConstraintEqualTo(backgroundView.BottomAnchor, -ApplicationTheme.Margin),
+                _label.TrailingAnchor.ConstraintEqualTo(backgroundView.TrailingAnchor, -ApplicationTheme.Margin)
             });
 
             Layer.CornerRadius = ApplicationTheme.CornerRadius;
@@ -60,8 +71,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             BackgroundColor = UIColor.Clear;
             ClipsToBounds = true;
 
-            _tapRecognizer = new UITapGestureRecognizer(HandleTap);
-            AddGestureRecognizer(_tapRecognizer);
+            var tapRecognizer = new UITapGestureRecognizer(HandleTap);
+            AddGestureRecognizer(tapRecognizer);
         }
 
         private void HandleTap()

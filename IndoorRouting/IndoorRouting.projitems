@@ -10,15 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Structures\CoordinatesKeyValuePair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DownloadViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\IdentifiedRoom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Room.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MapViewUIState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Structures\" />
     <Folder Include="$(MSBuildThisFileDirectory)ViewModels\" />
     <Folder Include="$(MSBuildThisFileDirectory)Models\" />
   </ItemGroup>

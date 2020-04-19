@@ -1,19 +1,17 @@
-﻿// <copyright file="AppSettings.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     using System;
@@ -47,6 +45,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         /// <value>Portal Item ID</value>
         [XmlElement]
+        // ReSharper disable once InconsistentNaming
         public string PortalItemID
         {
             get => _portalItemId;
@@ -188,21 +187,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private int _floorplanLinesLayerIndex;
+        private int _floorPlanLinesLayerIndex;
         /// <summary>
-        /// Gets or sets the index of the floorplan lines layer.
+        /// Gets or sets the index of the floor plan lines layer.
         /// </summary>
-        /// <value>The index of the floorplan lines layer.</value>
+        /// <value>The index of the floor plan lines layer.</value>
         [XmlElement]
-        public int FloorplanLinesLayerIndex
+        public int FloorPlanLinesLayerIndex
         {
-            get => _floorplanLinesLayerIndex;
+            get => _floorPlanLinesLayerIndex;
             set
             {
-                if (value != _floorplanLinesLayerIndex)
+                if (value != _floorPlanLinesLayerIndex)
                 {
-                    _floorplanLinesLayerIndex = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FloorplanLinesLayerIndex)));
+                    _floorPlanLinesLayerIndex = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FloorPlanLinesLayerIndex)));
                 }
             }
         }
@@ -228,9 +227,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
         private string _roomsLayerFloorColumnName;
         /// <summary>
-        /// Gets or sets the name of the floor column in rooms tabel.
+        /// Gets or sets the name of the floor column in rooms table.
         /// </summary>
-        /// <value>The floor column in rooms tabel.</value>
+        /// <value>The floor column in rooms table.</value>
         [XmlElement]
         public string RoomsLayerFloorColumnName
         {
@@ -245,13 +244,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private CoordinatesKeyValuePair<string, double>[] _homeCoordinates;
+        private KeyValuePair<string, double>[] _homeCoordinates;
         /// <summary>
         /// Gets or sets the home coordinates.
         /// </summary>
         /// <value>The coordinates and floor level for the home location. This also includes the WKID</value>
         [XmlArray("HomeCoordinates")]
-        public CoordinatesKeyValuePair<string, double>[] HomeCoordinates
+        public KeyValuePair<string, double>[] HomeCoordinates
         {
             get => _homeCoordinates;
             set
@@ -283,13 +282,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private CoordinatesKeyValuePair<string, double>[] _initialViewpointCoordinates;
+        private KeyValuePair<string, double>[] _initialViewpointCoordinates;
         /// <summary>
         /// Gets or sets the initial viewpoint coordinates.
         /// </summary>
         /// <value>The initial viewpoint coordinates used for the map.</value>
         [XmlArray("InitialViewpointCoordinates")]
-        public CoordinatesKeyValuePair<string, double>[] InitialViewpointCoordinates
+        public KeyValuePair<string, double>[] InitialViewpointCoordinates
         {
             get => _initialViewpointCoordinates;
             set
@@ -400,58 +399,51 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <param name="filePath">File path.</param>
         internal static async Task<AppSettings> CreateAsync(string filePath)
         {
+            var directoryName = Path.GetDirectoryName(filePath);
+
+            if (directoryName == null)
+            {
+                throw new DirectoryNotFoundException("Couldn't find settings directory");
+            }
             // Get all the files in the device directory
-            List<string> files = Directory.EnumerateFiles(Path.GetDirectoryName(filePath)).ToList();
+            List<string> files = Directory.EnumerateFiles(directoryName).ToList();
 
             // If the settings file doesn't exist, create it
             // Otherwise load the settings from the settings file
             // If settings file is invalid, delete it and recreate it
             if (!files.Contains(filePath))
             {
-               var appSettings = new AppSettings();
-
-                // Change the Portal Item
-                appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
-                appSettings.PortalItemName = "RedlandsCampus.mmpk";
-
-                // Change the room and walls layers
-                appSettings.RoomsLayerIndex = 1;
-                appSettings.FloorplanLinesLayerIndex = 2;
-
-                //Change the floor column name
-                appSettings.RoomsLayerFloorColumnName = "FLOOR";
-
-                // Decide if you want to use online basemap or not
-                appSettings.UseOnlineBasemap = false;
-
-                // Change fields used by the locator
-                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
-
-                // Change fields displayed in the bottom card
-                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
-
-                // Change initial viewpoint
-                CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
+                var appSettings = new AppSettings
                 {
-                    new CoordinatesKeyValuePair<string, double>("X", -13046209),
-                    new CoordinatesKeyValuePair<string, double>("Y", 4036456),
-                    new CoordinatesKeyValuePair<string, double>("WKID", 3857),
-                    new CoordinatesKeyValuePair<string, double>("ZoomLevel", 13000),
+                    PortalItemID = "52346d5fc4c348589f976b6a279ec3e6",
+                    PortalItemName = "RedlandsCampus.mmpk",
+                    // Set the room and walls layers
+                    RoomsLayerIndex = 1,
+                    FloorPlanLinesLayerIndex = 2,
+                    RoomsLayerFloorColumnName = "FLOOR",
+                    UseOnlineBasemap = false,
+                    // Set fields displayed in the bottom card
+                    LocatorFields = new List<string>() {"LONGNAME", "KNOWN_AS_N"},
+                    ContactCardDisplayFields = new List<string>() {"LONGNAME", "KNOWN_AS_N"},
+                    // Change at what zoom levels the room data becomes visible
+                    RoomsLayerMinimumZoomLevel = 750,
+
+                    // Change map scale bounds
+                    MapViewMinScale = 100,
+                    MapViewMaxScale = 13000,
+                    MmpkDownloadDate = new DateTime(1900, 1, 1),
+                    HomeLocation = string.Empty,
+                    IsLocationServicesEnabled = false,
+                    IsRoutingEnabled = false,
+                    IsPreferElevatorsEnabled = false,
+                    InitialViewpointCoordinates = new[]
+                    {
+                        new KeyValuePair<string, double>("X", -13046209),
+                        new KeyValuePair<string, double>("Y", 4036456),
+                        new KeyValuePair<string, double>("WKID", 3857),
+                        new KeyValuePair<string, double>("ZoomLevel", 13000),
+                    }
                 };
-                appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
-
-                // Change at what zoom levels the room data becomes visible
-                appSettings.RoomsLayerMinimumZoomLevel = 750;
-
-                // Change map scales
-                appSettings.MapViewMinScale = 100;
-                appSettings.MapViewMaxScale = 13000;
-
-                appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
-                appSettings.HomeLocation = string.Empty;
-                appSettings.IsLocationServicesEnabled = false;
-                appSettings.IsRoutingEnabled = false;
-                appSettings.IsPreferElevatorsEnabled = false;
 
                 var serializer = new XmlSerializer(appSettings.GetType());
 
@@ -506,10 +498,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        public bool IsHomeSet
-        {
-            get => !string.IsNullOrWhiteSpace(HomeLocation);
-        }
+        public bool IsHomeSet => !string.IsNullOrWhiteSpace(HomeLocation);
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

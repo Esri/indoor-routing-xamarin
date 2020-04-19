@@ -1,24 +1,37 @@
-﻿using System;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
 using Foundation;
 using UIKit;
 
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
-    public class RouteResultCard : UIView
+    public sealed class RouteResultCard : UIView
     {
-        private MapViewModel _viewModel;
+        private readonly MapViewModel _viewModel;
 
-        private SelfSizedTableView _stopsTable;
-        private UIImageView _travelModeImageView;
-        private UILabel _routeDurationLabel;
-        private UIButton _closeButton;
-        private UILabel _headerLabel;
+        private readonly SelfSizedTableView _stopsTable;
+        private readonly UILabel _routeDurationLabel;
 
         internal RouteResultCard(MapViewModel viewModel)
         {
@@ -34,49 +47,56 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             };
 
             // Future - consider supporting more travel modes?
-            _travelModeImageView = new UIImageView(UIImage.FromBundle("walking")) { TranslatesAutoresizingMaskIntoConstraints = false };
-            _travelModeImageView.TintColor = UIColor.LabelColor;
-            _travelModeImageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            var travelModeImageView = new UIImageView(UIImage.FromBundle("walking"))
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                TintColor = UIColor.LabelColor,
+                ContentMode = UIViewContentMode.ScaleAspectFit
+            };
 
             _routeDurationLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _closeButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            UIButton closeButton = new CloseButton { TranslatesAutoresizingMaskIntoConstraints = false };
 
-            _headerLabel = new UILabel { TranslatesAutoresizingMaskIntoConstraints = false, Text = "RouteResultHeader".AsLocalized() };
-            _headerLabel.Font = ApplicationTheme.HeaderFont;
-            _headerLabel.TextColor = ApplicationTheme.ForegroundColor;
+            var headerLabel = new UILabel
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Text = "RouteResultHeader".Localize(),
+                Font = ApplicationTheme.HeaderFont,
+                TextColor = ApplicationTheme.ForegroundColor
+            };
 
-            this.AddSubviews(_stopsTable, _travelModeImageView, _routeDurationLabel, _closeButton, _headerLabel);
+            AddSubviews(_stopsTable, travelModeImageView, _routeDurationLabel, closeButton, headerLabel);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 // result header
-                _headerLabel.TopAnchor.ConstraintEqualTo(this.TopAnchor, ApplicationTheme.Margin),
-                _headerLabel.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _headerLabel.TrailingAnchor.ConstraintEqualTo(_closeButton.LeadingAnchor, -ApplicationTheme.Margin),
+                headerLabel.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                headerLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                headerLabel.TrailingAnchor.ConstraintEqualTo(closeButton.LeadingAnchor, -ApplicationTheme.Margin),
                 //clear button
-                _closeButton.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
-                _closeButton.CenterYAnchor.ConstraintEqualTo(_headerLabel.CenterYAnchor),
-                _closeButton.WidthAnchor.ConstraintEqualTo(32),
-                _closeButton.HeightAnchor.ConstraintEqualTo(32),
+                closeButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                closeButton.CenterYAnchor.ConstraintEqualTo(headerLabel.CenterYAnchor),
+                closeButton.WidthAnchor.ConstraintEqualTo(32),
+                closeButton.HeightAnchor.ConstraintEqualTo(32),
                 // stops view
-                _stopsTable.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor),
+                _stopsTable.LeadingAnchor.ConstraintEqualTo(LeadingAnchor),
                 _stopsTable.TopAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor, ApplicationTheme.Margin),
-                _stopsTable.TrailingAnchor.ConstraintEqualTo(this.TrailingAnchor, -ApplicationTheme.Margin),
+                _stopsTable.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 // image
-                _travelModeImageView.LeadingAnchor.ConstraintEqualTo(this.LeadingAnchor, ApplicationTheme.Margin),
-                _travelModeImageView.TopAnchor.ConstraintEqualTo(_routeDurationLabel.TopAnchor),
-                _travelModeImageView.BottomAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor),
-                _travelModeImageView.WidthAnchor.ConstraintEqualTo(32),
+                travelModeImageView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                travelModeImageView.TopAnchor.ConstraintEqualTo(_routeDurationLabel.TopAnchor),
+                travelModeImageView.BottomAnchor.ConstraintEqualTo(_routeDurationLabel.BottomAnchor),
+                travelModeImageView.WidthAnchor.ConstraintEqualTo(32),
                 // walk time label
-                _routeDurationLabel.TopAnchor.ConstraintEqualTo(_headerLabel.BottomAnchor, ApplicationTheme.Margin),
-                _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(_travelModeImageView.TrailingAnchor, ApplicationTheme.Margin),
+                _routeDurationLabel.TopAnchor.ConstraintEqualTo(headerLabel.BottomAnchor, ApplicationTheme.Margin),
+                _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(travelModeImageView.TrailingAnchor, ApplicationTheme.Margin),
                 //
-                this.BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, ApplicationTheme.Margin)
+                BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, ApplicationTheme.Margin)
             });
 
 
-            _closeButton.TouchUpInside += Close_Clicked;
+            closeButton.TouchUpInside += Close_Clicked;
 
             _viewModel.PropertyChanged += AppState_PropertyChanged;
         }
@@ -98,16 +118,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             StringBuilder walkTimeStringBuilder = new StringBuilder();
 
-            Route firstReoute = routeResult.Routes.First();
+            Route firstRoute = routeResult.Routes.First();
 
             // Add walk time and distance label
-            if (firstReoute.TotalTime.Hours > 0)
+            if (firstRoute.TotalTime.Hours > 0)
             {
-                walkTimeStringBuilder.Append(string.Format("{0} h {1} m", firstReoute.TotalTime.Hours, firstReoute.TotalTime.Minutes));
+                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Hours} h {firstRoute.TotalTime.Minutes} m");
             }
             else
             {
-                walkTimeStringBuilder.Append(string.Format("{0} min", firstReoute.TotalTime.Minutes + 1));
+                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Minutes + 1} min");
             }
 
             var tableSource = new List<Feature>() { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
@@ -121,7 +141,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             RelayoutRequested?.Invoke(this, EventArgs.Empty);
 
-            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route found".AsLocalized());
+            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route found".Localize());
         }
 
         private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseRouteResult();

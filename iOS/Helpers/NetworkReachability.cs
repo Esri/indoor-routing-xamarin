@@ -19,26 +19,6 @@ using System.Net;
 using SystemConfiguration;
 using CoreFoundation;
 
-/// <summary>
-/// Network status.
-/// </summary>
-internal enum NetworkStatus
-{
-    /// <summary>
-    /// Network is not reacheable
-    /// </summary>
-    NotReachable,
-
-    /// <summary>
-    /// Network is reacheable 
-    /// </summary>
-    ReachableViaCarrierDataNetwork,
-
-    /// <summary>
-    /// Network is reacheable only via WiFi.
-    /// </summary>
-    ReachableViaWiFiNetwork
-}
 
 /// <summary>
 /// Reachability class helps determine if device is online. This will be different for every platform. 
@@ -62,10 +42,8 @@ internal static class Reachability
             defaultRouteReachability.Schedule(CFRunLoop.Current, CFRunLoop.ModeDefault);
         }
 
-        NetworkReachabilityFlags flags;
-
-        return defaultRouteReachability.TryGetFlags(out flags) &&
-        IsReachableWithoutRequiringConnection(flags);
+        return defaultRouteReachability.TryGetFlags(out var flags) &&
+               IsReachableWithoutRequiringConnection(flags);
     }
 
     /// <summary>

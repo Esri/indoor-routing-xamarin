@@ -1,40 +1,41 @@
-// <copyright file="HomeLocationController.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
-    using UIKit;
+// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
+{
     /// <summary>
     /// Controller handles the ui and logic of the user choosing a home location
     /// </summary>
-    internal partial class HomeLocationController : UIViewController
+    internal class HomeLocationController : UIViewController
     {
-        private MapViewModel _viewModel;
+        private readonly MapViewModel _viewModel;
 
-        UITableView AutosuggestionsTableView { get; set; }
-        UISearchBar HomeLocationSearchBar { get; set; }
+        private UITableView AutosuggestionsTableView { get; set; }
+        private UISearchBar HomeLocationSearchBar { get; set; }
 
-        public HomeLocationController(MapViewModel viewModel) : base()
+        public HomeLocationController(MapViewModel viewModel)
         {
             _viewModel = viewModel;
         }
@@ -42,15 +43,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void LoadView()
         {
             base.LoadView();
-            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
+            View = new UIView
+            {
+                BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor
+            };
 
-            HomeLocationSearchBar = new UISearchBar { TranslatesAutoresizingMaskIntoConstraints = false };
-            HomeLocationSearchBar.Placeholder = "LocationSearchBarPlaceholder".AsLocalized();
-            HomeLocationSearchBar.BackgroundImage = new UIImage();
-            HomeLocationSearchBar.ShowsCancelButton = true;
-            HomeLocationSearchBar.Text = AppSettings.CurrentSettings.HomeLocation;
-            AutosuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false };
-            AutosuggestionsTableView.BackgroundColor = UIColor.Clear;
+            HomeLocationSearchBar = new UISearchBar
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Placeholder = "LocationSearchBarPlaceholder".Localize(),
+                BackgroundImage = new UIImage(),
+                ShowsCancelButton = true,
+                Text = AppSettings.CurrentSettings.HomeLocation
+            };
+            AutosuggestionsTableView = new UITableView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false, BackgroundColor = UIColor.Clear
+            };
 
             View.AddSubviews(HomeLocationSearchBar, AutosuggestionsTableView);
 
@@ -72,7 +81,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-            this.HomeLocationSearchBar.BecomeFirstResponder();
+            HomeLocationSearchBar.BecomeFirstResponder();
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -83,7 +92,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
             HomeLocationSearchBar.SearchButtonClicked -= HomeLocationSearchBar_SearchButtonClicked;
 
-            HomeLocationSearchBar.CancelButtonClicked -= _clearHomeLocationButton_TouchUpInside;
+            HomeLocationSearchBar.CancelButtonClicked -= ClearHome_Clicked;
         }
 
         /// <summary>
@@ -95,7 +104,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             // Show the navigation bar
             NavigationController.NavigationBarHidden = false;
 
-            HomeLocationSearchBar.CancelButtonClicked += _clearHomeLocationButton_TouchUpInside;
+            HomeLocationSearchBar.CancelButtonClicked += ClearHome_Clicked;
 
             HomeLocationSearchBar.TextChanged += HomeLocationSearchBar_TextChanged;
 
@@ -106,7 +115,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
         private void HomeLocationSearchBar_SearchButtonClicked(object sender, EventArgs e)
         {
-            var locationText = ((UISearchBar)sender).Text;
+            var locationText = ((UISearchBar) sender).Text;
             SetHomeLocationAsync(locationText);
         }
 
@@ -114,7 +123,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         {
             try
             {
-                // This is the method that is called when the user searchess
+                // This is the method that is called when the user searches
                 await GetSuggestionsFromLocatorAsync();
             }
             catch (Exception ex)
@@ -123,34 +132,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void _clearHomeLocationButton_TouchUpInside(object sender, EventArgs e)
+        private void ClearHome_Clicked(object sender, EventArgs e)
         {
-            this.HomeLocationSearchBar.Text = "";
-            this.SetHomeLocationAsync("");
-
+            HomeLocationSearchBar.Text = "";
+            SetHomeLocationAsync("");
         }
 
         /// <summary>
-        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
+        /// Retrieves the suggestions from locator and displays them in a tableview below the search field.
         /// </summary>
         /// <returns>Async task</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await _viewModel.GetLocationSuggestionsAsync(this.HomeLocationSearchBar.Text);
+            var suggestions = await _viewModel.GetLocationSuggestionsAsync(HomeLocationSearchBar.Text);
             if (suggestions == null || suggestions.Count == 0)
             {
-                this.AutosuggestionsTableView.Hidden = true;
+                AutosuggestionsTableView.Hidden = true;
             }
 
             // Only show the floors tableview if the buildings in view have more than one floor
-            if (suggestions.Count > 0)
+            if (suggestions?.Any() ?? false)
             {
                 // Show the tableview with autosuggestions and populate it
-                this.AutosuggestionsTableView.Hidden = false;
+                AutosuggestionsTableView.Hidden = false;
                 var tableSource = new AutosuggestionsTableSource(suggestions, false);
-                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
-                this.AutosuggestionsTableView.Source = tableSource;
-                this.AutosuggestionsTableView.ReloadData();
+                tableSource.TableRowSelected += TableSource_TableRowSelected;
+                AutosuggestionsTableView.Source = tableSource;
+                AutosuggestionsTableView.ReloadData();
             }
         }
 
@@ -182,15 +190,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 Feature homeFeature = await _viewModel.GetRoomFeatureAsync(locationText);
                 if (homeFeature != null)
                 {
-                    AppSettings.CurrentSettings.HomeCoordinates = new CoordinatesKeyValuePair<string, double>[]
-                        {
-                    new CoordinatesKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
-                    new CoordinatesKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-                    new CoordinatesKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
-                        };
-                    AppSettings.CurrentSettings.HomeFloorLevel = homeFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
+                    AppSettings.CurrentSettings.HomeCoordinates = new[]
+                    {
+                        new KeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+                        new KeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+                        new KeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+                    };
+                    AppSettings.CurrentSettings.HomeFloorLevel = homeFeature
+                        .Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
                     AppSettings.CurrentSettings.HomeLocation = locationText;
-                    
                 }
                 else
                 {
@@ -199,14 +207,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                     AppSettings.CurrentSettings.HomeLocation = null;
                 }
 
-                _ = Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                await Task.Run(() =>
+                    AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
                 _viewModel.UpdateHomeLocation();
             }
             catch (Exception ex)
             {
                 ErrorLogger.Instance.LogException(ex);
             }
-            
+
             NavigationController.PopViewController(true);
         }
     }

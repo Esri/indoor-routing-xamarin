@@ -1,42 +1,40 @@
-// <copyright file="MapViewController.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
+// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
+using Esri.ArcGISRuntime.Symbology;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.UI;
+using Esri.ArcGISRuntime.UI.Controls;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
-    using System;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.Geometry;
-    using Esri.ArcGISRuntime.Location;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
-    using Esri.ArcGISRuntime.Symbology;
-    using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
-    using Esri.ArcGISRuntime.UI;
-    using Esri.ArcGISRuntime.UI.Controls;
-    using UIKit;
+    
 
     /// <summary>
     /// Map view controller.
     /// </summary>
-    public partial class MapViewController : UIViewController
+    public partial class MapViewController
     {
         /// Flag used to determine if the view was single or double tapped
         private bool _isViewDoubleTapped;
@@ -63,7 +61,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             catch (Exception ex)
             {
                 ErrorLogger.Instance.LogException(ex);
-                ShowError("UnableToEnableLocationDisplayErrorTitle".AsLocalized(), "UnableToEnabledLocationDisplayErrorMessage".AsLocalized());
+                ShowError("UnableToEnableLocationDisplayErrorTitle".Localize(), "UnableToEnabledLocationDisplayErrorMessage".Localize());
             }
 
             try
@@ -73,8 +71,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                 var pinImage = UIImage.FromBundle("MapPin");
                 var mapPin = await pinImage.ToRuntimeImageAsync();
-                var roomMarker = new PictureMarkerSymbol(mapPin);
-                roomMarker.OffsetY = pinImage.Size.Height * 0.65;
+                var roomMarker = new PictureMarkerSymbol(mapPin) {OffsetY = pinImage.Size.Height * 0.65};
 
                 _identifiedFeatureOverlay.Renderer = new SimpleRenderer(roomMarker);
 
@@ -82,8 +79,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 _homeOverlay = new GraphicsOverlay();
                 var homeImage = UIImage.FromBundle("HomePin");
                 var homePin = await homeImage.ToRuntimeImageAsync();
-                var homeMarker = new PictureMarkerSymbol(homePin);
-                homeMarker.OffsetY = homeImage.Size.Height * 0.65;
+                var homeMarker = new PictureMarkerSymbol(homePin) {OffsetY = homeImage.Size.Height * 0.65};
 
                 _homeOverlay.Renderer = new SimpleRenderer(homeMarker);
 
@@ -113,7 +109,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             {
                 ErrorLogger.Instance.LogException(ex);
                 // Show error and crash app since this is an invalid state.
-                ShowError("UnableToConfigureMapErrorTitle".AsLocalized(), "ApplicationWillCloseDueToErrorMessage".AsLocalized(), null, System.Threading.Thread.CurrentThread.Abort);
+                ShowError("UnableToConfigureMapErrorTitle".Localize(), "ApplicationWillCloseDueToErrorMessage".Localize(), null, System.Threading.Thread.CurrentThread.Abort);
             }
         }
 
@@ -133,26 +129,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                     break;
                 case nameof(_viewModel.CurrentState):
-                    UpdateUIForNewState();
-                    if (_viewModel.CurrentState == UIState.LocationFound || _viewModel.CurrentState == UIState.PlanningRoute)
+                    UpdateUiForNewState();
+                    if (_viewModel.CurrentState == UiState.LocationFound || _viewModel.CurrentState == UiState.PlanningRoute)
                     {
                         _identifiedFeatureOverlay.IsVisible = true;
                         _homeOverlay.IsVisible = true;
                     }
                     break;
-                case nameof(_viewModel.CurrentlyIdentifiedRoom):
+                case nameof(_viewModel.CurrentRoom):
                     _identifiedFeatureOverlay.Graphics.Clear();
                     _homeOverlay.Graphics.Clear();
                     // Turn off location display unless actively viewing current location
                     _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
-                    if (_viewModel.CurrentlyIdentifiedRoom is IdentifiedRoom room)
+                    if (_viewModel.CurrentRoom is Room room)
                     {
                         if (room.IsHome)
                         {
                             _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
                             TrySetViewpoint(room.CenterPoint, 150);
                         }
-                        else if (_viewModel.CurrentlyIdentifiedRoom.IsCurrentLocation)
+                        else if (_viewModel.CurrentRoom.IsCurrentLocation)
                         {
                             _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
                             TrySetViewpoint(_mapView.LocationDisplay.MapLocation, 150);
@@ -164,7 +160,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                         }
                     }
                     // need to explicitly request re-layout because identified room can change without UI state changing
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.partial);
+                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case nameof(_viewModel.CurrentRoute):
                     _routeOverlay.Graphics.Clear();
@@ -195,7 +191,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private async void TrySetViewpoint(Geometry geometry, double padding)
+        private async void TrySetViewpoint(Geometry.Geometry geometry, double padding)
         {
             try
             {
@@ -207,7 +203,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private void _mapView_NavigationCompleted(object sender, EventArgs e)
+        private void MapView_NavigationCompleted(object sender, EventArgs e)
         {
             _viewModel.CurrentViewArea = _mapView.VisibleArea.Extent;
             SetAttributionForCurrentState();
@@ -217,14 +213,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// When view is double tapped, set flag so the tapped event doesn't fire
         /// </summary>
         /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
+        /// <param name="e">Event args.</param>
         private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e) => _isViewDoubleTapped = true;
 
         /// <summary>
         /// When view is tapped, clear the map of selection, close keyboard and bottom sheet
         /// </summary>
         /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
+        /// <param name="e">Event args.</param>
         private async void MapView_GeoViewTapped(object sender, GeoViewInputEventArgs e)
         {
             try
@@ -234,7 +230,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 
                 // If view has been double tapped, set tapped to handled and flag back to false
                 // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
-                if (_isViewDoubleTapped == true)
+                if (_isViewDoubleTapped)
                 {
                     e.Handled = true;
                     _isViewDoubleTapped = false;
@@ -242,16 +238,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 else
                 {
                     // If route card is visible, do not dismiss route
-                    if (_viewModel.CurrentState == UIState.RouteFound)
+                    if (_viewModel.CurrentState == UiState.RouteFound)
                     {
                         // Create a new Alert Controller
                         UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
                         // Add Actions
-                        actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Destructive,
+                        actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".Localize(), UIAlertActionStyle.Destructive,
                             (action) => _viewModel.ReturnToWaitingState()));
 
-                        actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".AsLocalized(), UIAlertActionStyle.Default, null));
+                        actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".Localize(), UIAlertActionStyle.Default, null));
 
                         // Required for iPad - You must specify a source for the Action Sheet since it is
                         // displayed as a popover
@@ -285,14 +281,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             }
         }
 
-        private async void _settingsButton_TouchUpInside(object sender, EventArgs e)
+        private async void SettingsButton_Clicked(object sender, EventArgs e)
         {
             DismissableNavigationController navController = new DismissableNavigationController(new SettingsController(_viewModel));
 
-            navController.DidDismiss += (o, x) =>
-            {
-                _accessoryView.ReloadData();
-            };
+            navController.DidDismiss += (o, x) => _accessoryView.ReloadData();
 
             try
             {
@@ -301,7 +294,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             catch (Exception ex)
             {
                 ErrorLogger.Instance.LogException(ex);
-                ShowError("UnableToShowSettingsErrorTitle".AsLocalized(), null, _settingsButton);
+                ShowError("UnableToShowSettingsErrorTitle".Localize(), null, _settingsButton);
             }
         }
 
@@ -321,12 +314,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// When user taps on the home button, zoom them to the home location
         /// </summary>
         /// <param name="sender">Home button</param>
+        /// <param name="e"></param>
         private void Home_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToHomeLocation();
 
         /// <summary>
         /// Event handler for user tapping the blue Current Location button
         /// </summary>
         /// <param name="sender">Sender control.</param>
+        /// <param name="e"></param>
         private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToCurrentLocation();
 
         /// <summary>
@@ -334,7 +329,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender control.</param>
         /// <param name="e">Event args.</param>
-        private void MapView_LocationChanged(object sender, Location e)  => _viewModel.CurrentUserLocation = e.Position;
+        private void MapView_LocationChanged(object sender, Location.Location e)  => _viewModel.CurrentUserLocation = e.Position;
 
         private void ShowError(string title, string message, UIView sourceView = null, Action completion = null)
         {
@@ -344,7 +339,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             UIAlertController actionSheetAlert = UIAlertController.Create(title, message, preferredStyle);
 
             // Add Actions
-            actionSheetAlert.AddAction(UIAlertAction.Create("ErrorMessageOK".AsLocalized(), UIAlertActionStyle.Default, (value) => completion()));
+            actionSheetAlert.AddAction(UIAlertAction.Create("ErrorMessageOK".Localize(), UIAlertActionStyle.Default, (value) => completion()));
 
             if (sourceView != null)
             {

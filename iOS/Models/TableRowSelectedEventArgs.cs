@@ -1,24 +1,22 @@
-﻿// <copyright file="TableRowSelectedEventArgs.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using Foundation;
+﻿// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using Foundation;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
+{
     /// <summary>
     /// Table row selected event arguments class to be used as generic class for all table views.
     /// </summary>
@@ -26,15 +24,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
     internal class TableRowSelectedEventArgs<T> : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.TableRowSelectedEventArgs`1"/> class.
+        /// Initializes a new instance.
         /// </summary>
         /// <param name="selectedItem">Selected item.</param>
         /// <param name="selectedItemIndexPath">Selected item index path.</param>
         public TableRowSelectedEventArgs(T selectedItem, NSIndexPath selectedItemIndexPath)
         {
-            this.SelectedItem = selectedItem;
-            this.SelectedItemLabel = selectedItem.ToString();
-            this.SelectedItemIndexPath = selectedItemIndexPath;
+            SelectedItem = selectedItem;
+            SelectedItemLabel = selectedItem.ToString();
+            SelectedItemIndexPath = selectedItemIndexPath;
         }
 
         /// <summary>

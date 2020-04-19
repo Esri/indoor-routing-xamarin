@@ -1,7 +1,17 @@
-﻿// // <copyright file="/Users/nathancastle/Documents/Dev/indoor-routing-xamarin/IndoorRouting/ErrorLogger.cs" company="Esri, Inc">
-// //     Copyright (c) Esri. All rights reserved.
-// // </copyright>
-// // <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 using System;
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
@@ -21,11 +31,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             // TODO - configure your app analytics/crash logging system here
             System.Diagnostics.Debug.WriteLine(ex);
-        }
-
-        public void LogMessage(string message)
-        {
-            System.Diagnostics.Debug.WriteLine(message);
         }
     }
 }

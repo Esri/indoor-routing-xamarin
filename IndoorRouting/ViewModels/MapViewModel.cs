@@ -1,38 +1,36 @@
-﻿// <copyright file="MapViewModel.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.Geometry;
-    using Esri.ArcGISRuntime.Mapping;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
-    using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
-    using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
-
     /// <summary>
     /// Map view model handles all business logic to do with the map navigation and layers
     /// </summary>
@@ -65,9 +63,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         private string _originSearchText = string.Empty;
         private string _destinationSearchText = string.Empty;
 
-        private IdentifiedRoom _currentlyIdentifiedRoom;
+        private Room _currentRoom;
         private RouteResult _route;
-        private UIState _currentState = UIState.ReadyWaiting;
+        private UiState _currentState = UiState.ReadyWaiting;
         private MapPoint _currentUserLocation;
 
         #endregion Backing fields
@@ -110,8 +108,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-
-        
         public MapPoint CurrentUserLocation
         {
             get => _currentUserLocation;
@@ -137,12 +133,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 if (_selectedFloorLevel != value)
                 {
-                    _selectedFloorLevel = value;
+                    _selectedFloorLevel = value ?? DefaultFloorLevel;
 
-                    if (_selectedFloorLevel == null)
-                    {
-                        _selectedFloorLevel = DefaultFloorLevel;
-                    }
                     OnPropertyChanged();
                     SetFloorVisibility(true);
                 }
@@ -158,7 +150,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             get => _currentVisibleFloors;
             private set
             {
-                if (_currentVisibleFloors != value)
+                if (!Equals(_currentVisibleFloors, value))
                 {
                     _currentVisibleFloors = value;
                     OnPropertyChanged();
@@ -218,7 +210,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        public UIState CurrentState
+        public UiState CurrentState
         {
             get => _currentState;
             private set
@@ -231,17 +223,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        public IdentifiedRoom CurrentlyIdentifiedRoom
+        public Room CurrentRoom
         {
-            get => _currentlyIdentifiedRoom;
+            get => _currentRoom;
             private set
             {
-                if (value != _currentlyIdentifiedRoom)
+                if (value != _currentRoom)
                 {
-                    _currentlyIdentifiedRoom = value;
-                    if (_currentlyIdentifiedRoom?.Floor != null)
+                    _currentRoom = value;
+                    if (_currentRoom?.Floor != null)
                     {
-                        SelectedFloorLevel = _currentlyIdentifiedRoom.Floor;
+                        SelectedFloorLevel = _currentRoom.Floor;
                     }
 
                     OnPropertyChanged();
@@ -265,15 +257,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// Gets the floors in visible area.
         /// </summary>
         /// <returns>The floors in visible area.</returns>
-        /// <param name="mapView">Map view.</param>
         private async void UpdateFloors()
         {
             try
             {
                 // Run query to get all the polygons in the visible area
-                var roomsLayer = Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] as FeatureLayer;
-
-                if (roomsLayer != null)
+                if (Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex] is FeatureLayer roomsLayer)
                 {
                     try
                     {
@@ -302,7 +291,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                             SelectFloor(CurrentVisibleFloors.FirstOrDefault());
                         }
                         
-                        this.SetFloorVisibility(true);
+                        SetFloorVisibility(true);
                     }
                     catch
                     {
@@ -329,7 +318,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             try
             {
-                var locatorInfo = this.Locator.LocatorInfo;
+                var locatorInfo = Locator.LocatorInfo;
 
                 if (locatorInfo.SupportsSuggestions)
                 {
@@ -349,13 +338,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets the features from query
-        /// </summary>
-        /// <returns>The features </returns>
-        /// <param name="searchString">Search string.</param>
-        internal string GetFloorLevelFromQueryAsync(Feature searchFeature) => searchFeature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
-
-        /// <summary>
         /// Gets the searched location based on search terms user entered.
         /// </summary>
         /// <returns>The searched location.</returns>
@@ -364,10 +346,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             try
             {
-                var formattedSearchString = this.FormatStringForQuery(searchString);
+                var formattedSearchString = FormatStringForQuery(searchString);
 
                 // Geocode location and return the best match from the list
-                var matches = await this.Locator.GeocodeAsync(formattedSearchString);
+                var matches = await Locator.GeocodeAsync(formattedSearchString);
                 var bestMatch = matches.FirstOrDefault();
                 return bestMatch;
             }
@@ -388,10 +370,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 var roomsTable = roomsLayer.FeatureTable;
 
-                var formattedSearchString = this.FormatStringForQuery(searchString);
+                var formattedSearchString = FormatStringForQuery(searchString);
 
-                // Set query parametersin 
-                var queryParams = new QueryParameters()
+                // Set query parameters
+                var queryParams = new QueryParameters
                 {
                     ReturnGeometry = true,
                     // Matches any locator field that is equal to search string
@@ -425,7 +407,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 await Map.LoadAsync(); // Doesn't do anything if map already loaded
 
-                var routeTask = await RouteTask.CreateAsync(this.Map.TransportationNetworks[0]);
+                var routeTask = await RouteTask.CreateAsync(Map.TransportationNetworks[0]);
 
                 if (routeTask != null)
                 {
@@ -522,21 +504,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
             try
             {
-                for (int i = 0; i < AppSettings.CurrentSettings.InitialViewpointCoordinates.Length; i++)
+                foreach (var coordinatePart in AppSettings.CurrentSettings.InitialViewpointCoordinates)
                 {
-                    switch (AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Key)
+                    switch (coordinatePart.Key)
                     {
                         case "X":
-                            x = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            x = coordinatePart.Value;
                             break;
                         case "Y":
-                            y = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            y = coordinatePart.Value;
                             break;
                         case "WKID":
-                            wkid = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            wkid = coordinatePart.Value;
                             break;
                         case "ZoomLevel":
-                            zoomLevel = AppSettings.CurrentSettings.InitialViewpointCoordinates[i].Value;
+                            zoomLevel = coordinatePart.Value;
                             break;
                     }
                 }
@@ -551,8 +533,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
             catch
             {
-                // Supress all errors since. 
-                // If initial viewpoint cannot be set, the map will just load to the default extent of the mmpk
+                // Suppress all errors. If initial viewpoint cannot be set, the map will just load to the default extent of the map.
             }
             finally
             {
@@ -570,13 +551,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation), "This shouldn't be called if home isn't set");
 
-            CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructHome();
+            CurrentRoom = Room.ConstructHome();
 
-            if (CurrentlyIdentifiedRoom != null)
+            if (CurrentRoom != null)
             {
                 CurrentRoute = null;
 
-                CurrentState = UIState.LocationFound;
+                CurrentState = UiState.LocationFound;
             }
         }
 
@@ -586,14 +567,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <param name="areLayersOn">If set to <c>true</c> operational layers are turned on</param>
         internal void SetFloorVisibility(bool areLayersOn)
         {
-            foreach (var opLayer in this.Map.OperationalLayers.OfType<FeatureLayer>())
+            foreach (var featureLayer in Map.OperationalLayers.OfType<FeatureLayer>())
             {
-                var featureLayer = opLayer as FeatureLayer;
-
                 // select chosen floor
                 featureLayer.DefinitionExpression = $"{AppSettings.CurrentSettings.RoomsLayerFloorColumnName} = '{SelectedFloorLevel}'";
 
-                opLayer.IsVisible = areLayersOn;
+                featureLayer.IsVisible = areLayersOn;
             }
         }
 
@@ -601,7 +580,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             try
             {
-                if (OriginSearchText == "CurrentLocationLabel".AsLocalized())
+                if (OriginSearchText == "CurrentLocationLabel".Localize())
                 {
                     FromLocationFeature = null;
                 }
@@ -610,7 +589,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     FromLocationFeature = await GetRoomFeatureAsync(OriginSearchText);
                 }
 
-                if (DestinationSearchText == "CurrentLocationLabel".AsLocalized())
+                if (DestinationSearchText == "CurrentLocationLabel".Localize())
                 {
                     ToLocationFeature = null;
                 }
@@ -624,56 +603,56 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
                 if (CurrentRoute != null)
                 {
-                    CurrentState = UIState.RouteFound;
+                    CurrentState = UiState.RouteFound;
                 }
                 else
                 {
-                    CurrentState = UIState.RouteNotFound;
+                    CurrentState = UiState.RouteNotFound;
                 }
             }
             catch
             {
                 CurrentRoute = null;
-                CurrentState = UIState.RouteNotFound;
+                CurrentState = UiState.RouteNotFound;
             }
         }
 
         public void StartSearchFromFoundFeature()
         {
-            Debug.Assert(CurrentlyIdentifiedRoom != null);
+            Debug.Assert(CurrentRoom != null);
 
-            if (CurrentlyIdentifiedRoom?.IsHome == true)
+            if (CurrentRoom?.IsHome == true)
             {
-                OriginSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
+                OriginSearchText = CurrentRoom?.RoomNumber;
                 DestinationSearchText = string.Empty;
             }
             else
             {
                 OriginSearchText = string.Empty;
-                DestinationSearchText = CurrentlyIdentifiedRoom?.RoomNumber;
+                DestinationSearchText = CurrentRoom?.RoomNumber;
             }
 
-            CurrentState = UIState.PlanningRoute;
+            CurrentState = UiState.PlanningRoute;
         }
 
         public void CloseLocationInfo()
         {
-            CurrentlyIdentifiedRoom = null;
+            CurrentRoom = null;
             FeatureSearchText = null;
-            CurrentState = UIState.ReadyWaiting;
+            CurrentState = UiState.ReadyWaiting;
         }
 
         public void CloseRouteResult()
         {
             CurrentRoute = null;
-            CurrentState = UIState.PlanningRoute;
+            CurrentState = UiState.PlanningRoute;
         }
 
-        public void ReturnToWaitingState() => CurrentState = UIState.ReadyWaiting;
+        public void ReturnToWaitingState() => CurrentState = UiState.ReadyWaiting;
 
-        public void SelectOriginSearch() => CurrentState = UIState.SearchingForOrigin;
+        public void SelectOriginSearch() => CurrentState = UiState.SearchingForOrigin;
 
-        public void SelectDestinationSearch() => CurrentState = UIState.SearchingForDestination;
+        public void SelectDestinationSearch() => CurrentState = UiState.SearchingForDestination;
 
         public void SwapOriginDestinationSearch()
         {
@@ -686,13 +665,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
         public void DismissNotFound()
         {
-            if (CurrentState == UIState.LocationNotFound)
+            if (CurrentState == UiState.LocationNotFound)
             {
-                CurrentState = UIState.SearchingForFeature;
+                CurrentState = UiState.SearchingForFeature;
             }
-            else if (CurrentState == UIState.RouteNotFound)
+            else if (CurrentState == UiState.RouteNotFound)
             {
-                CurrentState = UIState.PlanningRoute;
+                CurrentState = UiState.PlanningRoute;
             }
         }
 
@@ -701,21 +680,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             OriginSearchText = null;
             DestinationSearchText = null;
 
-            if (CurrentlyIdentifiedRoom != null)
+            if (CurrentRoom != null)
             {
-                CurrentState = UIState.LocationFound;
+                CurrentState = UiState.LocationFound;
             }
             else
             {
-                CurrentState = UIState.ReadyWaiting;
+                CurrentState = UiState.ReadyWaiting;
             }
         }
 
         public void StartEditingInLocationSearch()
         {
-            if (CurrentState == UIState.ReadyWaiting)
+            if (CurrentState == UiState.ReadyWaiting)
             {
-                CurrentState = UIState.SearchingForFeature;
+                CurrentState = UiState.SearchingForFeature;
             }
         }
 
@@ -723,13 +702,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             switch (CurrentState)
             {
-                case UIState.SearchingForDestination:
-                case UIState.SearchingForOrigin:
-                    CurrentState = UIState.PlanningRoute;
+                case UiState.SearchingForDestination:
+                case UiState.SearchingForOrigin:
+                    CurrentState = UiState.PlanningRoute;
                     break;
-                case UIState.SearchingForFeature:
+                case UiState.SearchingForFeature:
                     FeatureSearchText = null;
-                    CurrentState = UIState.ReadyWaiting;
+                    CurrentState = UiState.ReadyWaiting;
                     break;
             }
         }
@@ -738,36 +717,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             switch (CurrentState)
             {
-                case UIState.SearchingForFeature:
+                case UiState.SearchingForFeature:
                     FeatureSearchText = text;
-                    CurrentState = UIState.FeatureSearchEntered;
+                    CurrentState = UiState.FeatureSearchEntered;
                     await SearchFeatureAsync(FeatureSearchText);
                     break;
-                case UIState.SearchingForOrigin:
+                case UiState.SearchingForOrigin:
                     OriginSearchText = text;
-                    CurrentState = UIState.PlanningRoute;
+                    CurrentState = UiState.PlanningRoute;
                     break;
-                case UIState.SearchingForDestination:
+                case UiState.SearchingForDestination:
                     DestinationSearchText = text;
-                    CurrentState = UIState.PlanningRoute;
+                    CurrentState = UiState.PlanningRoute;
                     break;
             }
         }
 
         public void IdentifyRoomFromLayerResult(IdentifyLayerResult result)
         {
-            CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructFromIdentifyResult(result);
+            CurrentRoom = Room.ConstructFromIdentifyResult(result);
 
-            CurrentState = CurrentlyIdentifiedRoom != null ? UIState.LocationFound : UIState.LocationNotFound;
+            CurrentState = CurrentRoom != null ? UiState.LocationFound : UiState.LocationNotFound;
         }
 
         public void MoveToCurrentLocation()
         {
             Debug.Assert(AppSettings.CurrentSettings.IsLocationServicesEnabled, "This method should only be called if location services are enabled");
 
-            CurrentlyIdentifiedRoom = IdentifiedRoom.ConstructCurrentLocation();
+            CurrentRoom = Room.ConstructCurrentLocation();
 
-            CurrentState = UIState.LocationFound;
+            CurrentState = UiState.LocationFound;
 
             SelectedFloorLevel = null; // Enhancement - set floor based on user position
         }
@@ -777,20 +756,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         public void UpdateHomeLocation()
         {
-            if (CurrentlyIdentifiedRoom?.IsHome == true)
+            if (CurrentRoom?.IsHome == true)
             {
-                var newHome = IdentifiedRoom.ConstructHome();
+                var newHome = Room.ConstructHome();
 
                 if (newHome == null)
                 {
-                    var oldHome = CurrentlyIdentifiedRoom;
-                    CurrentlyIdentifiedRoom = null;
+                    var oldHome = CurrentRoom;
+                    CurrentRoom = null;
                     oldHome.IsHome = false;
-                    CurrentlyIdentifiedRoom = oldHome;
+                    CurrentRoom = oldHome;
                 }
                 else
                 {
-                    CurrentlyIdentifiedRoom = newHome;
+                    CurrentRoom = newHome;
                 }
             }
         }
@@ -817,22 +796,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     // Get the feature to populate the Contact Card
                     Feature roomFeature = await GetRoomFeatureAsync(searchText);
 
-                    IdentifiedRoom room = IdentifiedRoom.ConstructFromFeature(roomFeature);
-
-                    CurrentlyIdentifiedRoom = room;
+                    CurrentRoom = Room.ConstructFromFeature(roomFeature);
 
                     if (roomFeature != null)
                     {
-                        CurrentState = UIState.LocationFound;
+                        CurrentState = UiState.LocationFound;
                     }
                     else
                     {
-                        CurrentState = UIState.LocationNotFound;
+                        CurrentState = UiState.LocationNotFound;
                     }
                 }
                 else
                 {
-                    CurrentState = UIState.LocationNotFound;
+                    CurrentState = UiState.LocationNotFound;
                 }
             }
         }
@@ -851,7 +828,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <param name="propertyName">Name of property that changed.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
     }

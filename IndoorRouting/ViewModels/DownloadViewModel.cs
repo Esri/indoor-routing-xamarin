@@ -1,19 +1,17 @@
-﻿// <copyright file="DownloadViewModel.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     using System;
@@ -23,7 +21,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Portal;
+    using Portal;
 
     /// <summary>
     /// View model to handle common download logic between platforms
@@ -33,22 +31,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// Gets set to true when the mmpk is downloading.
         /// </summary>
-        private bool isDownloading;
+        private bool _isDownloading;
 
         /// <summary>
         /// Gets set to true when the map is ready to be loaded
         /// </summary>
-        private bool isReady;
+        private bool _isReady;
 
         /// <summary>
         /// The download URL.
         /// </summary>
-        private string downloadURL;
-
-        /// <summary>
-        /// Event handler property changed. 
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        private string _downloadUrl;
 
         /// <summary>
         /// Gets the name and path of the MMPK file.
@@ -68,19 +61,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// Gets the download URL for the mmpk.
         /// </summary>
-        public string DownloadURL
+        public string DownloadUrl
         {
-            get
-            {
-                return this.downloadURL;
-            }
+            get => _downloadUrl;
 
             private set
             {
-                if (this.downloadURL != value)
+                if (_downloadUrl != value)
                 {
-                    this.downloadURL = value;
-                    this.OnPropertyChanged(nameof(this.DownloadURL));
+                    _downloadUrl = value;
+                    OnPropertyChanged(nameof(DownloadUrl));
                 }
             }
         }
@@ -91,15 +81,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <value><c>true</c> if is downloading; otherwise, <c>false</c>.</value>
         public bool IsDownloading
         {
-            get
-            {
-                return this.isDownloading;
-            }
+            get => _isDownloading;
 
             private set
             {
-                this.isDownloading = value;
-                this.OnPropertyChanged(nameof(this.IsDownloading));
+                _isDownloading = value;
+                OnPropertyChanged(nameof(IsDownloading));
             }
         }
 
@@ -109,17 +96,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <value><c>true</c> if is ready; otherwise, <c>false</c>.</value>
         public bool IsReady
         {
-            get
-            {
-                return this.isReady;
-            }
+            get => _isReady;
 
             private set
             {
-                if (this.isReady != value)
+                if (_isReady != value)
                 {
-                    this.isReady = value;
-                    this.OnPropertyChanged(nameof(this.IsReady));
+                    _isReady = value;
+                    OnPropertyChanged(nameof(IsReady));
                 }
             }
         }
@@ -131,13 +115,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         public async Task GetDataAsync()
         {
             // List of all files inside the Documents directory on the device
-            this.Files = Directory.EnumerateFiles(GetDataFolder()).ToList();
-            this.TargetFileName = Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.PortalItemName);
+            Files = Directory.EnumerateFiles(GetDataFolder()).ToList();
+            TargetFileName = Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.PortalItemName);
 
             // Test if device is online
             // If offline, test if mmpk exists and load it
             // If offline and no mmpk, show error
-            // Show error message if unable to downoad the mmpk. This is usually when the device is online but signal isn't strong enough and connection to Portal times out
+            // Show error message if unable to download the mmpk. This is usually when the device is online but signal isn't strong enough and connection to Portal times out
             if (IsDeviceConnected())
             {
                 try
@@ -147,39 +131,39 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     var item = await PortalItem.CreateAsync(portal, AppSettings.CurrentSettings.PortalItemID).ConfigureAwait(false);
 
                     // Test if mmpk is not already downloaded or is older than current portal version
-                    if (!this.Files.Contains(this.TargetFileName) ||
+                    if (!Files.Contains(TargetFileName) ||
                         item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDownloadDate)
                     {
-                        this.IsDownloading = true;
-                        this.DownloadURL = item.Url.AbsoluteUri + "/data";
+                        IsDownloading = true;
+                        DownloadUrl = item.Url.AbsoluteUri + "/data";
                     }
                     else
                     {
-                        this.IsReady = true;
+                        IsReady = true;
                     }
                 }
                 catch (Exception ex)
                 {
                     // If unable to get item from Portal, use already existing map package, unless this is the initial application download. 
-                    if (this.Files.Contains(this.TargetFileName))
+                    if (Files.Contains(TargetFileName))
                     {
-                        this.IsReady = true;
+                        IsReady = true;
                     }
                     else
                     {
-                        this.Status = ex.Message;
-                        this.IsDownloading = false;
+                        Status = ex.Message;
+                        IsDownloading = false;
                     }
                 }
             }
-            else if (this.Files.Contains(this.TargetFileName))
+            else if (Files.Contains(TargetFileName))
             {
-                this.IsReady = true;
+                IsReady = true;
             }
             else
             {
-                this.IsDownloading = false;
-                this.Status = "Device does not seem to be connected to the network and the necessary data has not been downloaded. Please retry when in network range";
+                IsDownloading = false;
+                Status = "Device does not seem to be connected to the network and the necessary data has not been downloaded. Please retry when in network range";
             }
         }
 
@@ -195,7 +179,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// Determines whether the device is connected or not.
         /// </summary>
-        /// <returns><c>true</c>, if device connected was ised, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c>, if device connected was used, <c>false</c> otherwise.</returns>
         internal static bool IsDeviceConnected()
         {
             return Reachability.IsNetworkAvailable();
@@ -207,7 +191,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <param name="propertyName">Name of property that changed.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        /// <summary>
+        /// Event handler property changed. 
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

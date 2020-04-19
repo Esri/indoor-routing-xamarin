@@ -1,44 +1,43 @@
-﻿// <copyright file="DownloadDelegate.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Foundation;
-    using UIKit;
+﻿// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers;
+using Foundation;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
+{
     /// <summary>
     /// Download delegate handles logic of the background download.
     /// </summary>
-    internal class DownloadDelegate : NSUrlSessionDownloadDelegate, INSUrlSessionDelegate
+    internal class DownloadDelegate : NSUrlSessionDownloadDelegate
     {
         /// <summary>
         /// Reference to the download controller 
         /// </summary>
-        private readonly DownloadController controller;
+        private readonly DownloadController _controller;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.DownloadDelegate"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers.DownloadDelegate"/> class.
         /// </summary>
         /// <param name="controller">Download Controller.</param>
-        internal DownloadDelegate(DownloadController controller) : base()
+        internal DownloadDelegate(DownloadController controller)
         {
-            this.controller = controller;
+            _controller = controller;
         }
 
         /// <summary>
@@ -51,10 +50,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="totalBytesExpectedToWrite">Total bytes expected to write.</param>
         public override void DidWriteData(NSUrlSession session, NSUrlSessionDownloadTask downloadTask, long bytesWritten, long totalBytesWritten, long totalBytesExpectedToWrite)
         {
-            var localIdentifier = downloadTask.TaskIdentifier;
-            var percentage = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;
+            var percentage = (float)totalBytesWritten / totalBytesExpectedToWrite;
 
-            this.InvokeOnMainThread(() => this.controller.UpdateProgress(percentage));
+            InvokeOnMainThread(() => _controller.UpdateProgress(percentage));
         }
 
         /// <summary>
@@ -72,15 +70,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             var fileManager = NSFileManager.DefaultManager;
 
             // Remove any existing files in our destination
-            NSError error;
-            fileManager.Remove(Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName), out error);
+            fileManager.Remove(Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName), out var error);
             var success = fileManager.Copy(sourceFile, Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName), out error);
             if (!success)
             {
                 Console.WriteLine("Error during the copy: {0}", error.LocalizedDescription);
             }
 
-            this.InvokeOnMainThread(() => this.controller.LoadMapView());
+            InvokeOnMainThread(() => _controller.LoadMapView());
         }
 
         /// <summary>
@@ -116,14 +113,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             AppDelegate.BackgroundSessionCompletionHandler = null;
             if (handler != null)
             {
-                this.controller.BeginInvokeOnMainThread(() =>
+                _controller.BeginInvokeOnMainThread(() =>
                 {
                     // Bring up a local notification to take the user back to our app.
-                    var notif = new UILocalNotification
+                    var notification = new UILocalNotification
                     {
                         AlertBody = "Indoor Routing: Map has been downloaded successfully."
                     };
-                    UIApplication.SharedApplication.PresentLocalNotificationNow(notif);
+                    UIApplication.SharedApplication.PresentLocalNotificationNow(notification);
 
                     // Invoke the completion handler. This will tell iOS to update the snapshot in the task manager.
                     handler.Invoke();

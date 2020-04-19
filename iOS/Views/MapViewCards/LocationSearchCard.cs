@@ -1,22 +1,34 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
+using System;
 using UIKit;
-using static Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.MapViewModel;
 
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
-    public class LocationSearchCard : UIView
+    public sealed class LocationSearchCard : UIView
     {
-        private MapViewModel _viewModel;
+        private readonly MapViewModel _viewModel;
 
-        private SelfSizedTableView _autoSuggestionsTableView;
-        private AutosuggestionsTableSource _suggestionSource;
-        private UISearchBar _searchBar;
-        private UILabel _headerLabel;
-
-        private UIStackView _containerStack;
+        private readonly SelfSizedTableView _autoSuggestionsTableView;
+        private readonly AutosuggestionsTableSource _suggestionSource;
+        private readonly UISearchBar _searchBar;
+        private readonly UILabel _headerLabel;
 
         internal LocationSearchCard(MapViewModel viewModel)
         {
@@ -36,7 +48,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 BackgroundImage = new UIImage(),
-                Placeholder = "LocationSearchBarPlaceholder".AsLocalized(),
+                Placeholder = "LocationSearchBarPlaceholder".Localize(),
                 SearchBarStyle = UISearchBarStyle.Minimal,
                 ShowsCancelButton = false,
                 TintColor = ApplicationTheme.ActionBackgroundColor
@@ -49,38 +61,38 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                 Font = ApplicationTheme.HeaderFont
             };
 
-            _containerStack = new UIStackView
+            var containerStack = new UIStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Axis = UILayoutConstraintAxis.Vertical,
             };
 
-            _containerStack.AddArrangedSubview(_headerLabel);
-            _containerStack.AddArrangedSubview(_searchBar);
-            _containerStack.AddArrangedSubview(_autoSuggestionsTableView);
+            containerStack.AddArrangedSubview(_headerLabel);
+            containerStack.AddArrangedSubview(_searchBar);
+            containerStack.AddArrangedSubview(_autoSuggestionsTableView);
 
-            AddSubviews(_containerStack);
+            AddSubviews(containerStack);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
-                _containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
-                _containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
-                BottomAnchor.ConstraintEqualTo(_containerStack.BottomAnchor, ApplicationTheme.Margin)
+                containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
+                containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                BottomAnchor.ConstraintEqualTo(containerStack.BottomAnchor, ApplicationTheme.Margin)
             });
 
-            _searchBar.TextChanged += search_textChanged;
-            _searchBar.SearchButtonClicked += search_buttonClicked;
-            _searchBar.OnEditingStarted += search_editingStarted;
-            _searchBar.OnEditingStopped += search_EditingStopped;
-            _searchBar.CancelButtonClicked += search_CancelClicked;
+            _searchBar.TextChanged += Search_textChanged;
+            _searchBar.SearchButtonClicked += Search_buttonClicked;
+            _searchBar.OnEditingStarted += Search_editingStarted;
+            _searchBar.OnEditingStopped += Search_EditingStopped;
+            _searchBar.CancelButtonClicked += Search_CancelClicked;
 
-            _suggestionSource.TableRowSelected += suggestion_Selected;
+            _suggestionSource.TableRowSelected += SuggestionSource_RowSelected;
 
-            _viewModel.PropertyChanged += viewModel_PropertyChanged;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void viewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(_viewModel.CurrentState))
             {
@@ -89,21 +101,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
             switch (_viewModel.CurrentState)
             {
-                case UIState.SearchingForDestination:
+                case UiState.SearchingForDestination:
                     _headerLabel.Text = "Select Destination";
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.DestinationSearchText;
                     _searchBar.BecomeFirstResponder();
                     UpdateTableView();
                     return;
-                case UIState.SearchingForFeature:
+                case UiState.SearchingForFeature:
                     _headerLabel.Hidden = true;
                     _searchBar.ShowsCancelButton = true;
                     _searchBar.Text = _viewModel.FeatureSearchText;
                     _searchBar.BecomeFirstResponder();
                     UpdateTableView();
                     return;
-                case UIState.SearchingForOrigin:
+                case UiState.SearchingForOrigin:
                     _headerLabel.Text = "Select Origin";
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.OriginSearchText;
@@ -121,7 +133,28 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             }
         }
 
-        private async void suggestion_Selected(object sender, TableRowSelectedEventArgs<string> e)
+        private void CancelEditing()
+        {
+            _searchBar.Text = string.Empty;
+            _autoSuggestionsTableView.Hidden = true;
+            _viewModel.StopEditingInLocationSearch();
+        }
+
+        private async void UpdateTableView()
+        {
+            try
+            {
+                _suggestionSource.UpdateSuggestions(await _viewModel.GetLocationSuggestionsAsync(_searchBar.Text));
+                _autoSuggestionsTableView.ReloadData();
+                _autoSuggestionsTableView.Hidden = false;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
+
+        private async void SuggestionSource_RowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             _searchBar.Text = e.SelectedItem;
             _viewModel.FeatureSearchText = string.Empty;
@@ -137,39 +170,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _searchBar.ResignFirstResponder();
         }
 
-        private void search_CancelClicked(object sender, EventArgs e) => CancelEditing();
+        private void Search_CancelClicked(object sender, EventArgs e) => CancelEditing();
 
-        private void search_editingStarted(object sender, EventArgs e) => _viewModel.StartEditingInLocationSearch();
+        private void Search_editingStarted(object sender, EventArgs e) => _viewModel.StartEditingInLocationSearch();
 
-        private void CancelEditing()
-        {
-            _searchBar.Text = string.Empty;
-            _autoSuggestionsTableView.Hidden = true;
-            _viewModel.StopEditingInLocationSearch();
-        }
+        private void Search_EditingStopped(object sender, EventArgs e) => CancelEditing();
 
-        private async void UpdateTableView()
-        {
-            try
-            {
-                var results = await _viewModel.GetLocationSuggestionsAsync(_searchBar.Text);
-                _suggestionSource.UpdateSuggestions(results);
-                _autoSuggestionsTableView.ReloadData();
-                _autoSuggestionsTableView.Hidden = false;
-            }
-            catch (Exception ex)
-            {
-                ErrorLogger.Instance.LogException(ex);
-            }
-        }
+        private void Search_buttonClicked(object sender, EventArgs e) => _ = _viewModel.CommitSearchAsync(_searchBar.Text);
 
-        private void search_EditingStopped(object sender, EventArgs e) => CancelEditing();
-
-        private void search_buttonClicked(object sender, EventArgs e) => _viewModel.CommitSearchAsync(_searchBar.Text);
-
-        private void search_textChanged(object sender, UISearchBarTextChangedEventArgs e)
-        {
-            UpdateTableView();
-        }
+        private void Search_textChanged(object sender, UISearchBarTextChangedEventArgs e) => UpdateTableView();
     }
 }

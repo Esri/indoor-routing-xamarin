@@ -1,15 +1,28 @@
-﻿using System;
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
-    public class SimpleStackedButtonContainer : SelfSizedTableView
+    public sealed class SimpleStackedButtonContainer : SelfSizedTableView
     {
-        private UIVisualEffectView _visualEffectBackground;
         public SimpleStackedButtonContainer(IEnumerable<UIButton> buttons)
         {
             Source = new AccessoryTableSource(buttons);
@@ -18,14 +31,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             AllowsSelection = false;
             SeparatorColor = UIColor.OpaqueSeparatorColor;
 
-            _visualEffectBackground = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
-            BackgroundView = _visualEffectBackground;
+            var visualEffectBackground = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
+            BackgroundView = visualEffectBackground;
         }
     }
 
-    internal class AccessoryViewCell : UITableViewCell
+    internal sealed class AccessoryViewCell : UITableViewCell
     {
-        internal UIButton _containedButton;
+        internal UIButton ContainedButton;
         public AccessoryViewCell()
         {
             // TODO - document `AccessoryButtonColor`
@@ -35,16 +48,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 
         public void SetButton(UIButton button)
         {
-            _containedButton = button;
+            ContainedButton = button;
 
-            ContentView.AddSubview(_containedButton);
+            ContentView.AddSubview(ContainedButton);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _containedButton.LeadingAnchor.ConstraintEqualTo(ContentView.LeadingAnchor),
-                _containedButton.TrailingAnchor.ConstraintEqualTo(ContentView.TrailingAnchor),
-                _containedButton.BottomAnchor.ConstraintEqualTo(ContentView.BottomAnchor),
-                _containedButton.TopAnchor.ConstraintEqualTo(ContentView.TopAnchor)
+                ContainedButton.LeadingAnchor.ConstraintEqualTo(ContentView.LeadingAnchor),
+                ContainedButton.TrailingAnchor.ConstraintEqualTo(ContentView.TrailingAnchor),
+                ContainedButton.BottomAnchor.ConstraintEqualTo(ContentView.BottomAnchor),
+                ContainedButton.TopAnchor.ConstraintEqualTo(ContentView.TopAnchor)
             });
         }
     }
@@ -54,12 +67,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <summary>
         /// The items in the table.
         /// </summary>
-        private readonly IEnumerable<UIButton> items;
+        private readonly IEnumerable<UIButton> _items;
 
         /// <summary>
         /// The cell identifier.
         /// </summary>
-        private readonly string cellIdentifier;
+        private readonly string _cellIdentifier;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
@@ -67,14 +80,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <param name="items">Table Items.</param>
         internal AccessoryTableSource(IEnumerable<UIButton> items)
         {
-            this.items = items;
-            this.cellIdentifier = "cell_id";
+            _items = items;
+            _cellIdentifier = "cell_id";
         }
-
-        /// <summary>
-        /// Occurs when table row selected.
-        /// </summary>
-        public event EventHandler<NSIndexPath> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -86,7 +94,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         {
             try
             {
-                return this.items.Where(_buttonInclusionPredicate).Count();
+                return _items.Where(_buttonInclusionPredicate).Count();
             }
             catch
             {
@@ -94,7 +102,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             }
         }
 
-        private Func<UIButton, bool> _buttonInclusionPredicate = button => !button.Hidden && button.Enabled;
+        private readonly Func<UIButton, bool> _buttonInclusionPredicate = button => !button.Hidden && button.Enabled;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -104,22 +112,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(this.cellIdentifier) as AccessoryViewCell;
-
-            // If there are no cells to reuse, create a new one
-            if (cell == null)
+            var cell = tableView.DequeueReusableCell(_cellIdentifier) as AccessoryViewCell ?? new AccessoryViewCell
             {
-                cell = new AccessoryViewCell();
-                cell.LayoutMargins = UIEdgeInsets.Zero;
-                cell.PreservesSuperviewLayoutMargins = false;
-                cell.SeparatorInset = UIEdgeInsets.Zero;
-            }
+                LayoutMargins = UIEdgeInsets.Zero,
+                PreservesSuperviewLayoutMargins = false,
+                SeparatorInset = UIEdgeInsets.Zero
+            };
 
             try
             {
-                var item = this.items.Where(_buttonInclusionPredicate).ElementAt(indexPath.Row);
+                var item = _items.Where(_buttonInclusionPredicate).ElementAt(indexPath.Row);
 
-                if (cell._containedButton != item)
+                if (cell.ContainedButton != item)
                 {
                     cell.SetButton(item);
                 }
@@ -140,24 +144,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <param name="indexPath">Index path.</param>
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            this.OnTableRowSelected(indexPath);
             tableView.DeselectRow(indexPath, false);
-        }
-
-        /// <summary>
-        /// Get the tableview item the user selected and call event handler
-        /// </summary>
-        /// <param name="itemIndexPath">Item index path.</param>
-        private void OnTableRowSelected(NSIndexPath itemIndexPath)
-        {
-            try
-            {
-                var item = this.items.ElementAt(itemIndexPath.Row);
-                this.TableRowSelected?.Invoke(this, itemIndexPath);
-            }
-            catch
-            {
-            }
         }
     }
 }
