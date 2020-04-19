@@ -254,22 +254,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             switch (state)
             {
                 case BottomSheetState.partial:
-                    UIView.Animate(ApplicationTheme.SimpleAnimationDuration, () =>
-                    {
-                        _heightConstraint.Constant = GetPartialHeight();
-                    });
+                   _heightConstraint.Constant = GetPartialHeight();
                     break;
                 case BottomSheetState.minimized:
-                    UIView.Animate(ApplicationTheme.SimpleAnimationDuration, () =>
-                    {
-                        _heightConstraint.Constant = MinimumHeight;
-                    });
+                    _heightConstraint.Constant = MinimumHeight;
                     break;
                 case BottomSheetState.full:
-                    UIView.Animate(ApplicationTheme.SimpleAnimationDuration, () =>
-                    {
-                        _heightConstraint.Constant = MaxHeightConstraint;
-                    });
+                    _heightConstraint.Constant = MaxHeightConstraint;
                     break;
             }
         }
