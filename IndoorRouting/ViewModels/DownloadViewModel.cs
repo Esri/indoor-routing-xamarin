@@ -168,28 +168,28 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets the data folder where the mmpk and settings file are stored.
-        /// </summary>
-        /// <returns>The data folder.</returns>
-        internal static string GetDataFolder()
-        {
-            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        }
-
-        /// <summary>
         /// Determines whether the device is connected or not.
         /// </summary>
         /// <returns><c>true</c>, if device connected was used, <c>false</c> otherwise.</returns>
-        internal static bool IsDeviceConnected()
+        public static bool IsDeviceConnected()
         {
             return Reachability.IsNetworkAvailable();
+        }
+
+        /// <summary>
+        /// Gets the data folder where the mmpk and settings file are stored.
+        /// </summary>
+        /// <returns>The data folder.</returns>
+        private static string GetDataFolder()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
 
         /// <summary>
         /// Called when a property changes to trigger PropertyChanged event
         /// </summary>
         /// <param name="propertyName">Name of property that changed.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

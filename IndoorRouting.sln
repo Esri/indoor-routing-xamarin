@@ -31,6 +31,7 @@ Global
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|Any CPU.Build.0 = Release|iPhone
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|iPhone.ActiveCfg = Release|iPhone
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|iPhone.Build.0 = Release|iPhone
+		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|iPhone.Deploy.0 = Release|iPhone
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{7955C133-DC15-4F9C-BC27-60E14C6A6509}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 	EndGlobalSection

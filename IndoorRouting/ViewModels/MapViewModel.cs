@@ -32,7 +32,7 @@ using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     /// <summary>
-    /// Map view model handles all business logic to do with the map navigation and layers
+    /// Map view model handles all UI and business logic to do with the the primary map view
     /// </summary>
     public class MapViewModel : INotifyPropertyChanged
     {
@@ -57,15 +57,44 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         private string _selectedFloorLevel;
 
+        /// <summary>
+        /// The list of floors that are currently visible.
+        /// </summary>
         private IEnumerable<string> _currentVisibleFloors;
 
+        /// <summary>
+        /// The text query used for searching for a feature.
+        /// </summary>
         private string _featureSearchText = string.Empty;
+
+        /// <summary>
+        /// The text query used for searching for a route origin.
+        /// </summary>
         private string _originSearchText = string.Empty;
+
+        /// <summary>
+        /// The text query used for searching for a route destination.
+        /// </summary>
         private string _destinationSearchText = string.Empty;
 
+        /// <summary>
+        /// The currently identified or selected room, which can be the user's home or the current device location.
+        /// </summary>
         private Room _currentRoom;
+
+        /// <summary>
+        /// The current route result.
+        /// </summary>
         private RouteResult _route;
+
+        /// <summary>
+        /// Enumeration tracking the current UI state.
+        /// </summary>
         private UiState _currentState = UiState.ReadyWaiting;
+
+        /// <summary>
+        /// Tracks the device's current location if location services are enabled.
+        /// </summary>
         private MapPoint _currentUserLocation;
 
         #endregion Backing fields
@@ -73,9 +102,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         #region Properties
 
         /// <summary>
-        /// Gets or sets the map.
+        /// Gets or sets the map used in the application.
         /// </summary>
-        /// <value>The map.</value>
         public Map Map
         {
             get => _map;
@@ -90,24 +118,35 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets or sets the viewpoint.
+        /// Gets or sets the envelope containing the current visible area.
         /// </summary>
-        /// <value>The viewpoint.</value>
+        /// <remarks>This is used for tracking which floors should be visible.</remarks>
         public Envelope CurrentViewArea
         {
             get => _currentVisibleArea;
 
             set
             {
+                // There's a lot of jitter in the location data source, so this filter requires horizontal movement of at least one mercator unit
                 if (_currentVisibleArea != value)
                 {
+                    var oldVisibleArea = _currentVisibleArea;
                     _currentVisibleArea = value;
                     OnPropertyChanged();
+
+                    if (oldVisibleArea != null && value != null &&
+                        GeometryEngine.Distance(oldVisibleArea.GetCenter(), value.GetCenter()) < 1)
+                    {
+                        return;
+                    }
                     UpdateFloors();
                 }
             }
         }
 
+        /// <summary>
+        /// Tracks the device's current location so that it can be used for routing.
+        /// </summary>
         public MapPoint CurrentUserLocation
         {
             get => _currentUserLocation;
@@ -123,7 +162,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets or sets the selected floor level.
+        /// Gets or sets the selected floor level. Floor visibility is updated when this is set.
         /// </summary>
         /// <value>The selected floor level.</value>
         public string SelectedFloorLevel
@@ -142,8 +181,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Keep floors in an observable collection.
-        /// Currently visible floors are updated when viewpoint changes.
+        /// Gets or sets the list of floors that can be selected within the current map extent.
         /// </summary>
         public IEnumerable<string> CurrentVisibleFloors
         {
@@ -158,6 +196,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current route result.
+        /// </summary>
         public RouteResult CurrentRoute
         {
             get => _route;
@@ -171,6 +212,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current feature search text.
+        /// </summary>
         public string FeatureSearchText
         {
             get => _featureSearchText;
@@ -184,6 +228,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current route origin search text.
+        /// </summary>
         public string OriginSearchText
         {
             get => _originSearchText;
@@ -197,6 +244,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current route destination search text.
+        /// </summary>
         public string DestinationSearchText
         {
             get => _destinationSearchText;
@@ -210,6 +260,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current UI state.
+        /// </summary>
         public UiState CurrentState
         {
             get => _currentState;
@@ -223,6 +276,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current identified/selected room.
+        /// Setting this will also set <see cref="SelectedFloorLevel"/> based on the room's floor, if applicable.
+        /// </summary>
         public Room CurrentRoom
         {
             get => _currentRoom;
@@ -242,19 +299,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets or sets the mmpk.
+        /// Gets or sets the locator used for geocoding and search suggestions.
         /// </summary>
         /// <value>The mmpk.</value>
         public LocatorTask Locator { get; set; }
 
+        /// <summary>
+        /// Gets or sets the feature representing the currently selected origin.
+        /// This is needed to enable showing stop details, including floor, in the route result view.
+        /// </summary>
         public Feature FromLocationFeature { get; set; }
+
+        /// <summary>
+        /// Gets or sets the feature representing the currently selected destination.
+        /// This is needed to enable showing stop details, including floor, in the route result view.
+        /// </summary>
         public Feature ToLocationFeature { get; set; }
 
         #endregion Properties
 
         #region Helper methods
+
         /// <summary>
-        /// Gets the floors in visible area.
+        /// Updates <see cref="CurrentVisibleFloors"/> based on <see cref="CurrentViewArea"/>.
+        /// Also sets <see cref="SelectedFloorLevel"/> to the default value if the existing selection is no longer valid.
         /// </summary>
         /// <returns>The floors in visible area.</returns>
         private async void UpdateFloors()
@@ -269,7 +337,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                         var roomsTable = roomsLayer.FeatureTable;
 
                         // Set query parameters
-                        var queryParams = new QueryParameters()
+                        var queryParams = new QueryParameters
                         {
                             ReturnGeometry = false,
                             Geometry = CurrentViewArea
@@ -310,7 +378,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets the location suggestions from the mmpk.
+        /// Gets location search suggestions for the provided search string.
         /// </summary>
         /// <returns>List of location suggestions.</returns>
         /// <param name="userInput">User input.</param>
@@ -338,7 +406,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets the searched location based on search terms user entered.
+        /// Gets a GeocodeResult for the search string, or null if nothing is found.
         /// </summary>
         /// <returns>The searched location.</returns>
         /// <param name="searchString">User input.</param>
@@ -360,7 +428,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Gets the room feature async.
+        /// Gets the room feature for the search string, or null if nothing is found.
         /// </summary>
         /// <returns>The room feature.</returns>
         /// <param name="searchString">Search string for the query.</param>
@@ -398,9 +466,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// Gets the requested route based on start and end location points.
         /// </summary>
-        /// <returns>The requested route.</returns>
-        /// <param name="fromLocation">From location.</param>
-        /// <param name="toLocation">To location.</param>
+        /// <returns>The requested route or null if one can't be found.</returns>
+        /// <param name="fromLocation">Location of the origin.</param>
+        /// <param name="toLocation">Location of the destination.</param>
         internal async Task<RouteResult> GetRequestedRouteAsync(MapPoint fromLocation, MapPoint toLocation)
         {
             try
@@ -429,10 +497,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     // Execute routing
                     return await routeTask.SolveRouteAsync(routeParams);
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             catch
             {
@@ -441,32 +506,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Formats the string for query.
+        /// Formats the string for query by escaping quotes.
         /// </summary>
         /// <returns>The formatted string.</returns>
         /// <param name="searchString">String to be formatted.</param>
-        private string FormatStringForQuery(string searchString)
-        {
-            if (searchString.Contains("'"))
-            {
-                var newSearchString = searchString.Replace("'", "''");
-                return newSearchString;
-            }
-            else
-            {
-                return searchString;
-            }
-        }
+        private string FormatStringForQuery(string searchString) => searchString.Replace("'", "''");
 
         #endregion Helper methods
 
         #region Commands
 
         /// <summary>
-        /// Loads the mobile map package and the map 
+        /// Initializes this view model, loading the first map in the mobile map package.
         /// </summary>
-        /// <returns>Async task</returns>
-        internal async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             // Get Mobile Map Package from the location on device
             var mmpk = await MobileMapPackage.OpenAsync(Path.Combine(DownloadViewModel.GetDataFolder(), AppSettings.CurrentSettings.PortalItemName));
@@ -562,7 +615,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Changes the visibility of the rooms and walls layers based on floor selected
+        /// Restricts visibility of the rooms and walls layers to only those on the <see cref="SelectedFloorLevel"/>.
         /// </summary>
         /// <param name="areLayersOn">If set to <c>true</c> operational layers are turned on</param>
         internal void SetFloorVisibility(bool areLayersOn)
@@ -576,7 +629,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        public async void PerformRouteSearch()
+        /// <summary>
+        /// Searches for a route, using the current device's location for origin or destination as needed.
+        /// </summary>
+        public async Task PerformRouteSearch()
         {
             try
             {
@@ -617,24 +673,31 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Starts a route search after an location has been found.
+        /// If the current identified/selected location is the user's home, it is used as the origin search, otherwise, the destination.
+        /// </summary>
         public void StartSearchFromFoundFeature()
         {
             Debug.Assert(CurrentRoom != null);
 
             if (CurrentRoom?.IsHome == true)
             {
-                OriginSearchText = CurrentRoom?.RoomNumber;
+                OriginSearchText = CurrentRoom?.PrimaryDisplayField;
                 DestinationSearchText = string.Empty;
             }
             else
             {
                 OriginSearchText = string.Empty;
-                DestinationSearchText = CurrentRoom?.RoomNumber;
+                DestinationSearchText = CurrentRoom?.PrimaryDisplayField;
             }
 
             CurrentState = UiState.PlanningRoute;
         }
 
+        /// <summary>
+        /// Closes the location result view and returns to the ready waiting state.
+        /// </summary>
         public void CloseLocationInfo()
         {
             CurrentRoom = null;
@@ -642,18 +705,35 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             CurrentState = UiState.ReadyWaiting;
         }
 
+        /// <summary>
+        /// Clears the current route result and returns the UI to the route planning/search state.
+        /// </summary>
         public void CloseRouteResult()
         {
             CurrentRoute = null;
             CurrentState = UiState.PlanningRoute;
         }
 
+        /// <summary>
+        /// Returns the UI to the waiting state.
+        /// </summary>
         public void ReturnToWaitingState() => CurrentState = UiState.ReadyWaiting;
 
+        /// <summary>
+        /// Begins searching for a route origin.
+        /// </summary>
+        /// <remarks>This should only be called when route planning is in progress.</remarks>
         public void SelectOriginSearch() => CurrentState = UiState.SearchingForOrigin;
 
+        /// <summary>
+        /// Begins searching for a route destination.
+        /// </summary>
+        /// <remarks>This should only be called when route planning is in progress.</remarks>
         public void SelectDestinationSearch() => CurrentState = UiState.SearchingForDestination;
 
+        /// <summary>
+        /// Swaps the origin and destination search fields.
+        /// </summary>
         public void SwapOriginDestinationSearch()
         {
             string oldOriginSearch = OriginSearchText;
@@ -663,6 +743,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             OriginSearchText = oldDestinationSearch;
         }
 
+        /// <summary>
+        /// Returns to the location search state if a location couldn't be found or the route planning state if a route couldn't be found.
+        /// </summary>
         public void DismissNotFound()
         {
             if (CurrentState == UiState.LocationNotFound)
@@ -675,6 +758,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Cancels a route search, returning to the current identified/selected room if there is one.
+        /// </summary>
         public void CancelRouteSearch()
         {
             OriginSearchText = null;
@@ -690,6 +776,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Transitions from the ready, waiting state to the search in progress state.
+        /// </summary>
         public void StartEditingInLocationSearch()
         {
             if (CurrentState == UiState.ReadyWaiting)
@@ -698,6 +787,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Stops a search in progress, returning to the route planning state or the location search state as appropriate.
+        /// </summary>
         public void StopEditingInLocationSearch()
         {
             switch (CurrentState)
@@ -713,6 +805,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Searches for a feature, route origin, or route destination depending on current state.
+        /// </summary>
+        /// <param name="text">Search query</param>
         public async Task CommitSearchAsync(string text)
         {
             switch (CurrentState)
@@ -733,6 +829,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Identifies and sets <see cref="CurrentRoom"/> based on an identify result.
+        /// </summary>
+        /// <param name="result">Identify result from a GeoView.</param>
         public void IdentifyRoomFromLayerResult(IdentifyLayerResult result)
         {
             CurrentRoom = Room.ConstructFromIdentifyResult(result);
@@ -740,6 +840,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             CurrentState = CurrentRoom != null ? UiState.LocationFound : UiState.LocationNotFound;
         }
 
+        /// <summary>
+        /// Sets <see cref="CurrentRoom"/> to a room representing the device's current location.
+        /// </summary>
         public void MoveToCurrentLocation()
         {
             Debug.Assert(AppSettings.CurrentSettings.IsLocationServicesEnabled, "This method should only be called if location services are enabled");
@@ -752,7 +855,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// ONLY CALL AFTER UPDATING APPSETTINGS
+        /// Call this after updating the user's home location.
+        /// If the currently identified/selected room was the user's home location,
+        /// this method will select/identify the user's new home location.
         /// </summary>
         public void UpdateHomeLocation()
         {
@@ -777,10 +882,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         public void SelectFloor(string floor) => SelectedFloorLevel = floor;
 
         /// <summary>
-        /// Zooms to geocode result of the searched feature
+        /// Selects/identifies the geocode result for the search text and transitions to the <see cref="UiState.LocationFound"/> state,
+        /// or transitions to the <see cref="UiState.LocationNotFound"/> state if nothing is found.
         /// </summary>
         /// <param name="searchText">Search text entered by user.</param>
-        /// <returns>The searched feature</returns>
         public async Task SearchFeatureAsync(string searchText)
         {
             if (searchText == "Current Location")

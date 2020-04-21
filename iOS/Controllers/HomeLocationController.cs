@@ -192,9 +192,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 {
                     AppSettings.CurrentSettings.HomeCoordinates = new[]
                     {
-                        new KeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
-                        new KeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
-                        new KeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+                        new SerializableKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+                        new SerializableKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+                        new SerializableKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
                     };
                     AppSettings.CurrentSettings.HomeFloorLevel = homeFeature
                         .Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();

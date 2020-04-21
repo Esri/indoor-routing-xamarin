@@ -130,7 +130,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Minutes + 1} min");
             }
 
-            var tableSource = new List<Feature>() { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
+            var tableSource = new List<Feature> { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
 
             _stopsTable.Source = new RouteTableSource(tableSource);
 

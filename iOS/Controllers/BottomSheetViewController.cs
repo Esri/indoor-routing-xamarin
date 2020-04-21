@@ -21,41 +21,71 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
+    /// <summary>
+    /// Manages display and layout of a 'bottom sheet' when in compact width, and a side panel in regular width.
+    /// </summary>
     public sealed class BottomSheetViewController : UIViewController
     {
+        /// <summary>
+        /// Enumeration of possible layout states
+        /// </summary>
         public enum BottomSheetState
         {
-            // minimized is used to set a default minimum size; controlled by AllowsMinimumHeight
+            // Minimized is used to set a default minimum size; controlled by AllowsMinimizedState
             Minimized,
-            // Partial fits intrinsic size of content, assuming content is in stack view
+            // Fits intrinsic size of content, assuming content is in stack view
             Partial,
+            // Fills available vertical space
             Full
-        };
+        }
 
+        // Tracks the current state of the bottom sheet
         private BottomSheetState _currentState = BottomSheetState.Partial;
 
+        // The view that contains the bottom sheet, needed for constraints.
         private readonly UIView _containerView;
-
         private readonly UIView _handlebar;
         private readonly UIView _handlebarSeparator;
-
-        public nfloat DefaultPartialHeight { get; set; } = 160;
-
-        public nfloat MinimumHeight { get; set; } = 80;
-
-        public bool AllowsMinimumHeight { get; set; } = false;
-
-        public bool AllowsManualResize { get; set; } = false;
-
         private readonly NSLayoutConstraint[] _regularWidthConstraints;
         private readonly NSLayoutConstraint[] _compactWidthConstraints;
         private readonly NSLayoutConstraint _heightConstraint;
 
+        /// <summary>
+        /// Container for the view that will be displayed in the bottom sheet/side panel
+        /// </summary>
         public UIView DisplayedContentView { get; } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
 
-        // Exposed so that other things (e.g. attribution button) can be anchored
+        /// <summary>
+        /// Anchor to use for constraining views (e.g. attribution) to the top of this panel when in compact width (bottom sheet) mode.
+        /// </summary>
         public NSLayoutYAxisAnchor PanelTopAnchor { get; }
 
+        /// <summary>
+        /// Defines the height to use when in the partial state and the height of the content can't be determined.
+        /// </summary>
+        public nfloat DefaultPartialHeight { get; set; } = 160;
+
+        /// <summary>
+        /// Defines the size of the content view when the view state is minimized.
+        /// Generally only used if <see cref="AllowsMinimizedState"/> or <see cref="AllowsManualResize"/> is <value>true</value>.
+        /// </summary>
+        public nfloat MinimumHeight { get; set; } = 80;
+
+        /// <summary>
+        /// Determines if the view can be set to the Minimized state. If <value>false</value>, the partial state is used in place of minimized.
+        /// </summary>
+        public bool AllowsMinimizedState { get; set; } = false;
+
+        /// <summary>
+        /// If <value>true</value>, the user can pan to adjust the size of the view. When <value>true</value>,
+        /// a handlebar is shown to indicate that the view is adjustable.
+        /// </summary>
+        public bool AllowsManualResize { get; set; } = false;
+
+        /// <summary>
+        /// Creates the view controller. This can only be called with a valid view
+        /// </summary>
+        /// <param name="container"></param>
         public BottomSheetViewController(UIView container)
         {
             // container view is needed because for constraints to work, view must be in same hierarchy
@@ -203,7 +233,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     AnimateSwitchState(recognizer);
                 }
 
-                if (_heightConstraint.Constant == MinimumHeight && AllowsMinimumHeight)
+                if (_heightConstraint.Constant == MinimumHeight && AllowsMinimizedState)
                 {
                     _currentState = BottomSheetState.Minimized;
                 }
@@ -263,23 +293,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             return baseHeight;
         }
 
-        public void SetStateWithAnimation(BottomSheetState state)
-        {
-            _currentState = state;
-            switch (state)
-            {
-                case BottomSheetState.Partial:
-                   _heightConstraint.Constant = GetPartialHeight();
-                    break;
-                case BottomSheetState.Minimized:
-                    _heightConstraint.Constant = MinimumHeight;
-                    break;
-                case BottomSheetState.Full:
-                    _heightConstraint.Constant = MaxHeightConstraint;
-                    break;
-            }
-        }
-
         private void AnimateSwitchState(UIPanGestureRecognizer recognizer)
         {
             switch (_currentState)
@@ -329,6 +342,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             base.TraitCollectionDidChange(previousTraitCollection);
             ApplyConstraints();
+        }
+
+        public void SetStateWithAnimation(BottomSheetState state)
+        {
+            _currentState = state;
+            switch (state)
+            {
+                case BottomSheetState.Partial:
+                    _heightConstraint.Constant = GetPartialHeight();
+                    break;
+                case BottomSheetState.Minimized:
+                    _heightConstraint.Constant = MinimumHeight;
+                    break;
+                case BottomSheetState.Full:
+                    _heightConstraint.Constant = MaxHeightConstraint;
+                    break;
+            }
         }
 
         private void ApplyConstraints()

@@ -14,44 +14,50 @@
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels
 {
+    /// <summary>
+    /// Enumeration of possible UI states for the primary map view.
+    /// </summary>
     public enum UiState
     {
         /// <summary>
-        /// Map is shown and ready for user interaction
+        /// Map is shown and ready for user interaction.
         /// </summary>
         ReadyWaiting,
         /// <summary>
-        /// User is actively searching for a route destination
+        /// User is actively searching for a route destination.
         /// </summary>
         SearchingForDestination,
         /// <summary>
-        /// User is actively searching for a route origin
+        /// User is actively searching for a route origin.
         /// </summary>
         SearchingForOrigin,
         /// <summary>
-        /// User is actively search for a feature
+        /// User is actively search for a feature.
         /// </summary>
         SearchingForFeature,
-        
-        DestinationFound,
-        OriginFound,
-        FeatureSearchEntered,
-        PlanningRoute, //-> RouteFound, RouteNotFound
         /// <summary>
-        /// A location has been found, either from user search, map identify, or UI selection like home, or current location
+        /// User has committed a search for a feature.
+        /// </summary>
+        FeatureSearchEntered,
+        /// <summary>
+        /// User is actively planning a route.
+        /// </summary>
+        PlanningRoute,
+        /// <summary>
+        /// A location has been found, either from user search, map identify, or UI selection like home, or current location.
         /// </summary>
         LocationFound,
         /// <summary>
-        /// A route search has completed with result and route is shown
+        /// A route search has completed with result and route is shown.
         /// </summary>
         RouteFound,
         /// <summary>
-        /// A route search found nothing (or an error occurred)
+        /// A route search found nothing (or an error occurred).
         /// </summary>
-        RouteNotFound, //-> AwaitingSearch
+        RouteNotFound,
         /// <summary>
-        /// A location search found nothing (or an error occurred)
+        /// A location search found nothing (or an error occurred).
         /// </summary>
-        LocationNotFound, //-> AwaitingSearch
+        LocationNotFound
     }
 }

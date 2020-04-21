@@ -98,6 +98,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             base.ViewDidAppear(animated);
 
+            if (_bottomSheet == null)
+            {
+                ConfigureBottomSheet();
+                ConfigureAttribution();
+            }
+
             SetAttributionForCurrentState();
         }
 
@@ -117,8 +123,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             // Create the map view
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
+
             ConfigureMapView();
-            
+
             // Create and set up accessory buttons
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);
@@ -188,8 +195,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _topBlur.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
             });
 
-            // Bottom sheet has to be done last
-            ConfigureBottomSheet();
+            
         }
 
         /// <summary>
@@ -269,8 +275,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 Hidden = true
             };
-
-            ConfigureAttribution();
 
             UIStackView containerView = new IntrinsicContentSizedStackView
             {
@@ -387,10 +391,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     }
                     break;
                 case nameof(AppSettings.IsLocationServicesEnabled):
+                    _mapView.LocationDisplay.LocationChanged -= MapView_LocationChanged;
                     if (_locationButton != null)
                     {
                         _locationButton.Hidden = !settings.IsLocationServicesEnabled;
                         _accessoryView.ReloadData();
+                    }
+                    if (settings.IsLocationServicesEnabled)
+                    {
+                        _mapView.LocationDisplay.IsEnabled = true;
+                        _mapView.LocationDisplay.LocationChanged += MapView_LocationChanged;
                     }
                     break;
                 case nameof(AppSettings.MapViewMinScale):
@@ -453,14 +463,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 case UiState.SearchingForFeature:
                     _locationSearchCard.Hidden = false;
                     _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
-                    break;
-                case UiState.DestinationFound:
-                    _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
-                    break;
-                case UiState.OriginFound:
-                    _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.FeatureSearchEntered:
                     _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);

@@ -27,6 +27,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     /// </summary>
     public class AppSettings : INotifyPropertyChanged
     {
+        // Backing fields for properties
         private string _portalItemId;
         private string _portalItemName;
         private DateTime _mmpkDownloadDate;
@@ -34,6 +35,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         private bool _isLocationServicesEnabled;
         private bool _isRoutingEnabled;
         private bool _isPrefersElevatorsEnabled;
+        private int _roomsLayerIndex;
+        private int _floorPlanLinesLayerIndex;
+        private string _homeFloorLevel;
+        private int _mapViewMaxScale;
+        private int _mapViewMinScale;
+        private bool _useOnlineBasemap;
+        private List<string> _contactCardDisplayFields;
+        private List<string> _locatorFields;
+        private string _roomsLayerFloorColumnName;
+        private double _roomsLayerMinimumZoomLevel;
+        private SerializableKeyValuePair<string, double>[] _initialViewpointCoordinates;
+        private SerializableKeyValuePair<string, double>[] _homeCoordinates;
+
         /// <summary>
         /// Gets or sets the current settings.
         /// </summary>
@@ -45,7 +59,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         /// <value>Portal Item ID</value>
         [XmlElement]
-        // ReSharper disable once InconsistentNaming
         public string PortalItemID
         {
             get => _portalItemId;
@@ -168,7 +181,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private int _roomsLayerIndex;
         /// <summary>
         /// Gets or sets the index of the rooms layer.
         /// </summary>
@@ -186,8 +198,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                 }
             }
         }
-
-        private int _floorPlanLinesLayerIndex;
+        
         /// <summary>
         /// Gets or sets the index of the floor plan lines layer.
         /// </summary>
@@ -206,7 +217,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private double _roomsLayerMinimumZoomLevel;
         /// <summary>
         /// Gets or sets the zoom level to display room layers.
         /// </summary>
@@ -225,7 +235,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private string _roomsLayerFloorColumnName;
         /// <summary>
         /// Gets or sets the name of the floor column in rooms table.
         /// </summary>
@@ -244,13 +253,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private KeyValuePair<string, double>[] _homeCoordinates;
         /// <summary>
         /// Gets or sets the home coordinates.
         /// </summary>
         /// <value>The coordinates and floor level for the home location. This also includes the WKID</value>
         [XmlArray("HomeCoordinates")]
-        public KeyValuePair<string, double>[] HomeCoordinates
+        public SerializableKeyValuePair<string, double>[] HomeCoordinates
         {
             get => _homeCoordinates;
             set
@@ -263,7 +271,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private string _homeFloorLevel;
         /// <summary>
         /// Gets or sets the home floor level.
         /// </summary>
@@ -282,13 +289,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private KeyValuePair<string, double>[] _initialViewpointCoordinates;
         /// <summary>
         /// Gets or sets the initial viewpoint coordinates.
         /// </summary>
         /// <value>The initial viewpoint coordinates used for the map.</value>
         [XmlArray("InitialViewpointCoordinates")]
-        public KeyValuePair<string, double>[] InitialViewpointCoordinates
+        public SerializableKeyValuePair<string, double>[] InitialViewpointCoordinates
         {
             get => _initialViewpointCoordinates;
             set
@@ -301,7 +307,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private List<string> _locatorFields;
         /// <summary>
         /// Gets or sets the locator fields. If there is only one locator, make a list with one value 
         /// </summary>
@@ -320,7 +325,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private List<string> _contactCardDisplayFields;
         /// <summary>
         /// Gets or sets the contact card display fields. These are what is displayed on the Contact card when user searches or taps an office
         /// </summary>
@@ -339,7 +343,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private int _mapViewMinScale;
         /// <summary>
         /// Gets or sets the minimum scale of the map.
         /// </summary>
@@ -358,7 +361,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private int _mapViewMaxScale;
         /// <summary>
         /// Gets or sets the maximum scale of the map.
         /// </summary>
@@ -377,7 +379,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
-        private bool _useOnlineBasemap;
+        /// <summary>
+        /// Gets or sets whether to supplement the MMPK basemap with an online basemap.
+        /// </summary>
         [XmlElement]
         public bool UseOnlineBasemap
         {
@@ -438,10 +442,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     IsPreferElevatorsEnabled = false,
                     InitialViewpointCoordinates = new[]
                     {
-                        new KeyValuePair<string, double>("X", -13046209),
-                        new KeyValuePair<string, double>("Y", 4036456),
-                        new KeyValuePair<string, double>("WKID", 3857),
-                        new KeyValuePair<string, double>("ZoomLevel", 13000),
+                        new SerializableKeyValuePair<string, double>("X", -13046209),
+                        new SerializableKeyValuePair<string, double>("Y", 4036456),
+                        new SerializableKeyValuePair<string, double>("WKID", 3857),
+                        new SerializableKeyValuePair<string, double>("ZoomLevel", 13000),
                     }
                 };
 
@@ -498,8 +502,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             }
         }
 
+        /// <summary>
+        /// Returns <value>true</value> if a home location has been set.
+        /// </summary>
         public bool IsHomeSet => !string.IsNullOrWhiteSpace(HomeLocation);
 
+        /// <summary>
+        /// Event notifies subscribers of property changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

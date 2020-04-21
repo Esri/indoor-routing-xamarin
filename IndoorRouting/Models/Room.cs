@@ -18,30 +18,58 @@ using Esri.ArcGISRuntime.Geometry;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
 {
+    /// <summary>
+    /// Represents a room that a user has selected, as an origin, destination, or identify result.
+    /// This room can represent a home location or the devices current location.
+    /// </summary>
     public class Room
     {
+        /// <summary>
+        /// Geometry representing the feature, can be a polygon. Null if representing device's current location.
+        /// </summary>
         public Geometry.Geometry Geometry { get; set; }
 
-        public string RoomNumber { get; set; }
+        /// <summary>
+        /// The primary field to display, for example as a title.
+        /// </summary>
+        public string PrimaryDisplayField { get; set; }
 
-        public string EmployeeNameLabel { get; set; }
+        /// <summary>
+        /// The secondary field to display, for example as a subtitle.
+        /// </summary>
+        public string SecondaryDisplayField { get; set; }
 
+        /// <summary>
+        /// True if this is the user's home location.
+        /// </summary>
         public bool IsHome { get; set; }
 
+        /// <summary>
+        /// True if this is representing the current device location.
+        /// </summary>
         public bool IsCurrentLocation { get; set; }
 
+        /// <summary>
+        /// The string name of the floor this feature is on.
+        /// </summary>
         public string Floor { get; set; }
 
+        /// <summary>
+        /// Center point of feature, or null if no geometry is set or <see cref="IsCurrentLocation"/> is <value>true</value>.
+        /// </summary>
         public MapPoint CenterPoint
         {
             get
             {
+                // If this room represents the current location,
+                // the location value should be taken directly from the view's location display.
                 if (IsCurrentLocation)
                 {
                     return null;
                 }
                 switch (Geometry)
                 {
+                    // If the geometry is already a MapPoint, return that, otherwise return its center.
                     case MapPoint mp:
                         return mp;
                     case Geometry.Geometry gm:
@@ -52,12 +80,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             }
         }
 
+        /// <summary>
+        /// Constructor hidden to ensure that only static factory methods are used.
+        /// </summary>
         private Room()
         {
         }
 
+        /// <summary>
+        /// Creates a room for the first feature in the identify result.
+        /// </summary>
+        /// <param name="rawResult">IdentifyLayerResult returned by GeoView</param>
+        /// <returns>Room for current identify result, or null if nothing is found.</returns>
         public static Room ConstructFromIdentifyResult(IdentifyLayerResult rawResult)
         {
+            // Get the first identified element.
+            // TODO - adjust this if you have multiple identifiable layers and not all represent rooms
             GeoElement inputGeoElement = rawResult.GeoElements?.FirstOrDefault();
 
             if (inputGeoElement == null)
@@ -66,22 +104,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             }
 
             // Get room attribute from the settings. First attribute should be set as the searchable one
-            string roomAttributeKey = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-            object roomNumber = inputGeoElement.Attributes[roomAttributeKey];
+            string primaryDisplayAttributeKey = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
+            object primaryDisplayValue = inputGeoElement.Attributes[primaryDisplayAttributeKey];
 
-            if (roomNumber != null)
+            // In the default MMPK and settings, primary display value is the 'Room Number', e.g. 'M3-115'
+            if (primaryDisplayValue != null)
             {
-                string employeeNameLabel = string.Empty;
+                string secondaryDisplayValue = string.Empty;
                 if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
                 {
                     string employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                    employeeNameLabel = inputGeoElement.Attributes[employeeNameAttribute]?.ToString() ?? string.Empty;
+                    secondaryDisplayValue = inputGeoElement.Attributes[employeeNameAttribute]?.ToString() ?? string.Empty;
                 }
 
                 return new Room
                 {
-                    RoomNumber = roomNumber.ToString(),
-                    EmployeeNameLabel = employeeNameLabel,
+                    PrimaryDisplayField = primaryDisplayValue.ToString(),
+                    SecondaryDisplayField = secondaryDisplayValue,
                     Geometry = inputGeoElement.Geometry,
                     Floor = inputGeoElement.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString()
                 };
@@ -89,6 +128,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             return null;
         }
 
+        /// <summary>
+        /// Creates a room from a feature.
+        /// </summary>
+        /// <param name="feature">Feature representing a room.</param>
+        /// <returns>Room representing the feature, or null.</returns>
         public static Room ConstructFromFeature(Feature feature)
         {
             if (feature != null)
@@ -108,15 +152,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
                 return new Room
                 {
                     Geometry = feature.Geometry,
-                    RoomNumber = roomNumber?.ToString() ?? string.Empty,
-                    EmployeeNameLabel = employeeNameLabel,
+                    PrimaryDisplayField = roomNumber?.ToString() ?? string.Empty,
+                    SecondaryDisplayField = employeeNameLabel,
                     Floor = feature.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString()
                 };
             }
 
             return null;
         }
-
+        
+        /// <summary>
+        /// Creates a room for the user's home location or null if no home location is set.
+        /// </summary>
+        /// <returns>Room for the user's home location.</returns>
         public static Room ConstructHome()
         {
             if (string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
@@ -148,17 +196,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             {
                 IsHome = true,
                 Geometry = homeLocation,
-                RoomNumber = AppSettings.CurrentSettings.HomeLocation,
+                PrimaryDisplayField = AppSettings.CurrentSettings.HomeLocation,
                 Floor = AppSettings.CurrentSettings.HomeFloorLevel
             };
         }
 
+        /// <summary>
+        /// Creates a room without geometry representing the current device location.
+        /// </summary>
+        /// <returns>Room representing the device's current location.</returns>
         public static Room ConstructCurrentLocation()
         {
             return new Room
             {
                 IsCurrentLocation = true,
-                RoomNumber = "Current Location"
+                PrimaryDisplayField = "Current Location"
             };
         }
     }

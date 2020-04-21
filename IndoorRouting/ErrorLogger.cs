@@ -15,9 +15,11 @@
 using System;
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
+    /// <summary>
+    /// Class implements shared error logging functionality. Edit this to integrate your own app analytics (e.g. AppCenter).
+    /// </summary>
     public class ErrorLogger
     {
-        // TODO - configure your app analytics/crash logging system
         public static ErrorLogger Instance;
 
         static ErrorLogger()

@@ -101,11 +101,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
                     cell.TextLabel.Text = "CurrentLocationLabel".Localize();
+                    cell.DetailTextLabel.Text = string.Empty;
                     return cell;
                 }
                 else
                 {
                     cell.TextLabel.Text = "UnknownLocationLabel".Localize();
+                    cell.DetailTextLabel.Text = string.Empty;
                     return cell;
                 }
             }

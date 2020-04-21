@@ -112,8 +112,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 return;
             }
 
-            _primaryLabel.Text = _viewModel.CurrentRoom?.RoomNumber ?? string.Empty;
-            _secondaryLabel.Text = _viewModel.CurrentRoom?.EmployeeNameLabel ?? string.Empty;
+            _primaryLabel.Text = _viewModel.CurrentRoom?.PrimaryDisplayField ?? string.Empty;
+            _secondaryLabel.Text = _viewModel.CurrentRoom?.SecondaryDisplayField ?? string.Empty;
 
             UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Room found".Localize());
         }

@@ -122,11 +122,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             switch (e.PropertyName)
             {
-                case "DownloadURL":
+                case nameof(ViewModel.DownloadUrl):
                     EnqueueDownload(ViewModel.DownloadUrl);
                     break;
 
-                case "IsDownloading":
+                case nameof(ViewModel.IsDownloading):
                     if (ViewModel.IsDownloading)
                     {
                         InvokeOnMainThread(() =>
@@ -151,7 +151,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     });
                     break;
 
-                case "IsReady":
+                case nameof(ViewModel.IsReady):
                     {
                         InvokeOnMainThread(LoadMapView);
                     }

@@ -19,6 +19,10 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
+    /// <summary>
+    /// Displays the attribution text for a map view.
+    /// This is intended for use only in scenarios when the built-in attribution bar isn't visible.
+    /// </summary>
     public class AttributionViewController : UIViewController
     {
         private readonly MapView _mapView;
@@ -45,14 +49,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                _attributionTextView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor,
-                    ApplicationTheme.Margin),
-                _attributionTextView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor,
-                    ApplicationTheme.Margin),
-                _attributionTextView.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor,
-                    -ApplicationTheme.Margin),
-                _attributionTextView.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor,
-                    -ApplicationTheme.Margin)
+                _attributionTextView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
+                _attributionTextView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
+                _attributionTextView.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -ApplicationTheme.Margin),
+                _attributionTextView.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -ApplicationTheme.Margin)
             });
 
             _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Plain, null);
