@@ -26,7 +26,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     /// <summary>
     /// View model to handle common download logic between platforms
     /// </summary>
-    internal class DownloadViewModel : INotifyPropertyChanged
+    public class DownloadViewModel : INotifyPropertyChanged
     {
         /// <summary>
         /// Gets set to true when the mmpk is downloading.
@@ -44,9 +44,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         private string _downloadUrl;
 
         /// <summary>
-        /// Gets the name and path of the MMPK file.
+        /// Event handler property changed. 
         /// </summary>
-        public string TargetFileName { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Gets the full path to the MMPK file, including file name.
+        /// </summary>
+        public static string TargetFileName => Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.PortalItemName);
 
         /// <summary>
         /// Gets the list of type="files inside the download folder"> > 
@@ -85,8 +90,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
             private set
             {
-                _isDownloading = value;
-                OnPropertyChanged(nameof(IsDownloading));
+                if (_isDownloading != value)
+                {
+                    _isDownloading = value;
+                    OnPropertyChanged(nameof(IsDownloading));
+                }
             }
         }
 
@@ -109,6 +117,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
+        /// Determines whether the device is connected or not.
+        /// </summary>
+        /// <returns><c>true</c>, if device connected was used, <c>false</c> otherwise.</returns>
+        public static bool IsDeviceConnected() => Reachability.IsNetworkAvailable();
+
+        /// <summary>
+        /// Gets the data folder where the mmpk and settings file are stored.
+        /// </summary>
+        /// <returns>The data folder.</returns>
+        public static string GetDataFolder() => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        /// <summary>
         /// Gets the data for the map. It downloads the mmpk if it doesn't exist or if there's a newer one available
         /// </summary>
         /// <returns>The map data.</returns>
@@ -116,7 +136,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             // List of all files inside the Documents directory on the device
             Files = Directory.EnumerateFiles(GetDataFolder()).ToList();
-            TargetFileName = Path.Combine(GetDataFolder(), AppSettings.CurrentSettings.PortalItemName);
 
             // Test if device is online
             // If offline, test if mmpk exists and load it
@@ -168,24 +187,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
-        /// Determines whether the device is connected or not.
-        /// </summary>
-        /// <returns><c>true</c>, if device connected was used, <c>false</c> otherwise.</returns>
-        public static bool IsDeviceConnected()
-        {
-            return Reachability.IsNetworkAvailable();
-        }
-
-        /// <summary>
-        /// Gets the data folder where the mmpk and settings file are stored.
-        /// </summary>
-        /// <returns>The data folder.</returns>
-        private static string GetDataFolder()
-        {
-            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        }
-
-        /// <summary>
         /// Called when a property changes to trigger PropertyChanged event
         /// </summary>
         /// <param name="propertyName">Name of property that changed.</param>
@@ -193,10 +194,5 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        /// <summary>
-        /// Event handler property changed. 
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

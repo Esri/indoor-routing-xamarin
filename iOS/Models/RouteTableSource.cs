@@ -100,7 +100,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 }
                 else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
-                    cell.TextLabel.Text = "CurrentLocationLabel".Localize();
+                    cell.TextLabel.Text = AppSettings.LocalizedCurrentLocationString;
                     cell.DetailTextLabel.Text = string.Empty;
                     return cell;
                 }

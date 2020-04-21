@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.Tasks.Geocoding;
@@ -52,6 +53,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
             _cellIdentifier = "cell_id";
             ResetSpecialSettings();
             ShouldShowSpecialItems = showSpecialItems;
+
+            // Keep special items section updated when settings change
+             AppSettings.CurrentSettings.PropertyChanged += AppSettings_Changed;
+        }
+
+        private void AppSettings_Changed(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.IsLocationServicesEnabled) ||
+                e.PropertyName == nameof(AppSettings.HomeLocation))
+            {
+                ResetSpecialSettings();
+            }
         }
 
         public void UpdateSuggestions(IEnumerable<SuggestResult> items)
@@ -99,7 +112,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
             _specialSettings.Clear();
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
-                _specialSettings.Add("CurrentLocationLabel".Localize());
+                _specialSettings.Add(AppSettings.LocalizedCurrentLocationString);
             }
 
             if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))

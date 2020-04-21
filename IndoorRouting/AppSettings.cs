@@ -55,6 +55,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         public static AppSettings CurrentSettings { get; set; }
 
         /// <summary>
+        /// 'Current Location' string needs to be consistent throughout the app for comparisons to be reliable.
+        /// If localizing, set this string to the translated value at startup.
+        /// </summary>
+        public static string LocalizedCurrentLocationString { get; set; } = "Current Location";
+
+        /// <summary>
         /// Gets or sets the item identifier.
         /// </summary>
         /// <value>Portal Item ID</value>
@@ -397,6 +403,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         }
 
         /// <summary>
+        /// Returns <value>true</value> if a home location has been set.
+        /// </summary>
+        public bool IsHomeSet => !string.IsNullOrWhiteSpace(HomeLocation);
+
+        /// <summary>
         /// Loads the app settings if the file exists, otherwise it creates default settings. 
         /// </summary>
         /// <returns>The app settings.</returns>
@@ -501,11 +512,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                 ErrorLogger.Instance.LogException(ex);
             }
         }
-
-        /// <summary>
-        /// Returns <value>true</value> if a home location has been set.
-        /// </summary>
-        public bool IsHomeSet => !string.IsNullOrWhiteSpace(HomeLocation);
 
         /// <summary>
         /// Event notifies subscribers of property changes.

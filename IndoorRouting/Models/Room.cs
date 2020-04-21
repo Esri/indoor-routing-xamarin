@@ -25,6 +25,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
     public class Room
     {
         /// <summary>
+        /// Constructor hidden to ensure that only static factory methods are used.
+        /// </summary>
+        private Room()
+        {
+        }
+
+        /// <summary>
         /// Geometry representing the feature, can be a polygon. Null if representing device's current location.
         /// </summary>
         public Geometry.Geometry Geometry { get; set; }
@@ -81,13 +88,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
         }
 
         /// <summary>
-        /// Constructor hidden to ensure that only static factory methods are used.
-        /// </summary>
-        private Room()
-        {
-        }
-
-        /// <summary>
         /// Creates a room for the first feature in the identify result.
         /// </summary>
         /// <param name="rawResult">IdentifyLayerResult returned by GeoView</param>
@@ -129,7 +129,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
         }
 
         /// <summary>
-        /// Creates a room from a feature.
+        /// Returns a room from a feature, or null if the feature is null.
         /// </summary>
         /// <param name="feature">Feature representing a room.</param>
         /// <returns>Room representing the feature, or null.</returns>
@@ -167,7 +167,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
         /// <returns>Room for the user's home location.</returns>
         public static Room ConstructHome()
         {
-            if (string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
+            if (!AppSettings.CurrentSettings.IsHomeSet)
             {
                 return null;
             }
@@ -210,7 +210,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models
             return new Room
             {
                 IsCurrentLocation = true,
-                PrimaryDisplayField = "Current Location"
+                PrimaryDisplayField = AppSettings.LocalizedCurrentLocationString
             };
         }
     }

@@ -29,6 +29,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             Instance = new ErrorLogger();
         }
 
+        /// <summary>
+        /// Logs the exception to the console.
+        /// </summary>
+        /// <param name="ex"></param>
         public void LogException(Exception ex)
         {
             // TODO - configure your app analytics/crash logging system here
