@@ -377,19 +377,19 @@ The iOS UI for Indoor Routing has full support for iPad, iPad multitasking, and 
 
 iPhone SE (2016):
 
-![]()
+![indoor routing running on a small iphone in portrait](images/iphone_se_portrait.png)
 
 iPhone 11 Pro Max:
 
-| Landscape | Portrait |
+| Portrait | Landscape |
 |-----------|----------|
-| ![]() | ![]() |
+| ![indoor routing running on a large iphone in portrait](images/iphone_11_max_portrait.png) | ![indoor routing running on a large iphone in landscape](images/iphone_11_max_landscape.png) |
 
 iPad (2019):
 
 | Full width | 1/2 width | 1/3 width |
 |------------|-----------|-----------|
-| ![]() | ![]() | | ![]() |
+| ![indoor routing in full screen](images/ipad_portrait.png) | ![multitasking with indoor routing filling half of the screen](images/ipad_50.png) | ![multitasking with indoor routing filling one third of the screen](images/ipad_30.png) |
 
 ## Customize app appearance
 
