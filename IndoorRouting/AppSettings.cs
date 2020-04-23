@@ -438,11 +438,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     RoomsLayerFloorColumnName = "FLOOR",
                     UseOnlineBasemap = false,
                     // Set fields displayed in the bottom card
-                    LocatorFields = new List<string>() {"LONGNAME", "KNOWN_AS_N"},
-                    ContactCardDisplayFields = new List<string>() {"LONGNAME", "KNOWN_AS_N"},
+                    LocatorFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
+                    ContactCardDisplayFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
                     // Change at what zoom levels the room data becomes visible
                     RoomsLayerMinimumZoomLevel = 750,
-
                     // Change map scale bounds
                     MapViewMinScale = 100,
                     MapViewMaxScale = 13000,

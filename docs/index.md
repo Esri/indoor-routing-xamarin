@@ -1,8 +1,21 @@
+# Indoor Routing for Xamarin documentation
+
+This doc describes Indoor Routing, including how you can customize it to work for your particular needs.
+
+> **Looking for ArcGIS Indoors?** ArcGIS Indoors is Esri's solution for indoor mapping, location tracking, and wayfinding; no code required. [Learn more about ArcGIS Indoors](https://www.esri.com/en-us/arcgis/products/arcgis-indoors).
+
 ## Description
 
-Route and track indoors using custom building data, indoor network, and locators. Indoor Routing uses Esri's Redlands Campus data, indoor network, and locators to find offices or employees and route between indoor spaces.
+This app enables you to find routes on a campus using custom building data, an indoor network, and locators. Indoor Routing includes a package with data for Esri's Redlands campus.
 
-Modify this app to use your own data and custom locators.
+There are four primary ways you can customize this app with minimal code changes:
+
+* [Change the data](#preparing-the-data) - this app references an item on ArcGIS Online. You can prepare an MMPK following a defined format to use this app with your campus or building.
+* [Change the default settings](#app-settings) - *AppSettings.cs* defines default settings for various aspects of the application. You can change these defaults before publishing the app.
+* [Change the app's appearance](#customize-app-appearance) - the iOS solution has a file named *ApplicationTheme.cs* that defines colors, materials, margins, and corner rounding, giving you one place to customize the app's appearance.
+* [Change assets](#update-assets) - the iOS solution defines all UI text in *Localizable.strings*, so you can customize all language there, or provide translations in additional languages.. *Assets.xcassets* defines all images and symbols used in the application. You can change images or provide light/dark variation.
+
+Indoor Routing for Xamarin is architected to support multiple platforms using the MVVM pattern. Currently only the iOS UI has been implemented, but you could extend this application to support multiple platforms while sharing most application logic.
 
 ## Preparing the data
 
@@ -49,13 +62,36 @@ Since this is a multi-platform application, the app settings are stored inside a
 ```csharp
 internal static async Task<AppSettings> CreateAsync(string filePath)
 {
-    var appSettings = new AppSettings();
-    appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
-    appSettings.PortalItemName = "RedlandsCampus.mmpk";
-    appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
-
+    var appSettings = new AppSettings {
+        PortalItemID = "52346d5fc4c348589f976b6a279ec3e6",
+        PortalItemName = "RedlandsCampus.mmpk",
+        // Set the room and walls layers
+        RoomsLayerIndex = 1,
+        FloorPlanLinesLayerIndex = 2,
+        RoomsLayerFloorColumnName = "FLOOR",
+        // Set fields displayed in the details card
+        LocatorFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
+        ContactCardDisplayFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
+        // Change at what zoom levels the room data becomes visible
+        RoomsLayerMinimumZoomLevel = 750,
+        // Change map scale bounds
+        MapViewMinScale = 100,
+        MapViewMaxScale = 13000,
+        MmpkDownloadDate = new DateTime(1900, 1, 1),
+        HomeLocation = string.Empty,
+        IsLocationServicesEnabled = false,
+        IsRoutingEnabled = false,
+        UseOnlineBasemap = false,
+        IsPreferElevatorsEnabled = false,
+        InitialViewpointCoordinates = new[]
+        {
+            new SerializableKeyValuePair<string, double>("X", -13046209),
+            new SerializableKeyValuePair<string, double>("Y", 4036456),
+            new SerializableKeyValuePair<string, double>("WKID", 3857),
+            new SerializableKeyValuePair<string, double>("ZoomLevel", 13000),
+        }
+    };
     ...
-
     return appSettings;
 }
 ```
@@ -133,15 +169,13 @@ There are three ways to move around the map: pan, zoom and floor change. The flo
 ![Manual Zoom-in](./images/manualzoomin.png)
 
 ```csharp
-for (int i = 1; i < Map.OperationalLayers.Count; i++)
+foreach (var featureLayer in Map.OperationalLayers.OfType<FeatureLayer>())
 {
-    ...
-    // select chosen floor
-    featureLayer.DefinitionExpression = string.Format(
-                        "{0} = '{1}'",
-                        AppSettings.CurrentSettings.RoomsLayerFloorColumnName,
-                    this.SelectedFloorLevel);
-    ...
+    // Select the floor
+    featureLayer.DefinitionExpression = $"{AppSettings.CurrentSettings.RoomsLayerFloorColumnName} = '{SelectedFloorLevel}'";
+
+    // Ensure the layer is visible
+    featureLayer.IsVisible = true;
 }
 ```
 
@@ -336,3 +370,56 @@ if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
     this.MapView.LocationDisplay.InitialZoomScale = 150;
 }
 ```
+
+## Adaptive layout
+
+The iOS UI for Indoor Routing has full support for iPad, iPad multitasking, and iPhone, including support for devices with and without notches.
+
+iPhone SE (2016):
+
+![]()
+
+iPhone 11 Pro Max:
+
+| Landscape | Portrait |
+|-----------|----------|
+| ![]() | ![]() |
+
+iPad (2019):
+
+| Full width | 1/2 width | 1/3 width |
+|------------|-----------|-----------|
+| ![]() | ![]() | | ![]() |
+
+## Customize app appearance
+
+To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way.
+
+```cs
+public static class ApplicationTheme
+{
+    public static nint Margin = 8;
+    public static UIColor BackgroundColor = UIColor.SystemBackgroundColor;
+    public static UIColor ForegroundColor = UIColor.LabelColor;
+    public static UIColor SeparatorColor = UIColor.SystemGray2Color;
+    public static UIBlurEffect PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
+    public static nint SideWidgetWidth = 48;
+    public static nint FloorWidthMaxHeight = 240;
+    public static nint HandlebarThickness = 4;
+    public static nint HandlebarLength = 48;
+    public static nint HandlebarCornerRadius = 2;
+    public static nint CornerRadius = 8;
+    public static UIColor ActionBackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
+    public static UIColor ActionForegroundColor = UIColor.White;
+    public static UIColor SelectionBackgroundColor = ActionBackgroundColor;
+    public static UIColor SelectionForegroundColor = ActionForegroundColor;
+    public static nint ActionButtonHeight = 44;
+    public static UIFont HeaderFont = UIFont.BoldSystemFontOfSize(28);
+    // Accessory button is a light/dark responsive color defined in the asset catalog
+    public static UIColor AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
+}
+```
+
+## Update assets
+
+All icons for the app are defined in the asset catalog. The asset catalog is already populated with calcite icons for most entries. You can supply new assets (keeping the name the same) to use them in the app without any code changes.
