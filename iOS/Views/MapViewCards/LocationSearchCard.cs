@@ -109,7 +109,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             switch (_viewModel.CurrentState)
             {
                 case UiState.SearchingForDestination:
-                    _headerLabel.Text = "Select Destination";
+                    _headerLabel.Text = "LocationSearchHeaderForDestinationSearch".Localize();
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.DestinationSearchText;
                     // Focus the cursor on the search bar and show the keyboard
@@ -125,7 +125,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                     UpdateTableView();
                     return;
                 case UiState.SearchingForOrigin:
-                    _headerLabel.Text = "Select Origin";
+                    _headerLabel.Text = "LocationSearchHeaderForOriginSearch".Localize();
                     _headerLabel.Hidden = false;
                     _searchBar.Text = _viewModel.OriginSearchText;
                     // Focus the cursor on the search bar and show the keyboard

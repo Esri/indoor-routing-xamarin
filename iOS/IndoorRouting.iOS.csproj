@@ -319,7 +319,6 @@
     <Compile Include="Views\SimpleStackedButtonContainer.cs" />
     <Compile Include="Controllers\AttributionViewController.cs" />
     <Compile Include="Helpers\LocalizationExtension.cs" />
-    <Compile Include="Controllers\DismissableNavigationController.cs" />
     <Compile Include="Helpers\ViewExtensions.cs" />
     <Compile Include="Controllers\MapViewController.Views.cs">
       <DependentUpon>MapViewController.cs</DependentUpon>

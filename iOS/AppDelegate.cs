@@ -85,7 +85,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             Task.Run(() => {
                 try
                 {
-                    AppSettings.LocalizedCurrentLocationString = "Current Location".Localize();
+                    AppSettings.LocalizedCurrentLocationString = "CurrentLocationLabel".Localize();
                     AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml"));
                     UIApplication.SharedApplication.EndBackgroundTask(_taskId);
                 }

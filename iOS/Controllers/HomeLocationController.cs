@@ -36,6 +36,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public HomeLocationController(MapViewModel viewModel)
         {
+            Title = "ChooseHomeLocationTitle".Localize();
             _viewModel = viewModel;
         }
 

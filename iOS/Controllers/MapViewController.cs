@@ -376,7 +376,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             UIAlertController actionSheetAlert = UIAlertController.Create(title, message, preferredStyle);
 
             // Add Actions
-            actionSheetAlert.AddAction(UIAlertAction.Create("ErrorMessageOK".Localize(), UIAlertActionStyle.Default, (value) => completion()));
+            actionSheetAlert.AddAction(UIAlertAction.Create("OkAlertActionButtonText".Localize(), UIAlertActionStyle.Default, (value) => completion()));
 
             if (sourceView != null)
             {

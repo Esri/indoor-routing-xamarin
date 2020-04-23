@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 using System;
-using System.IO;
-using System.Threading.Tasks;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
 using Foundation;
@@ -35,7 +34,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public SettingsController(MapViewModel viewModel)
         {
-            Title = "Settings";
+            Title = "SettingsViewTitle".Localize();
             _viewModel = viewModel;
         }
 

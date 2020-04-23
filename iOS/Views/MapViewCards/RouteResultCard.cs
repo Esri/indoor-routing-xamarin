@@ -148,7 +148,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 
             RelayoutRequested?.Invoke(this, EventArgs.Empty);
 
-            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route found".Localize());
+            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"RouteFoundAccessibilityAnnouncement".Localize());
         }
 
         /// <summary>

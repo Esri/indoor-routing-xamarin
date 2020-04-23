@@ -118,7 +118,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
                     // Bring up a local notification to take the user back to our app.
                     var notification = new UILocalNotification
                     {
-                        AlertBody = "Indoor Routing: Map has been downloaded successfully."
+                        AlertBody = "BackgroundDownloadCompleteAlertMessage".Localize()
                     };
                     UIApplication.SharedApplication.PresentLocalNotificationNow(notification);
 

@@ -27,7 +27,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
     /// </summary>
     internal class AutosuggestionsTableSource : UITableViewSource
     {
-        private const string CellIdentifier = "cell_id";
+        private const string CellIdentifier = "SuggestionCell";
 
         // Suggestions to display
         private IEnumerable<SuggestResult> _items;

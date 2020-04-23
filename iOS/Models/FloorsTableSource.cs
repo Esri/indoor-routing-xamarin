@@ -76,8 +76,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
             try
             {
                 cell.TextLabel.Text = _viewModel.CurrentVisibleFloors.ElementAt(indexPath.Row);
-                cell.AccessibilityLabel = "Floor: ".Localize() + cell.TextLabel.Text;
-                cell.AccessibilityHint = "Select to show this floor".Localize();
+                cell.AccessibilityLabel = "FloorPickerFloorAccessibilityPrefix".Localize() + cell.TextLabel.Text;
+                cell.AccessibilityHint = "FloorPickerFloorAccessibilityHint".Localize();
 
                 return cell;
             }

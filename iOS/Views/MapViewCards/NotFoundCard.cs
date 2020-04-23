@@ -89,12 +89,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             if (_viewModel.CurrentState == UiState.RouteNotFound)
             {
                 _headerLabel.Text = "RouteNotFoundCardTitle".Localize();
-                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route couldn't be found".Localize());
+                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"RouteNotFoundCardTitle".Localize());
             }
             else if (_viewModel.CurrentState == UiState.LocationNotFound)
             {
                 _headerLabel.Text = "LocationNotFoundCardTitle".Localize();
-                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Location couldn't be found".Localize());
+                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"LocationNotFoundCardTitle".Localize());
             }
         }
 

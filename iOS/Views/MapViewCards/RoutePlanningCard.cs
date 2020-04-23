@@ -120,7 +120,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             {
                 _startTextPlaceholder.Text = _viewModel.OriginSearchText;
                 _endTextPlaceholder.Text = _viewModel.DestinationSearchText;
-                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Planning route with selected location".Localize());
+                UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"RoutePlanningStartedAccessibilityAnnouncement".Localize());
             }
         }
 

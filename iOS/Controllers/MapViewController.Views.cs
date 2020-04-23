@@ -127,18 +127,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             // Create and set up accessory buttons
             _settingsButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _settingsButton.SetImage(UIImage.FromBundle("gear"), UIControlState.Normal);
-            _settingsButton.AccessibilityLabel = "Show settings".Localize();
-            _settingsButton.AccessibilityHint = "Open settings for this app".Localize();
+            _settingsButton.AccessibilityLabel = "SettingsButtonAccessibilityLabel".Localize();
+            _settingsButton.AccessibilityHint = "SettingsButtonAccessibilityHint".Localize();
 
             _homeButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsHomeSet };
             _homeButton.SetImage(UIImage.FromBundle("home"), UIControlState.Normal);
-            _homeButton.AccessibilityLabel = "Go home".Localize();
-            _homeButton.AccessibilityHint = "Select your home location".Localize();
+            _homeButton.AccessibilityLabel = "HomeButtonAccessibilityLabel".Localize();
+            _homeButton.AccessibilityHint = "HomeButtonAccessibilityHint".Localize();
 
             _locationButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled };
             _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
-            _locationButton.AccessibilityLabel = "Go to current location".Localize();
-            _locationButton.AccessibilityHint = "Select your device's current location".Localize();
+            _locationButton.AccessibilityLabel = "LocationButtonAccessibilityLabel".Localize();
+            _locationButton.AccessibilityHint = "LocationButtonAccessibilityHint".Localize();
 
             _topRightStack = new IntrinsicContentSizedStackView
             {
