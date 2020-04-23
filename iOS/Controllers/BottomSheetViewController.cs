@@ -26,61 +26,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
     /// </summary>
     public sealed class BottomSheetViewController : UIViewController
     {
-        /// <summary>
-        /// Enumeration of possible layout states
-        /// </summary>
-        public enum BottomSheetState
-        {
-            // Minimized is used to set a default minimum size; controlled by AllowsMinimizedState
-            Minimized,
-            // Fits intrinsic size of content, assuming content is in stack view
-            Partial,
-            // Fills available vertical space
-            Full
-        }
-
         // Tracks the current state of the bottom sheet
         private BottomSheetState _currentState = BottomSheetState.Partial;
 
         // The view that contains the bottom sheet, needed for constraints.
         private readonly UIView _containerView;
+
+        // Handlebar is the pill-shaped view that indicates the view is draggable.
         private readonly UIView _handlebar;
         private readonly UIView _handlebarSeparator;
+
+        // Constraints are stored so that they can be disabled, enabled, and modified as needed.
         private readonly NSLayoutConstraint[] _regularWidthConstraints;
         private readonly NSLayoutConstraint[] _compactWidthConstraints;
         private readonly NSLayoutConstraint _heightConstraint;
-
-        /// <summary>
-        /// Container for the view that will be displayed in the bottom sheet/side panel
-        /// </summary>
-        public UIView DisplayedContentView { get; } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
-
-        /// <summary>
-        /// Anchor to use for constraining views (e.g. attribution) to the top of this panel when in compact width (bottom sheet) mode.
-        /// </summary>
-        public NSLayoutYAxisAnchor PanelTopAnchor { get; }
-
-        /// <summary>
-        /// Defines the height to use when in the partial state and the height of the content can't be determined.
-        /// </summary>
-        public nfloat DefaultPartialHeight { get; set; } = 160;
-
-        /// <summary>
-        /// Defines the size of the content view when the view state is minimized.
-        /// Generally only used if <see cref="AllowsMinimizedState"/> or <see cref="AllowsManualResize"/> is <value>true</value>.
-        /// </summary>
-        public nfloat MinimumHeight { get; set; } = 80;
-
-        /// <summary>
-        /// Determines if the view can be set to the Minimized state. If <value>false</value>, the partial state is used in place of minimized.
-        /// </summary>
-        public bool AllowsMinimizedState { get; set; } = false;
-
-        /// <summary>
-        /// If <value>true</value>, the user can pan to adjust the size of the view. When <value>true</value>,
-        /// a handlebar is shown to indicate that the view is adjustable.
-        /// </summary>
-        public bool AllowsManualResize { get; set; } = false;
 
         /// <summary>
         /// Creates the view controller. This can only be called with a valid view
@@ -150,7 +109,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 blurShadowContainerView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
                 blurShadowContainerView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurShadowContainerView.TopAnchor, MinimumHeight - (2 * ApplicationTheme.Margin)),
                 blurShadowContainerView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
-                
+
                 DisplayedContentView.TopAnchor.ConstraintEqualTo(blurShadowContainerView.TopAnchor),
             };
 
@@ -193,17 +152,195 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             PanelTopAnchor = blurShadowContainerView.TopAnchor;
 
-            ApplyConstraints();
+            UpdateInterfaceForCurrentTraits();
         }
 
+        /// <summary>
+        /// Enumeration of possible layout states
+        /// </summary>
+        public enum BottomSheetState
+        {
+            // Minimized is used to set a default minimum size; controlled by AllowsMinimizedState
+            Minimized,
+            // Fits intrinsic size of content, assuming content is in stack view
+            Partial,
+            // Fills available vertical space
+            Full
+        }
+
+        /// <summary>
+        /// Container for the view that will be displayed in the bottom sheet/side panel
+        /// </summary>
+        public UIView DisplayedContentView { get; } = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+
+        /// <summary>
+        /// Anchor to use for constraining views (e.g. attribution) to the top of this panel when in compact width (bottom sheet) mode.
+        /// </summary>
+        public NSLayoutYAxisAnchor PanelTopAnchor { get; }
+
+        /// <summary>
+        /// Defines the height to use when in the partial state and the height of the content can't be determined.
+        /// </summary>
+        public nfloat DefaultPartialHeight { get; set; } = 160;
+
+        /// <summary>
+        /// Defines the size of the content view when the view state is minimized.
+        /// Generally only used if <see cref="AllowsMinimizedState"/> or <see cref="AllowsManualResize"/> is <value>true</value>.
+        /// </summary>
+        public nfloat MinimumHeight { get; set; } = 80;
+
+        /// <summary>
+        /// Determines if the view can be set to the Minimized state. If <value>false</value>, the partial state is used in place of minimized.
+        /// </summary>
+        public bool AllowsMinimizedState { get; set; } = false;
+
+        /// <summary>
+        /// If <value>true</value>, the user can pan to adjust the size of the view. When <value>true</value>,
+        /// a handlebar is shown to indicate that the view is adjustable.
+        /// </summary>
+        public bool AllowsManualResize { get; set; } = false;
+
+        /// <summary>
+        /// Gets the maximum height of the sheet based on the current UI trait collection
+        /// </summary>
+        private nfloat MaxHeightConstraint
+        {
+            get
+            {
+                switch (TraitCollection.HorizontalSizeClass)
+                {
+                    case UIUserInterfaceSizeClass.Compact:
+                        return _containerView.Frame.Height + ApplicationTheme.Margin - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
+                    case UIUserInterfaceSizeClass.Regular:
+                    default:
+                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - _containerView.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
+                }
+            }
+        }
+
+
+        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
+        {
+            base.TraitCollectionDidChange(previousTraitCollection);
+
+            UpdateInterfaceForCurrentTraits();
+        }
+
+        /// <summary>
+        /// Sets the bottom sheet state and updates the height of the sheet as needed.
+        /// </summary>
+        /// <param name="state"></param>
+        public void SetState(BottomSheetState state)
+        {
+            _currentState = state;
+            switch (state)
+            {
+                case BottomSheetState.Partial:
+                    _heightConstraint.Constant = GetPartialHeight();
+                    break;
+                case BottomSheetState.Minimized:
+                    _heightConstraint.Constant = MinimumHeight;
+                    break;
+                case BottomSheetState.Full:
+                    _heightConstraint.Constant = MaxHeightConstraint;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Updates layout constraints and other properties based on the current UI size class.
+        /// </summary>
+        private void UpdateInterfaceForCurrentTraits()
+        {
+            // First deactivate existing constraints
+            NSLayoutConstraint.DeactivateConstraints(_regularWidthConstraints);
+            NSLayoutConstraint.DeactivateConstraints(_compactWidthConstraints);
+
+            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
+            {
+                NSLayoutConstraint.ActivateConstraints(_regularWidthConstraints);
+                if (_handlebarSeparator != null)
+                {
+                    _handlebarSeparator.BackgroundColor = ApplicationTheme.SeparatorColor;
+                }
+            }
+            else
+            {
+                NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
+                if (_handlebarSeparator != null)
+                {
+                    _handlebarSeparator.BackgroundColor = UIColor.Clear;
+                }
+            }
+
+            SetState(_currentState);
+        }
+
+        /// <summary>
+        /// Handles flick gesture
+        /// </summary>
+        /// <param name="recognizer">Gesture recognizer that is handling user interaction </param>
+        private void HandleFlick(UIPanGestureRecognizer recognizer)
+        {
+            switch (_currentState)
+            {
+                case BottomSheetState.Minimized:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        SetState(BottomSheetState.Partial);
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        SetState(BottomSheetState.Partial);
+                    }
+                    break;
+                case BottomSheetState.Partial:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        SetState(BottomSheetState.Full);
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        SetState(BottomSheetState.Minimized);
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        SetState(BottomSheetState.Minimized);
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        SetState(BottomSheetState.Full);
+                    }
+                    break;
+                case BottomSheetState.Full:
+                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
+                    {
+                        SetState(BottomSheetState.Partial);
+                    }
+                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
+                    {
+                        SetState(BottomSheetState.Partial);
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Adjusts the size of the view when the user pans (if <see cref="AllowsManualResize"/> is <value>true</value>).
+        /// </summary>
+        /// <param name="recognizer">Gesture recognizer that is handling user interaction.</param>
         private void HandleMoveView(UIPanGestureRecognizer recognizer)
         {
+            // Do nothing if user resize isn't enabled
             if (!AllowsManualResize)
             {
                 return;
             }
+
+            // Get the distance moved
             var translation = recognizer.TranslationInView(View);
 
+            // In compact width scrolling up (negative translation) increases height as the card moves up
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
             {
                 // translate height constraint
@@ -215,22 +352,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _heightConstraint.Constant -= translation.Y;
             }
 
+            // Prevent making the view too large
             if (_heightConstraint.Constant > MaxHeightConstraint)
             {
                 _heightConstraint.Constant = MaxHeightConstraint;
             }
 
-            // handle going past limit (animation effect)
+            // Prevent making the view too small
             if (_heightConstraint.Constant < MinimumHeight)
             {
                 _heightConstraint.Constant = MinimumHeight;
             }
 
+            // Enables 'flick' gesture to switch between states
             if (recognizer.State == UIGestureRecognizerState.Ended)
             {
                 if (Math.Abs(recognizer.VelocityInView(View).Y) > 0)
                 {
-                    AnimateSwitchState(recognizer);
+                    HandleFlick(recognizer);
                 }
 
                 if (_heightConstraint.Constant == MinimumHeight && AllowsMinimizedState)
@@ -250,24 +389,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             recognizer.SetTranslation(new CoreGraphics.CGPoint(0, 0), View);
         }
 
-        private nfloat MaxHeightConstraint
-        {
-            get
-            {
-                switch (TraitCollection.HorizontalSizeClass)
-                {
-                    case UIUserInterfaceSizeClass.Compact:
-                        return _containerView.Frame.Height + ApplicationTheme.Margin - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
-                    case UIUserInterfaceSizeClass.Regular:
-                    default:
-                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - _containerView.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
-                }
-            }
-        }
-
+        /// <summary>
+        /// Returns the height the view should be when in the partial state.
+        /// This accounts for all settings, the height of content, and the height of margins and resize indicators (handlebars)
+        /// </summary>
         private nfloat GetPartialHeight()
         {
             nfloat baseHeight;
+
+            // Start with the height of the contained content if available, or use the default height.
             if (DisplayedContentView.Subviews.FirstOrDefault() is IntrinsicContentSizedStackView stackView)
             {
                 baseHeight = stackView.SystemLayoutSizeFittingSize(new CoreGraphics.CGSize(-1, -1)).Height;
@@ -277,112 +407,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 baseHeight = DefaultPartialHeight;
             }
 
+            // Add the height of resize indicators
             if (AllowsManualResize)
             {
                 baseHeight += 0.5f + (1.5f * ApplicationTheme.Margin); // size of resize UI elements
             }
 
+            // Add additional padding at the bottom if this is a phone.
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact)
             {
-                baseHeight += ApplicationTheme.Margin; // margin from bottom safe area
+                // Margin from bottom safe area
+                baseHeight += ApplicationTheme.Margin;
 
-                // account for bottom safe area
+                // Space taken by bottom area
                 baseHeight += UIApplication.SharedApplication.KeyWindow.SafeAreaInsets.Bottom;
             }
 
             return baseHeight;
-        }
-
-        private void AnimateSwitchState(UIPanGestureRecognizer recognizer)
-        {
-            switch (_currentState)
-            {
-                case BottomSheetState.Minimized:
-                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Partial);
-                    }
-                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Partial);
-                    }
-                    break;
-                case BottomSheetState.Partial:
-                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y < 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Full);
-                    }
-                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Minimized);
-                    }
-                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Minimized);
-                    }
-                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y > 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Full);
-                    }
-                    break;
-                case BottomSheetState.Full:
-                    if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact && recognizer.VelocityInView(View).Y > 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Partial);
-                    }
-                    else if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular && recognizer.VelocityInView(View).Y < 0)
-                    {
-                        SetStateWithAnimation(BottomSheetState.Partial);
-                    }
-                    break;
-            }
-        }
-
-        public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
-        {
-            base.TraitCollectionDidChange(previousTraitCollection);
-            ApplyConstraints();
-        }
-
-        public void SetStateWithAnimation(BottomSheetState state)
-        {
-            _currentState = state;
-            switch (state)
-            {
-                case BottomSheetState.Partial:
-                    _heightConstraint.Constant = GetPartialHeight();
-                    break;
-                case BottomSheetState.Minimized:
-                    _heightConstraint.Constant = MinimumHeight;
-                    break;
-                case BottomSheetState.Full:
-                    _heightConstraint.Constant = MaxHeightConstraint;
-                    break;
-            }
-        }
-
-        private void ApplyConstraints()
-        {
-            NSLayoutConstraint.DeactivateConstraints(_regularWidthConstraints);
-            NSLayoutConstraint.DeactivateConstraints(_compactWidthConstraints);
-            if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Regular)
-            {
-                NSLayoutConstraint.ActivateConstraints(_regularWidthConstraints);
-                if (_handlebarSeparator != null)
-                {
-                    _handlebarSeparator.BackgroundColor = ApplicationTheme.SeparatorColor;
-                }
-            }
-            else
-            {
-                NSLayoutConstraint.ActivateConstraints(_compactWidthConstraints);
-                if (_handlebarSeparator != null)
-                {
-                    _handlebarSeparator.BackgroundColor = UIColor.Clear;
-                }
-            }
-
-            SetStateWithAnimation(_currentState);
         }
     }
 }

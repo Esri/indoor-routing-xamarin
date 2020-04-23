@@ -18,6 +18,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
+    /// <summary>
+    /// A navigation controller with a notification for when it is dismissed.
+    /// </summary>
     public sealed class DismissableNavigationController : UINavigationController
     {
         public DismissableNavigationController(UIViewController controller) : base(controller)

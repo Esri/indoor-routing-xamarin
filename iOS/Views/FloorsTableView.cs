@@ -21,6 +21,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
+    /// <summary>
+    /// Shows a floor picker
+    /// </summary>
     public sealed class FloorsTableView : SelfSizedTableView
     {
         private readonly MapViewModel _viewModel;
@@ -39,11 +42,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
+        /// <summary>
+        /// Updates the floor list & selection when viewmodel properties change
+        /// </summary>
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            BeginInvokeOnMainThread(() =>
+            if (e.PropertyName == nameof(_viewModel.SelectedFloorLevel) ||
+                e.PropertyName == nameof(_viewModel.CurrentVisibleFloors))
             {
-                if (e.PropertyName == nameof(_viewModel.SelectedFloorLevel) || e.PropertyName == nameof(_viewModel.CurrentVisibleFloors))
+                BeginInvokeOnMainThread(() =>
                 {
                     ReloadData();
                     UpdateSelectedFloor();
@@ -56,10 +63,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                     {
                         Hidden = true;
                     }
-                }
-            });
+                });
+            }
+                
         }
 
+        /// <summary>
+        /// Updates the selected row based on the selected floor from the viewmodel
+        /// </summary>
         private void UpdateSelectedFloor()
         {
             if (_viewModel.SelectedFloorLevel != null && _viewModel.CurrentVisibleFloors != null)
@@ -73,7 +84,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         }
 
         /// <summary>
-        /// Gets the index of the table view row.
+        /// Gets the index of the table view row matching rowValue.
         /// </summary>
         /// <returns>The table view row index.</returns>
         /// <param name="rowValue">Row value.</param>
@@ -86,10 +97,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
             {
                 return NSIndexPath.FromRowSection(rowIndex.Value, section);
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }

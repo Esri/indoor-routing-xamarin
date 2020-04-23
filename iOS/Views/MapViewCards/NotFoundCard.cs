@@ -21,6 +21,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
+    /// <summary>
+    /// Card shown when a search finds nothing
+    /// </summary>
     public sealed class NotFoundCard : UIView
     {
         private readonly MapViewModel _viewModel;
@@ -73,6 +76,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
+        /// <summary>
+        /// Update the UI when the viewmodel state changes
+        /// </summary>
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(_viewModel.CurrentState))
@@ -92,6 +98,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             }
         }
 
+        /// <summary>
+        /// Forward event to the viewmodel
+        /// </summary>
         private void Dismiss_Clicked(object sender, EventArgs e) => _viewModel.DismissNotFound();
     }
 }

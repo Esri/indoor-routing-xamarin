@@ -26,16 +26,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
     /// </summary>
     internal class DownloadController : UIViewController
     {
-        private UIProgressView _progressView;
-
-        private UIButton _retryButton;
-
-        private UILabel _statusLabel;
-
         /// <summary>
         /// Unique identifier for the download session.
         /// </summary>
         private const string SessionId = "com.esri.indoorroutesession";
+
+        private UIProgressView _progressView;
+        private UIButton _retryButton;
+        private UILabel _statusLabel;
 
         /// <summary>
         /// Session used for transfer.
@@ -69,27 +67,73 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 ErrorLogger.Instance.LogException(ex);
 
-                // Crash app since this is an invalid state.
-                System.Threading.Thread.CurrentThread.Abort();
+                // This will cause the retry button to be shown
+                ViewModel.IsDownloading = false;
             }
+        }
+
+        public override void LoadView()
+        {
+            // Create the view model.
+            ViewModel = new DownloadViewModel();
+
+            // Create the views.
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
+
+            _progressView = new UIProgressView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
+            _statusLabel = new UILabel
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                TextAlignment = UITextAlignment.Center,
+                Text = "MapDownloadInProgressStatusLabel".Localize()
+            };
+
+            // Add subviews
+            View.AddSubviews(_progressView, _retryButton, _statusLabel);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _statusLabel.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _progressView.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _retryButton.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
+                _progressView.CenterYAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterYAnchor),
+                _statusLabel.BottomAnchor.ConstraintEqualTo(_progressView.TopAnchor, -ApplicationTheme.Margin),
+                _retryButton.TopAnchor.ConstraintEqualTo(_progressView.BottomAnchor, 16),
+                _progressView.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor, 0.5f),
+                _retryButton.WidthAnchor.ConstraintEqualTo(_progressView.WidthAnchor),
+                _statusLabel.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor)
+            });
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            _retryButton.TouchUpInside += RetryButton_TouchUpInside;
+            ViewModel.PropertyChanged += ViewModelPropertyChanged;
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            _retryButton.TouchUpInside -= RetryButton_TouchUpInside;
+            ViewModel.PropertyChanged -= ViewModelPropertyChanged;
         }
 
         /// <summary>
         /// Gets called by the delegate and will update the progress bar as the download runs.
         /// </summary>
         /// <param name="percentage">Percentage progress.</param>
-        internal void UpdateProgress(float percentage)
-        {
-            _progressView.SetProgress(percentage, true);
-        }
+        internal void UpdateProgress(float percentage) => _progressView.SetProgress(percentage, true);
 
         /// <summary>
         /// Gets called by the delegate and tells the controller to load the map controller
         /// </summary>
         internal void LoadMapView()
         {
-            var navController = new UINavigationController();
-            navController.PushViewController(new MapViewController(new MapViewModel()), false);
+            var navController = new UINavigationController(new MapViewController(new MapViewModel()));
 
             // KeyWindow only works if the application loaded fully. If key window is null, use the first available window
             try
@@ -103,18 +147,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         }
 
         /// <summary>
-        /// Handles button to reload the view 
+        /// Attempts to download data when retry is clicked
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e"></param>
-        private void RetryButton_TouchUpInside(object sender, EventArgs e)
-        {
-            // Call GetData to download or load the map package
-            ViewModel.GetDataAsync().ConfigureAwait(false);
-        }
+        private void RetryButton_TouchUpInside(object sender, EventArgs e) => ViewModel.GetDataAsync().ConfigureAwait(false);
 
         /// <summary>
-        /// Fires when properties change in the DownloadViewModel
+        /// Updates UI in reaction to DownloadViewModel property changes
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event Args.</param>
@@ -210,55 +250,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             // Resume / start the download.
             downloadTask.Resume();
-        }
-
-        public override void LoadView()
-        {
-            base.LoadView();
-
-            ViewModel = new DownloadViewModel();
-
-            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
-
-            _progressView = new UIProgressView { TranslatesAutoresizingMaskIntoConstraints = false };
-            _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
-            _statusLabel = new UILabel
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
-                TextAlignment = UITextAlignment.Center,
-                Text = "MapDownloadInProgressStatusLabel".Localize()
-            };
-
-            View.AddSubviews(_progressView, _retryButton, _statusLabel);
-
-            NSLayoutConstraint.ActivateConstraints(new[]
-            {
-                _statusLabel.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
-                _progressView.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
-                _retryButton.CenterXAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterXAnchor),
-                _progressView.CenterYAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterYAnchor),
-                _statusLabel.BottomAnchor.ConstraintEqualTo(_progressView.TopAnchor, -16),
-                _retryButton.TopAnchor.ConstraintEqualTo(_progressView.BottomAnchor, 16),
-                _progressView.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor, 0.5f),
-                _retryButton.WidthAnchor.ConstraintEqualTo(_progressView.WidthAnchor),
-                _statusLabel.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor)
-            });
-        }
-
-        public override void ViewWillAppear(bool animated)
-        {
-            base.ViewWillAppear(animated);
-
-            _retryButton.TouchUpInside += RetryButton_TouchUpInside;
-            ViewModel.PropertyChanged += ViewModelPropertyChanged;
-        }
-
-        public override void ViewDidDisappear(bool animated)
-        {
-            base.ViewDidDisappear(animated);
-
-            _retryButton.TouchUpInside -= RetryButton_TouchUpInside;
-            ViewModel.PropertyChanged -= ViewModelPropertyChanged;
         }
     }
 }

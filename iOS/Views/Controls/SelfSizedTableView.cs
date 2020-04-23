@@ -17,6 +17,10 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
+    /// <summary>
+    /// Tableview that uses its content size as its IntrinsicContentSize
+    /// </summary>
+    /// <remarks>This allows the floors tableview to take up only the space it needs in the accessory area stack view</remarks>
     public class SelfSizedTableView : UITableView
     {
         public SelfSizedTableView()
@@ -30,6 +34,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
         public override void ReloadData()
         {
             base.ReloadData();
+
+            // Whenever the data changes, the intrinsic content size needs to be recalculated
             InvalidateIntrinsicContentSize();
             LayoutIfNeeded();
         }

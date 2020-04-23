@@ -20,10 +20,14 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
+    /// <summary>
+    /// Card for planning a route, which means choosing an origin and a destination
+    /// </summary>
     public sealed class RoutePlanningCard : UIView
     {
         private readonly MapViewModel _viewModel;
 
+        // Buttons that look like text fields; when the user touches them, the location search card is shown
         private readonly PseudoTextFieldButton _startTextPlaceholder;
         private readonly PseudoTextFieldButton _endTextPlaceholder;
 
@@ -107,6 +111,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
+        /// <summary>
+        /// Update the UI when viewmodel properties change
+        /// </summary>
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(_viewModel.OriginSearchText) || e.PropertyName == nameof(_viewModel.DestinationSearchText))
@@ -117,14 +124,39 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             }
         }
 
+        /// <summary>
+        /// Forwards event to viewmodel
+        /// </summary>
         private void EditOriginField_Clicked(object sender, EventArgs e) => _viewModel.SelectOriginSearch();
 
+        /// <summary>
+        /// Forwards event to viewmodel
+        /// </summary>
         private void EditDestinationField_Clicked(object sender, EventArgs e) => _viewModel.SelectDestinationSearch();
 
-        private void SearchRouteButton_Clicked(object sender, EventArgs e) => _viewModel.PerformRouteSearch();
+        /// <summary>
+        /// Forwards command to viewmodel
+        /// </summary>
+        private async void SearchRouteButton_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                await _viewModel.PerformRouteSearch();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
 
+        /// <summary>
+        /// Forwards command to viewmodel
+        /// </summary>
         private void CancelRouteSearchButton_Clicked(object sender, EventArgs e) => _viewModel.CancelRouteSearch();
 
+        /// <summary>
+        /// Forwards command to viewmodel
+        /// </summary>
         private void SwapOriginDestinationButton_Clicked(object sender, EventArgs e) => _viewModel.SwapOriginDestinationSearch();
     }
 }

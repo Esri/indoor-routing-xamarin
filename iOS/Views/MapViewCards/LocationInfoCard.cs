@@ -12,22 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
-using Foundation;
+using System;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
+    /// <summary>
+    /// View for showing information about a particular room
+    /// </summary>
     public sealed class LocationInfoCard : UIView
     {
         private readonly MapViewModel _viewModel;
+
         private readonly ActionButton _startDirectionsButton;
         private readonly UILabel _primaryLabel;
         private readonly UILabel _secondaryLabel;
 
-        internal LocationInfoCard(MapViewModel viewModel)
+        public LocationInfoCard(MapViewModel viewModel)
         {
             _viewModel = viewModel;
 
@@ -97,14 +100,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _startDirectionsButton.TouchUpInside += SearchDirections_Clicked;
         }
 
+        /// <summary>
+        /// Updates UI for settings changes
+        /// </summary>
         private void CurrentSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(AppSettings.IsRoutingEnabled))
             {
-                _startDirectionsButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+                _startDirectionsButton.Hidden = !AppSettings.CurrentSettings.IsRoutingEnabled;
             }
+
+            RelayoutRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Updates UI for viewmodel property changes
+        /// </summary>
         private void ViewModel_Changed(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(_viewModel.CurrentRoom))
@@ -112,14 +123,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 return;
             }
 
-            _primaryLabel.Text = _viewModel.CurrentRoom?.PrimaryDisplayField ?? string.Empty;
-            _secondaryLabel.Text = _viewModel.CurrentRoom?.SecondaryDisplayField ?? string.Empty;
+            _primaryLabel.Text = _viewModel.CurrentRoom?.PrimaryDisplayField;
+            _secondaryLabel.Text = _viewModel.CurrentRoom?.SecondaryDisplayField;
 
-            UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Room found".Localize());
+            // Since values have changed, UI may now need more space.
+            RelayoutRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Forwards direction search start request to viewmodel
+        /// </summary>
         private void SearchDirections_Clicked(object sender, EventArgs e) => _viewModel.StartSearchFromFoundFeature();
 
+        /// <summary>
+        /// Forwards location close event to viewmodel
+        /// </summary>
         private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseLocationInfo();
+
+        /// <summary>
+        /// Raised when content has changed and the containing view needs to remeasure
+        /// </summary>
+        public event EventHandler RelayoutRequested;
     }
 }

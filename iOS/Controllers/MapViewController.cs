@@ -29,10 +29,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
-    
-
     /// <summary>
-    /// Map view controller.
+    /// Displays the map view and surrounding UI.
+    /// Handles user interaction and updates the view in response to viewmodel changes.
     /// </summary>
     public partial class MapViewController
     {
@@ -96,8 +95,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 // line symbol renderer will be used for every graphic without its own symbol
                 _routeOverlay.Renderer = new SimpleRenderer(routeSymbol);
 
+                // Keep route graphics at the ready
                 _routeStartSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("StartCircle").ToRuntimeImageAsync());
-
                 _routeEndSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("EndCircle").ToRuntimeImageAsync());
 
                 // Add graphics overlays to the map
@@ -108,11 +107,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             catch (Exception ex)
             {
                 ErrorLogger.Instance.LogException(ex);
+
                 // Show error and crash app since this is an invalid state.
                 ShowError("UnableToConfigureMapErrorTitle".Localize(), "ApplicationWillCloseDueToErrorMessage".Localize(), null, System.Threading.Thread.CurrentThread.Abort);
             }
         }
 
+        /// <summary>
+        /// Handle any map-related viewmodel property changes
+        /// </summary>
+        /// <param name="sender">The viewmodel</param>
+        /// <param name="e">Information about the property change</param>
         private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -129,7 +134,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
                     break;
                 case nameof(_viewModel.CurrentState):
+                    // Hide or show cards as needed for the new UI state
                     UpdateUiForNewState();
+                    // Ensure relevant layers are visible
                     if (_viewModel.CurrentState == UiState.LocationFound || _viewModel.CurrentState == UiState.PlanningRoute)
                     {
                         _identifiedFeatureOverlay.IsVisible = true;
@@ -137,22 +144,27 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     }
                     break;
                 case nameof(_viewModel.CurrentRoom):
+                    // Clear any existing graphics when the selected/identified room changes
                     _identifiedFeatureOverlay.Graphics.Clear();
                     _homeOverlay.Graphics.Clear();
-                    // Turn off location display unless actively viewing current location
+                    // Turn off location display
                     _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                    // If the room is null, the view is now reset to a neutral state
                     if (_viewModel.CurrentRoom is Room room)
                     {
+                        // If the room is home, show the home graphic and zoom to it
                         if (room.IsHome)
                         {
                             _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
                             TrySetViewpoint(room.CenterPoint, 150);
                         }
+                        // If the room is standing in for the user's current location, re-enable location display automatic panning
                         else if (_viewModel.CurrentRoom.IsCurrentLocation)
                         {
-                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
                             TrySetViewpoint(_mapView.LocationDisplay.MapLocation, 150);
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
                         }
+                        // If the room is just a room, show the default graphic and zoom to the room geometry
                         else
                         {
                             _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
@@ -160,25 +172,36 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                         }
                     }
                     // need to explicitly request re-layout because identified room can change without UI state changing
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case nameof(_viewModel.CurrentRoute):
+                    // Clear any existing route
                     _routeOverlay.Graphics.Clear();
 
+                    // Show the route and configure other layers if the route isn't null
                     if (_viewModel.CurrentRoute?.Routes?.FirstOrDefault() is Route route)
                     {
+                        // Hide other graphics
                         _identifiedFeatureOverlay.IsVisible = false;
                         _homeOverlay.IsVisible = false;
 
+                        // Add the route stops and route geometry
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
                         _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
+
+                        // Zoom to the route
                         TrySetViewpoint(route.RouteGeometry, 30);
                     }
                     break;
             }
         }
 
+        /// <summary>
+        /// Attempt to set the viewpoint to the given center and scale
+        /// </summary>
+        /// <param name="centerPoint">Point to center the view on</param>
+        /// <param name="scale">Scale to zoom to</param>
         private async void TrySetViewpoint(MapPoint centerPoint, double scale)
         {
             try
@@ -191,6 +214,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
+        /// <summary>
+        /// Attempt to set the viewpoint to the given geometry and padding.
+        /// </summary>
+        /// <param name="geometry">Geometry to zoom to, must not be a point</param>
+        /// <param name="padding">Padding around the target geometry</param>
         private async void TrySetViewpoint(Geometry.Geometry geometry, double padding)
         {
             try
@@ -203,24 +231,27 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
+        /// <summary>
+        /// Handle map visible area changes when navigation completes by updating the viewmodel.
+        /// Hides or shows the attribution view as needed.
+        /// </summary>
         private void MapView_NavigationCompleted(object sender, EventArgs e)
         {
+            // Update the viewmodel
             _viewModel.CurrentViewArea = _mapView.VisibleArea.Extent;
+
+            // Make sure attribution is shown properly for the current map state
             SetAttributionForCurrentState();
         }
 
         /// <summary>
-        /// When view is double tapped, set flag so the tapped event doesn't fire
+        /// When view is double tapped, set flag to prevent accidental identify when double tapping to zoom
         /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Event args.</param>
         private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e) => _isViewDoubleTapped = true;
 
         /// <summary>
-        /// When view is tapped, clear the map of selection, close keyboard and bottom sheet
+        /// When view is tapped, identify the room, or if a route is in progress, give the user the option to ignore
         /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Event args.</param>
         private async void MapView_GeoViewTapped(object sender, GeoViewInputEventArgs e)
         {
             try
@@ -229,7 +260,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 await Task.Delay(500);
 
                 // If view has been double tapped, set tapped to handled and flag back to false
-                // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
                 if (_isViewDoubleTapped)
                 {
                     e.Handled = true;
@@ -271,6 +301,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                             returnPopupsOnly: false,
                             maximumResults: 1);
 
+                        // Call on the viewmodel to handle the identify result
                         _viewModel.IdentifyRoomFromLayerResult(idResults);
                     }
                 }
@@ -281,11 +312,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
+        /// <summary>
+        /// Shows the settings UI.
+        /// </summary>
         private async void SettingsButton_Clicked(object sender, EventArgs e)
         {
-            DismissableNavigationController navController = new DismissableNavigationController(new SettingsController(_viewModel));
-
-            navController.DidDismiss += (o, x) => _accessoryView.ReloadData();
+            UINavigationController navController = new UINavigationController(new SettingsController(_viewModel));
 
             try
             {
@@ -298,6 +330,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
+        /// <summary>
+        /// Displays the map's attribution when the user taps.
+        /// </summary>
+        /// <remarks>This is needed because the attribution bar isn't shown when in compact width.</remarks>
         private async void Attribution_Tapped(object sender, EventArgs e)
         {
             try
@@ -311,26 +347,27 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         }
 
         /// <summary>
-        /// When user taps on the home button, zoom them to the home location
+        /// Tells the viewmodel to move to the user's home location.
         /// </summary>
-        /// <param name="sender">Home button</param>
-        /// <param name="e"></param>
         private void Home_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToHomeLocation();
 
         /// <summary>
-        /// Event handler for user tapping the blue Current Location button
+        /// Tells the viewmodel to navigate to the user's current location.
         /// </summary>
-        /// <param name="sender">Sender control.</param>
-        /// <param name="e"></param>
         private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToCurrentLocation();
 
         /// <summary>
-        /// Set the current location as user moves around
+        /// Updates the viewmodel with the current user location when it changes.
         /// </summary>
-        /// <param name="sender">Sender control.</param>
-        /// <param name="e">Event args.</param>
         private void MapView_LocationChanged(object sender, Location.Location e)  => _viewModel.CurrentUserLocation = e.Position;
 
+        /// <summary>
+        /// Displays an error message
+        /// </summary>
+        /// <param name="title">Title, which is shown most prominently</param>
+        /// <param name="message">Message, which is shown beneath the title</param>
+        /// <param name="sourceView">If not null, the message is shown as a popover originating from this view</param>
+        /// <param name="completion">Action to take after user acknowledges the error</param>
         private void ShowError(string title, string message, UIView sourceView = null, Action completion = null)
         {
             UIAlertControllerStyle preferredStyle = sourceView == null ? UIAlertControllerStyle.Alert : UIAlertControllerStyle.ActionSheet;

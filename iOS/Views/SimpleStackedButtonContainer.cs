@@ -21,30 +21,39 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
 {
+    /// <summary>
+    /// Shows buttons in a stack, used for the accessory panel in the top right
+    /// </summary>
     public sealed class SimpleStackedButtonContainer : SelfSizedTableView
     {
+        /// <summary>
+        /// Creates the stack with the provided buttons.
+        /// Call ReloadData to update the view to not show buttons that are hidden or disabled
+        /// </summary>
+        /// <param name="buttons">Buttons to show, for best result use buttons with images, not text</param>
         public SimpleStackedButtonContainer(IEnumerable<UIButton> buttons)
         {
             Source = new AccessoryTableSource(buttons);
             BackgroundColor = UIColor.Clear;
             ScrollEnabled = false;
             AllowsSelection = false;
-            SeparatorColor = UIColor.OpaqueSeparatorColor;
-
-            var visualEffectBackground = new UIVisualEffectView(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial));
-            BackgroundView = visualEffectBackground;
+            SeparatorColor = ApplicationTheme.SeparatorColor;
+            BackgroundView = new UIVisualEffectView(ApplicationTheme.PanelBackgroundMaterial);
         }
     }
 
     internal sealed class AccessoryViewCell : UITableViewCell
     {
-        internal UIButton ContainedButton;
         public AccessoryViewCell()
         {
-            // TODO - document `AccessoryButtonColor`
-            TintColor = UIColor.FromName("AccessoryButtonColor");
+            TintColor = ApplicationTheme.AccessoryButtonColor;
             BackgroundColor = UIColor.Clear;
         }
+
+        /// <summary>
+        /// Button is exposed to enable recycling cells
+        /// </summary>
+        public UIButton ContainedButton { get; private set; }
 
         public void SetButton(UIButton button)
         {
@@ -65,24 +74,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
     internal class AccessoryTableSource : UITableViewSource
     {
         /// <summary>
-        /// The items in the table.
+        /// The cell identifier.
+        /// </summary>
+        private const string CellIdentifier = "AccessoryButtonCell";
+
+        /// <summary>
+        /// The buttons in the table.
         /// </summary>
         private readonly IEnumerable<UIButton> _items;
 
         /// <summary>
-        /// The cell identifier.
+        /// Defines the rules to apply for whether a button should be included in the view
         /// </summary>
-        private readonly string _cellIdentifier;
+        private readonly Func<UIButton, bool> _buttonInclusionPredicate = button => !button.Hidden && button.Enabled;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
+        /// Creates data source for accessory button view
         /// </summary>
-        /// <param name="items">Table Items.</param>
-        internal AccessoryTableSource(IEnumerable<UIButton> items)
-        {
-            _items = items;
-            _cellIdentifier = "cell_id";
-        }
+        /// <param name="buttons">Buttons to show</param>
+        internal AccessoryTableSource(IEnumerable<UIButton> buttons) => _items = buttons;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -92,17 +102,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <param name="section">Specific Section.</param>
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            try
-            {
-                return _items.Where(_buttonInclusionPredicate).Count();
-            }
-            catch
-            {
-                return 0;
-            }
+            return _items?.Where(_buttonInclusionPredicate).Count() ?? 0;
         }
-
-        private readonly Func<UIButton, bool> _buttonInclusionPredicate = button => !button.Hidden && button.Enabled;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -112,15 +113,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(_cellIdentifier) as AccessoryViewCell ?? new AccessoryViewCell
+            var cell = tableView.DequeueReusableCell(CellIdentifier) as AccessoryViewCell ?? new AccessoryViewCell
             {
+                // Remove default margin/padding
                 LayoutMargins = UIEdgeInsets.Zero,
                 PreservesSuperviewLayoutMargins = false,
+                // show separator full width
                 SeparatorInset = UIEdgeInsets.Zero
             };
 
             try
             {
+                // Restrict items to only those that match the inclusion criteria
                 var item = _items.Where(_buttonInclusionPredicate).ElementAt(indexPath.Row);
 
                 if (cell.ContainedButton != item)
@@ -128,23 +132,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views
                     cell.SetButton(item);
                 }
 
-                // show separator full width
                 return cell;
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.Instance.LogException(ex);
                 return null;
             }
         }
 
         /// <summary>
-        /// Event for user selecting a floor level
+        /// Automatically deselect any selected row
         /// </summary>
         /// <param name="tableView">Table view.</param>
         /// <param name="indexPath">Index path.</param>
-        public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-        {
-            tableView.DeselectRow(indexPath, false);
-        }
+        public override void RowSelected(UITableView tableView, NSIndexPath indexPath) => tableView.DeselectRow(indexPath, false);
     }
 }

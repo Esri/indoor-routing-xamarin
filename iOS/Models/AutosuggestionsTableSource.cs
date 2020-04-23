@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Esri.ArcGISRuntime.Tasks.Geocoding;
+using Foundation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Esri.ArcGISRuntime.Tasks.Geocoding;
-using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
@@ -28,36 +27,47 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
     /// </summary>
     internal class AutosuggestionsTableSource : UITableViewSource
     {
-        /// <summary>
-        /// The items int he table.
-        /// </summary>
+        private const string CellIdentifier = "cell_id";
+
+        // Suggestions to display
         private IEnumerable<SuggestResult> _items;
 
+        // Special suggestions corresponding to home location, current device location
         private readonly List<string> _specialSettings = new List<string>();
-
-        /// <summary>
-        /// The cell identifier.
-        /// </summary>
-        private readonly string _cellIdentifier;
-
-        public bool ShouldShowSpecialItems { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models.AutosuggestionsTableSource"/> class.
         /// </summary>
         /// <param name="items">table items.</param>
         /// <param name="showSpecialItems">Whether to show special home and current location suggestions</param>
-        internal AutosuggestionsTableSource(IEnumerable<SuggestResult> items, bool showSpecialItems)
+        public AutosuggestionsTableSource(IEnumerable<SuggestResult> items, bool showSpecialItems)
         {
             _items = items ?? new List<SuggestResult>();
-            _cellIdentifier = "cell_id";
             ResetSpecialSettings();
             ShouldShowSpecialItems = showSpecialItems;
 
             // Keep special items section updated when settings change
-             AppSettings.CurrentSettings.PropertyChanged += AppSettings_Changed;
+            AppSettings.CurrentSettings.PropertyChanged += AppSettings_Changed;
         }
 
+        /// <summary>
+        /// If true, special suggestions for current location, home location can be shown.
+        /// </summary>
+        public bool ShouldShowSpecialItems { get; set; }
+
+        /// <summary>
+        /// Updates the list of suggestions
+        /// </summary>
+        public void UpdateSuggestions(IEnumerable<SuggestResult> items) => _items = items ?? new List<SuggestResult>();
+
+        /// <summary>
+        /// Occurs when table row is selected.
+        /// </summary>
+        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
+
+        /// <summary>
+        /// Updates the special suggestions list for any relevant settings changes
+        /// </summary>
         private void AppSettings_Changed(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(AppSettings.IsLocationServicesEnabled) ||
@@ -66,16 +76,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 ResetSpecialSettings();
             }
         }
-
-        public void UpdateSuggestions(IEnumerable<SuggestResult> items)
-        {
-            _items = items ?? new List<SuggestResult>();
-        }
-
-        /// <summary>
-        /// Occurs when table row is selected.
-        /// </summary>
-        public event EventHandler<TableRowSelectedEventArgs<string>> TableRowSelected;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -91,10 +91,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 {
                     return _specialSettings.Count;
                 }
-                else
-                {
-                    return _items.Count();
-                }
+
+                return _items.Count();
             }
             catch
             {
@@ -102,20 +100,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
             }
         }
 
-        public override nint NumberOfSections(UITableView tableView)
-        {
-            return 1;
-        }
-
+        /// <summary>
+        /// Updates the special suggestions list based on settings
+        /// </summary>
         private void ResetSpecialSettings()
         {
             _specialSettings.Clear();
+
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
                 _specialSettings.Add(AppSettings.LocalizedCurrentLocationString);
             }
 
-            if (!String.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
+            if (!string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
                 _specialSettings.Add(AppSettings.CurrentSettings.HomeLocation);
             }
@@ -129,13 +126,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(_cellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Default, _cellIdentifier)
+            // Get an existing cell or create a new one
+            var cell = tableView.DequeueReusableCell(CellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier)
             {
                 BackgroundColor = tableView.BackgroundColor
             };
 
             try
             {
+                // Either show the special settings item or the regular suggestions depending on settings
                 if (_specialSettings.Any() && indexPath.Section == 0 && ShouldShowSpecialItems && !_items.Any())
                 {
                     cell.TextLabel.Text = _specialSettings[indexPath.Row];
@@ -161,18 +160,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <param name="indexPath">Index path.</param>
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            OnTableRowSelected(indexPath);
+            // Automatically deselect any rows
             tableView.DeselectRow(indexPath, false);
+
+            OnTableRowSelected(indexPath);
         }
 
         /// <summary>
         /// Override ScrollView behavior to dismiss keyboard on scroll
         /// </summary>
         /// <param name="scrollView">Scroll view.</param>
-        public override void Scrolled(UIScrollView scrollView)
-        {
-            scrollView.KeyboardDismissMode = UIScrollViewKeyboardDismissMode.OnDrag;
-        }
+        public override void Scrolled(UIScrollView scrollView) => scrollView.KeyboardDismissMode = UIScrollViewKeyboardDismissMode.OnDrag;
 
         /// <summary>
         /// Handle the table row selection.
@@ -182,18 +180,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         {
             try
             {
-                if (_specialSettings.Count > 0 && itemIndexPath.Section == 0 && ShouldShowSpecialItems &&
-                    !_items.Any())
+                if (_specialSettings.Count > 0 && itemIndexPath.Section == 0 && ShouldShowSpecialItems && !_items.Any())
                 {
                     var specialItem = _specialSettings[itemIndexPath.Row];
-                    TableRowSelected?.Invoke(this,
-                        new TableRowSelectedEventArgs<string>(specialItem, itemIndexPath));
+                    TableRowSelected?.Invoke(this, new TableRowSelectedEventArgs<string>(specialItem, itemIndexPath));
                 }
                 else
                 {
                     var item = _items.ElementAt(itemIndexPath.Row);
-                    TableRowSelected?.Invoke(this,
-                        new TableRowSelectedEventArgs<string>(item.Label, itemIndexPath));
+                    TableRowSelected?.Invoke(this,  new TableRowSelectedEventArgs<string>(item.Label, itemIndexPath));
                 }
             }
             catch (Exception ex)

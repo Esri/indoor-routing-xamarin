@@ -17,8 +17,16 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
 {
+    /// <summary>
+    /// Convenience extension methods
+    /// </summary>
     public static class ViewExtensions
     {
+        /// <summary>
+        /// Returns the view wrapped in a shadow
+        /// </summary>
+        /// <param name="viewToEncapsulate">View to place a shadow around</param>
+        /// <returns>ShadowContainerView containing the viewToEncapsulate</returns>
         public static UIView EncapsulateInShadowView(this UIView viewToEncapsulate)
         {
             return new ShadowContainerView(viewToEncapsulate);

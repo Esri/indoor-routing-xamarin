@@ -16,6 +16,10 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
+    /// <summary>
+    /// Button that is configured to indicate a user action.
+    /// This class helps keep the style of these buttons consistent throughout the app.
+    /// </summary>
     public sealed class ActionButton : UIButton
     {
         public ActionButton()

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     using System;
@@ -88,7 +90,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         {
             get => _isDownloading;
 
-            private set
+            set
             {
                 if (_isDownloading != value)
                 {

@@ -26,6 +26,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 {
+    /// <summary>
+    /// Card for showing the result of a successful route search
+    /// </summary>
     public sealed class RouteResultCard : UIView
     {
         private readonly MapViewModel _viewModel;
@@ -40,7 +43,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _stopsTable = new SelfSizedTableView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                //TableFooterView = null,
                 ScrollEnabled = false,
                 BackgroundColor = UIColor.Clear,
                 AllowsSelection = false
@@ -91,34 +93,37 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 // walk time label
                 _routeDurationLabel.TopAnchor.ConstraintEqualTo(headerLabel.BottomAnchor, ApplicationTheme.Margin),
                 _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(travelModeImageView.TrailingAnchor, ApplicationTheme.Margin),
-                //
+                // update bottom size
                 BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, ApplicationTheme.Margin)
             });
 
-
             closeButton.TouchUpInside += Close_Clicked;
 
-            _viewModel.PropertyChanged += AppState_PropertyChanged;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void AppState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        /// <summary>
+        /// Update UI for viewmodel property changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(_viewModel.CurrentRoute))
             {
                 return;
             }
 
-            RouteResult routeResult = _viewModel.CurrentRoute;
+            Route firstRoute = _viewModel.CurrentRoute?.Routes?.FirstOrDefault();
 
-            if (routeResult == null)
+            if (firstRoute == null)
             {
                 _stopsTable.Source = null;
                 return;
             }
 
+            // Build up the walk time label
             StringBuilder walkTimeStringBuilder = new StringBuilder();
-
-            Route firstRoute = routeResult.Routes.First();
 
             // Add walk time and distance label
             if (firstRoute.TotalTime.Hours > 0)
@@ -130,22 +135,30 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Minutes + 1} min");
             }
 
+            _routeDurationLabel.Text = walkTimeStringBuilder.ToString();
+
+            // Create the list of stop features (origin and destination)
             var tableSource = new List<Feature> { _viewModel.FromLocationFeature, _viewModel.ToLocationFeature };
 
+            // Update the stops table with new data
             _stopsTable.Source = new RouteTableSource(tableSource);
 
             // necessary so that table is reloaded before layout is requested
             _stopsTable.ReloadData();
-
-            _routeDurationLabel.Text = walkTimeStringBuilder.ToString();
 
             RelayoutRequested?.Invoke(this, EventArgs.Empty);
 
             UIAccessibility.PostNotification(UIAccessibilityPostNotification.Announcement, (NSString)"Route found".Localize());
         }
 
+        /// <summary>
+        /// Forwards event to viewmodel
+        /// </summary>
         private void Close_Clicked(object sender, EventArgs e) => _viewModel.CloseRouteResult();
 
+        /// <summary>
+        /// Raised when the containing view should re-measure this view's height
+        /// </summary>
         public event EventHandler RelayoutRequested;
     }
 }

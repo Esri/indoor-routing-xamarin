@@ -84,6 +84,9 @@
     <MtouchExtraArgs>
     </MtouchExtraArgs>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <AppExtensionDebugBundleId />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -309,6 +312,7 @@
     <Compile Include="Helpers\DownloadDelegate.cs" />
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
+    <Compile Include="Models\SettingsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
     <Compile Include="Controllers\BottomSheetViewController.cs" />
@@ -317,10 +321,12 @@
     <Compile Include="Helpers\LocalizationExtension.cs" />
     <Compile Include="Controllers\DismissableNavigationController.cs" />
     <Compile Include="Helpers\ViewExtensions.cs" />
-    <Compile Include="Controllers\MapViewController.Views.cs" />
+    <Compile Include="Controllers\MapViewController.Views.cs">
+      <DependentUpon>MapViewController.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\FloorsTableView.cs" />
     <Compile Include="Views\MapViewCards\LocationSearchCard.cs" />
-    <Compile Include="Views\MapViewCards\LocationNotFoundCard.cs" />
+    <Compile Include="Views\MapViewCards\NotFoundCard.cs" />
     <Compile Include="Views\MapViewCards\LocationInfoCard.cs" />
     <Compile Include="Views\MapViewCards\RoutePlanningCard.cs" />
     <Compile Include="Views\MapViewCards\RouteResultCard.cs" />
@@ -344,10 +350,7 @@
       <Version>100.7.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets.xcassets\AccessoryButtonColor.colorset\" />
-    <Folder Include="Assets.xcassets\esri.imageset\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <BundleResource Include="Resources\base.lproj\Localizable.strings" />
   </ItemGroup>

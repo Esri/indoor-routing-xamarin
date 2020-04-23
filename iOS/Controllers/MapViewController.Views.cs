@@ -31,12 +31,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
     /// </summary>
     public partial class MapViewController : UIViewController
     {
-        public MapViewController(MapViewModel viewModel)
-        {
-            _viewModel = viewModel;
-        }
+        private MapView _mapView;
+        // Stack view arranges the accessory buttons, floors tableview, and compass
+        private UIStackView _topRightStack;
 
-        #region view fields
         // top right buttons
         private UIButton _settingsButton;
         private UIButton _homeButton;
@@ -44,15 +42,14 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private SimpleStackedButtonContainer _accessoryView;
 
         private FloorsTableView _innerFloorsTableView;
-        private UIView _innerFloorsTableViewShadow; // shadow container needs to be hidden for stack layout to work
-
-        private UIStackView _topRightStack;
-
-        private UIVisualEffectView _topBlur;
+        private UIView _innerFloorsTableViewShadow;
 
         private Compass _compass;
-        private MapView _mapView;
 
+        // View shown at the top to make sure the system area is legible
+        private UIVisualEffectView _topBlur;
+
+        // Displays the bottom sheet in compact width and the side panel in regular width
         private BottomSheetViewController _bottomSheet;
 
         // Bottom sheet cards
@@ -67,9 +64,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private UIButton _attributionImageButton;
         private UIStackView _attributionStack;
         private UIView _shadowedAttribution;
-        #endregion view fields
 
-        #region ios lifecycle methods
+        public MapViewController(MapViewModel viewModel) => _viewModel = viewModel;
+
         /// <summary>
         /// Overrides the controller behavior before view is about to appear
         /// </summary>
@@ -98,6 +95,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             base.ViewDidAppear(animated);
 
+            // Bottom sheet and attribution setup have to happen after initial view configuration
             if (_bottomSheet == null)
             {
                 ConfigureBottomSheet();
@@ -111,19 +109,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             base.TraitCollectionDidChange(previousTraitCollection);
 
+            // Update the attribution views whenever the trait collection changes (e.g. to adapt to size class changes)
             SetAttributionForCurrentState();
         }
 
         public override void LoadView()
         {
-            base.LoadView();
-
             // Create the view
             View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor };
 
             // Create the map view
             _mapView = new MapView { TranslatesAutoresizingMaskIntoConstraints = false };
 
+            // Do all map-related setup, including setting up renderers, layers, and symbols
             ConfigureMapView();
 
             // Create and set up accessory buttons
@@ -194,8 +192,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _topBlur.TopAnchor.ConstraintEqualTo(View.TopAnchor),
                 _topBlur.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
             });
-
-            
         }
 
         /// <summary>
@@ -230,9 +226,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
-        #endregion ios lifecycle methods
-
-        #region additional view setup
+        /// <summary>
+        /// Sets up the bottom sheet and all the contained views.
+        /// Must be called after the rest of the view is set up
+        /// </summary>
         private void ConfigureBottomSheet()
         {
             _bottomSheet = new BottomSheetViewController(View);
@@ -248,6 +245,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 BackgroundColor = UIColor.Clear
             };
 
+            _locationCard.RelayoutRequested += Card_RelayoutRequested;
+
             _routeResultView = new RouteResultCard(_viewModel)
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -255,7 +254,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 BackgroundColor = UIColor.Clear
             };
 
-            _routeResultView.RelayoutRequested += RouteCard_LayoutRequested;
+            _routeResultView.RelayoutRequested += Card_RelayoutRequested;
 
             _locationSearchCard = new LocationSearchCard(_viewModel)
             {
@@ -298,11 +297,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             });
 
             // set initial height
-            _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+            _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
         }
 
+        /// <summary>
+        /// Sets up attribution UI elements
+        /// </summary>
         private void ConfigureAttribution()
         {
+            // Stack view arranges the esri icon and the info button
             _attributionStack = new UIStackView
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
@@ -327,8 +330,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             _attributionStack.AddArrangedSubview(_esriIcon);
             _attributionStack.AddArrangedSubview(_attributionImageButton);
 
-            // put map attribution directly above map so it is under accessory views
+            // Show attribution elements with a shadow for enhanced visibility
             _shadowedAttribution = _attributionStack.EncapsulateInShadowView();
+
+            // put map attribution directly above map so it is under accessory views
             View.InsertSubviewAbove(_shadowedAttribution, _mapView);
 
             _attributionImageButton.TouchUpInside += Attribution_Tapped;
@@ -344,6 +349,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             SetAttributionForCurrentState();
         }
 
+        /// <summary>
+        /// Hide or show attribution elements based on current map & UI state
+        /// </summary>
         private void SetAttributionForCurrentState()
         {
             if (_shadowedAttribution == null)
@@ -362,19 +370,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _mapView.IsAttributionTextVisible = false;
             }
 
-            _attributionImageButton.Hidden = String.IsNullOrWhiteSpace(_mapView.AttributionText);
+            // The esri icon is always shown, but the info button is only visible if there is attribution text
+            _attributionImageButton.Hidden = string.IsNullOrWhiteSpace(_mapView.AttributionText);
         }
 
-        #endregion additional view setup
-
-        #region react to view model changes
+        /// <summary>
+        /// Update the UI for any settings changes
+        /// </summary>
         private void CurrentSettings_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            AppSettings settings = (AppSettings)sender;
             switch (e.PropertyName)
             {
-                case nameof(AppSettings.UseOnlineBasemap):
-                    if (settings.UseOnlineBasemap && _mapView?.Map != null)
+                case nameof(AppSettings.CurrentSettings.UseOnlineBasemap):
+                    if (AppSettings.CurrentSettings.UseOnlineBasemap && _mapView?.Map != null)
                     {
                         _mapView.Map.Basemap = Basemap.CreateLightGrayCanvasVector();
                     }
@@ -386,7 +394,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 case nameof(AppSettings.IsHomeSet):
                     if (_homeButton != null)
                     {
-                        _homeButton.Hidden = !settings.IsHomeSet;
+                        _homeButton.Hidden = !AppSettings.CurrentSettings.IsHomeSet;
+                        // The accessory view will resize itself for any hidden buttons when ReloadData is called
                         _accessoryView.ReloadData();
                     }
                     break;
@@ -394,30 +403,37 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     _mapView.LocationDisplay.LocationChanged -= MapView_LocationChanged;
                     if (_locationButton != null)
                     {
-                        _locationButton.Hidden = !settings.IsLocationServicesEnabled;
+                        _locationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
                         _accessoryView.ReloadData();
                     }
-                    if (settings.IsLocationServicesEnabled)
+                    if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                     {
                         _mapView.LocationDisplay.IsEnabled = true;
                         _mapView.LocationDisplay.LocationChanged += MapView_LocationChanged;
+                    }
+                    else
+                    {
+                        _mapView.LocationDisplay.IsEnabled = false;
                     }
                     break;
                 case nameof(AppSettings.MapViewMinScale):
                     if (_mapView?.Map != null)
                     {
-                        _mapView.Map.MinScale = settings.MapViewMinScale;
+                        _mapView.Map.MinScale = AppSettings.CurrentSettings.MapViewMinScale;
                     }
                     break;
                 case nameof(AppSettings.MapViewMaxScale):
                     if (_mapView?.Map != null)
                     {
-                        _mapView.Map.MaxScale = settings.MapViewMaxScale;
+                        _mapView.Map.MaxScale = AppSettings.CurrentSettings.MapViewMaxScale;
                     }
                     break;
             }
         }
 
+        /// <summary>
+        /// Hide and show UI elements as needed for the current state
+        /// </summary>
         private void UpdateUiForNewState()
         {
             _locationSearchCard.Hidden = true;
@@ -430,48 +446,49 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 case UiState.ReadyWaiting:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.LocationFound:
                     _locationCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.LocationNotFound:
                     _notFoundCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.PlanningRoute:
                     _routeSearchView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.RouteFound:
                     _routeResultView.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.RouteNotFound:
                     _notFoundCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
                 case UiState.SearchingForDestination:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Full);
                     break;
                 case UiState.SearchingForOrigin:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Full);
                     break;
                 case UiState.SearchingForFeature:
                     _locationSearchCard.Hidden = false;
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Full);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Full);
                     break;
                 case UiState.FeatureSearchEntered:
-                    _bottomSheet.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
                     break;
             }
         }
-        #endregion
 
-        #region event subscription management
+        /// <summary>
+        /// Subscribe to all events
+        /// </summary>
         private void SubscribeToEvents()
         {
             // set up events
@@ -507,12 +524,23 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             if (_routeResultView != null)
             {
-                _routeResultView.RelayoutRequested += RouteCard_LayoutRequested;
+                _routeResultView.RelayoutRequested += Card_RelayoutRequested;
+            }
+
+            if (_locationCard != null)
+            {
+                _locationCard.RelayoutRequested += Card_RelayoutRequested;
             }
         }
 
-        private void RouteCard_LayoutRequested(object sender, EventArgs e) => _bottomSheet?.SetStateWithAnimation(BottomSheetViewController.BottomSheetState.Partial);
+        /// <summary>
+        /// Updates the size of the bottom sheet when requested by one of the contained cards.
+        /// </summary>
+        private void Card_RelayoutRequested(object sender, EventArgs e) => _bottomSheet?.SetState(BottomSheetViewController.BottomSheetState.Partial);
 
+        /// <summary>
+        /// Unsubscribe from all events to prevent memory leaks
+        /// </summary>
         private void UnsubscribeFromEvents()
         {
             // set up events
@@ -543,20 +571,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             // location button
             _locationButton.TouchUpInside -= CurrentLocationButton_TouchUpInside;
 
-            if (_attributionImageButton != null)
-            {
-                _attributionImageButton.TouchUpInside -= Attribution_Tapped;
-            }
-
             // set up events
             _viewModel.PropertyChanged -= ViewModelPropertyChanged;
             AppSettings.CurrentSettings.PropertyChanged -= CurrentSettings_PropertyChanged;
 
             if (_routeResultView != null)
             {
-                _routeResultView.RelayoutRequested -= RouteCard_LayoutRequested;
+                _routeResultView.RelayoutRequested -= Card_RelayoutRequested;
+            }
+
+            if (_locationCard != null)
+            {
+                _locationCard.RelayoutRequested -= Card_RelayoutRequested;
             }
         }
-        #endregion event subscription management
     }
 }

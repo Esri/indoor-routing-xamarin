@@ -23,38 +23,24 @@ using UIKit;
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 {
     /// <summary>
-    /// Route table source.
+    /// Table data source for the route stops view
     /// </summary>
     public class RouteTableSource : UITableViewSource
     {
+        // Identifies for start and end cell, since they have different appearances
+        private const string StartCellIdentifier = "startCellID";
+        private const string EndCellIdentifier = "endCellID";
+
         /// <summary>
-        /// The items in the table.
+        /// The route stops; currently only supports one origin and one destination.
         /// </summary>
         private readonly IEnumerable<Feature> _items;
-
-        /// <summary>
-        /// The cell identifier for the start cell.
-        /// </summary>
-        private readonly string _startCellIdentifier;
-
-        /// <summary>
-        /// The end cell identifier for the end cell.
-        /// </summary>
-        private readonly string _endCellIdentifier;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models.RouteTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal RouteTableSource(List<Feature> items)
-        {
-            if (items != null)
-            {
-                _items = items;
-                _startCellIdentifier = "startCellID";
-                _endCellIdentifier = "endCellID";
-            }
-        }
+        internal RouteTableSource(List<Feature> items) => _items = items;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -62,10 +48,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <returns>The rows in section.</returns>
         /// <param name="tableview">Containing Tableview.</param>
         /// <param name="section">Specific Section.</param>
-        public override nint RowsInSection(UITableView tableview, nint section)
-        {
-            return _items?.Count() ?? 0;
-        }
+        public override nint RowsInSection(UITableView tableview, nint section) => _items?.Count() ?? 0;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -76,14 +59,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             // Used to create the 2 route card cells
-            // Zero base index, even cell is the start location odd cell is the end location
-            var cellIdentifier = indexPath.Row % 2 == 1 ? _endCellIdentifier : _startCellIdentifier;
+            var cellIdentifier = indexPath.Row == 0 ? StartCellIdentifier : EndCellIdentifier;
             var cell = tableView.DequeueReusableCell(cellIdentifier);
 
             if (cell == null)
             {
                 cell = new UITableViewCell(UITableViewCellStyle.Subtitle, cellIdentifier);
-                string imageName = indexPath.Row % 2 == 1 ? "EndCircle" : "StartCircle";
+                string imageName = indexPath.Row == 0 ? "StartCircle" : "EndCircle";
                 cell.ImageView.Image = UIImage.FromBundle(imageName);
                 cell.BackgroundColor = tableView.BackgroundColor;
             }
@@ -98,6 +80,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 
                     return cell;
                 }
+                // Null entry is a stand-in for using the device's current location
                 else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
                     cell.TextLabel.Text = AppSettings.LocalizedCurrentLocationString;

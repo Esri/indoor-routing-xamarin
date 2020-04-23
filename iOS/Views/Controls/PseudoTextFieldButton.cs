@@ -17,13 +17,18 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
+    /// <summary>
+    /// View that looks like a UILabel but acts like a button.
+    /// </summary>
+    /// <remarks>This is used in the route planning view where the text is displayed, but selecting it shows a different view.</remarks>
     public sealed class PseudoTextFieldButton : UIView
     {
+        // Label shows the text property
         private readonly UILabel _label;
 
         public string Text
         {
-            get => _label?.Text ?? "";
+            get => _label?.Text;
             set
             {
                 if (_label == null) { return; }
@@ -66,19 +71,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
             Layer.CornerRadius = ApplicationTheme.CornerRadius;
             Layer.BorderColor = UIColor.SystemGrayColor.CGColor;
             Layer.BorderWidth = 2;
-            UserInteractionEnabled = true; //for gesture recognizer
+
+            // Needed for gesture recognizer to work
+            UserInteractionEnabled = true;
             
+            // Background is handled by the background view
             BackgroundColor = UIColor.Clear;
+
+            // Clips content to the corner radius
             ClipsToBounds = true;
 
+            // Enables recognizing and handling taps/clicks
             var tapRecognizer = new UITapGestureRecognizer(HandleTap);
             AddGestureRecognizer(tapRecognizer);
         }
 
-        private void HandleTap()
-        {
-            Tapped?.Invoke(this, EventArgs.Empty);
-        }
+        private void HandleTap() => Tapped?.Invoke(this, EventArgs.Empty);
 
         public event EventHandler Tapped;
     }

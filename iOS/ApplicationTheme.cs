@@ -17,7 +17,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
 {
-    
+    /// <summary>
+    /// Defines common styling parameters; modify this class to change colors, materials, spacing, and corner rounding
+    /// </summary>
     public static class ApplicationTheme
     {
         public static nint Margin = 8;
@@ -35,6 +37,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public static UIColor ActionForegroundColor = UIColor.White;
         public static UIColor SelectionBackgroundColor = ActionBackgroundColor;
         public static UIColor SelectionForegroundColor = ActionForegroundColor;
+        // Accessory button is a light/dark responsive color defined in the asset catalog
+        public static UIColor AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
         public static nint ActionButtonHeight = 44;
         public static UIFont HeaderFont = UIFont.BoldSystemFontOfSize(28);
     }

@@ -28,18 +28,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <summary>
         /// The cell identifier.
         /// </summary>
-        private readonly string cellIdentifier = "floorTableCell";
+        private const string CellIdentifier = "floorTableCell";
 
         private readonly MapViewModel _viewModel;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.FloorsTableSource"/> class.
+        /// Creates a UITableViewSource for the floor picker
         /// </summary>
         /// <param name="viewmodel"></param>
-        internal FloorsTableSource(MapViewModel viewmodel)
-        {
-            _viewModel = viewmodel;
-        }
+        public FloorsTableSource(MapViewModel viewmodel) => _viewModel = viewmodel;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -47,17 +44,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <returns>The rows in section.</returns>
         /// <param name="tableview">Containing Tableview.</param>
         /// <param name="section">Specific Section.</param>
-        public override nint RowsInSection(UITableView tableview, nint section)
-        {
-            try
-            {
-                return _viewModel?.CurrentVisibleFloors?.Count() ?? 0;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
+        public override nint RowsInSection(UITableView tableview, nint section) => _viewModel?.CurrentVisibleFloors?.Count() ?? 0;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -67,12 +54,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         /// <param name="indexPath">Index path.</param>
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = tableView.DequeueReusableCell(cellIdentifier);
+            var cell = tableView.DequeueReusableCell(CellIdentifier);
 
             // If there are no cells to reuse, create a new one
             if (cell == null)
             {
-                cell = new UITableViewCell(UITableViewCellStyle.Default, cellIdentifier)
+                cell = new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier)
                 {
                     BackgroundColor = UIColor.Clear,
                     SelectedBackgroundView = new UIView {BackgroundColor = ApplicationTheme.SelectionBackgroundColor}
@@ -102,13 +89,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         }
 
         /// <summary>
-        /// Event for user selecting a floor level
+        /// Forward row selection to the viewmodel
         /// </summary>
         /// <param name="tableView">Table view.</param>
         /// <param name="indexPath">Index path.</param>
-        public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-        {
-            _viewModel.SelectFloor(_viewModel?.CurrentVisibleFloors?.ElementAt(indexPath.Row));
-        }
+        public override void RowSelected(UITableView tableView, NSIndexPath indexPath) => _viewModel.SelectFloor(_viewModel?.CurrentVisibleFloors?.ElementAt(indexPath.Row));
     }
 }

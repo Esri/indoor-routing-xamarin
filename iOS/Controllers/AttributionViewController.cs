@@ -36,8 +36,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public override void LoadView()
         {
-            base.LoadView();
-            View = new UIView {BackgroundColor = ApplicationTheme.BackgroundColor};
+            // Create views
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor };
 
             _attributionTextView = new UITextView
             {
@@ -45,8 +45,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 TextColor = ApplicationTheme.ForegroundColor
             };
 
+            // Button will be placed in navigation area in ViewWillAppear
+            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Plain, null);
+
+            // Add views
             View.AddSubview(_attributionTextView);
 
+            // Lay out the views
             NSLayoutConstraint.ActivateConstraints(new[]
             {
                 _attributionTextView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
@@ -54,19 +59,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _attributionTextView.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor, -ApplicationTheme.Margin),
                 _attributionTextView.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.BottomAnchor, -ApplicationTheme.Margin)
             });
-
-            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Plain, null);
         }
 
         public override void ViewWillAppear(bool animated)
         {
             Title = "AttributionModalViewTitle".Localize();
 
+            // Set the attribution view text every time the view is shown to make sure it is always fresh.
             _attributionTextView.Text = _mapView.AttributionText;
 
             // Show the navigation bar
-            NavigationController.NavigationBarHidden = false;
-            NavigationItem.SetRightBarButtonItem(_closeButton, false);
+            if (NavigationController != null)
+            {
+                NavigationController.NavigationBarHidden = false;
+                NavigationItem.SetRightBarButtonItem(_closeButton, false);
+            }
 
             _closeButton.Clicked += CloseButton_Clicked;
 
@@ -80,9 +87,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             base.ViewDidDisappear(animated);
         }
 
-        private void CloseButton_Clicked(object sender, EventArgs e)
-        {
-            NavigationController?.DismissModalViewController(true);
-        }
+        private void CloseButton_Clicked(object sender, EventArgs e) => NavigationController?.DismissModalViewController(true);
     }
 }

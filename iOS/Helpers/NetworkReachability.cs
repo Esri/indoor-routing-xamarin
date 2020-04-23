@@ -19,53 +19,55 @@ using System.Net;
 using SystemConfiguration;
 using CoreFoundation;
 
-
-/// <summary>
-/// Reachability class helps determine if device is online. This will be different for every platform. 
-/// </summary>
-internal static class Reachability
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers
 {
     /// <summary>
-    /// The default route reachability.
+    /// Reachability class helps determine if device is online. This will be different for every platform. 
     /// </summary>
-    private static NetworkReachability defaultRouteReachability;
-
-    /// <summary>
-    /// Test if the network is available.
-    /// </summary>
-    /// <returns><c>true</c>, if network available was ised, <c>false</c> otherwise.</returns>
-    internal static bool IsNetworkAvailable()
+    internal static class Reachability
     {
-        if (defaultRouteReachability == null)
+        /// <summary>
+        /// The default route reachability.
+        /// </summary>
+        private static NetworkReachability defaultRouteReachability;
+
+        /// <summary>
+        /// Test if the network is available.
+        /// </summary>
+        /// <returns><c>true</c>, if network available was ised, <c>false</c> otherwise.</returns>
+        internal static bool IsNetworkAvailable()
         {
-            defaultRouteReachability = new NetworkReachability(new IPAddress(0));
-            defaultRouteReachability.Schedule(CFRunLoop.Current, CFRunLoop.ModeDefault);
+            if (defaultRouteReachability == null)
+            {
+                defaultRouteReachability = new NetworkReachability(new IPAddress(0));
+                defaultRouteReachability.Schedule(CFRunLoop.Current, CFRunLoop.ModeDefault);
+            }
+
+            return defaultRouteReachability.TryGetFlags(out var flags) &&
+                   IsReachableWithoutRequiringConnection(flags);
         }
 
-        return defaultRouteReachability.TryGetFlags(out var flags) &&
-               IsReachableWithoutRequiringConnection(flags);
-    }
-
-    /// <summary>
-    /// Is the network reachable without requiring connection.
-    /// </summary>
-    /// <returns><c>true</c>, if reachable without requiring connection, <c>false</c> otherwise.</returns>
-    /// <param name="flags">Network Flags.</param>
-    private static bool IsReachableWithoutRequiringConnection(NetworkReachabilityFlags flags)
-    {
-        // Is it reachable with the current network configuration?
-        var isReachable = (flags & NetworkReachabilityFlags.Reachable) != 0;
-
-        // Do we need a connection to reach it?
-        var isConnectionRequired = (flags & NetworkReachabilityFlags.ConnectionRequired) == 0;
-
-        // Since the network stack will automatically try to get the WAN up,
-        // probe that
-        if ((flags & NetworkReachabilityFlags.IsWWAN) != 0)
+        /// <summary>
+        /// Is the network reachable without requiring connection.
+        /// </summary>
+        /// <returns><c>true</c>, if reachable without requiring connection, <c>false</c> otherwise.</returns>
+        /// <param name="flags">Network Flags.</param>
+        private static bool IsReachableWithoutRequiringConnection(NetworkReachabilityFlags flags)
         {
-            isConnectionRequired = true;
-        }
+            // Is it reachable with the current network configuration?
+            var isReachable = (flags & NetworkReachabilityFlags.Reachable) != 0;
 
-        return isReachable && isConnectionRequired;
+            // Do we need a connection to reach it?
+            var isConnectionRequired = (flags & NetworkReachabilityFlags.ConnectionRequired) == 0;
+
+            // Since the network stack will automatically try to get the WAN up,
+            // probe that
+            if ((flags & NetworkReachabilityFlags.IsWWAN) != 0)
+            {
+                isConnectionRequired = true;
+            }
+
+            return isReachable && isConnectionRequired;
+        }
     }
 }

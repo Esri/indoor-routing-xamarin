@@ -19,6 +19,9 @@ using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
+    /// <summary>
+    /// StackView that uses its content size as IntrinsicContentSize, which is useful for use with AutoLayout
+    /// </summary>
     public class IntrinsicContentSizedStackView : UIStackView
     {
         public override CGSize IntrinsicContentSize

@@ -18,7 +18,7 @@ using UIKit;
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 {
     /// <summary>
-    /// UIButton pre-configured as a close button
+    /// UIButton pre-configured as a close button (circle with x in the center)
     /// </summary>
     public sealed class CloseButton : UIButton
     {
