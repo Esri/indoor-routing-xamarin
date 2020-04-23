@@ -89,7 +89,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             closeButton.TouchUpInside += Close_Clicked;
 
             // Check settings
-            _startDirectionsButton.Enabled = AppSettings.CurrentSettings.IsRoutingEnabled;
+            _startDirectionsButton.Hidden = !AppSettings.CurrentSettings.IsRoutingEnabled;
 
             // Wait for app state changes (particularly identify feature results)
             _viewModel.PropertyChanged += ViewModel_Changed;
