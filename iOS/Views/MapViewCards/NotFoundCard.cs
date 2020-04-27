@@ -49,29 +49,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 Text = "NotFoundCardMessage".Localize()
             };
 
-            var dismissButton = new CloseButton
+            var closeButton = new CloseButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false
             };
 
-            AddSubviews(_headerLabel, errorTextView, dismissButton);
+            AddSubviews(_headerLabel, errorTextView, closeButton);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
+                // header label
                 _headerLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
-                _headerLabel.CenterYAnchor.ConstraintEqualTo(dismissButton.CenterYAnchor),
-                _headerLabel.TrailingAnchor.ConstraintEqualTo(dismissButton.LeadingAnchor, -ApplicationTheme.Margin),
-                dismissButton.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
-                dismissButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
-                dismissButton.WidthAnchor.ConstraintEqualTo(32),
-                dismissButton.HeightAnchor.ConstraintEqualTo(32),
+                _headerLabel.CenterYAnchor.ConstraintEqualTo(closeButton.CenterYAnchor),
+                _headerLabel.TrailingAnchor.ConstraintEqualTo(closeButton.LeadingAnchor, -ApplicationTheme.Margin),
+                // close button
+                closeButton.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                closeButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                closeButton.WidthAnchor.ConstraintEqualTo(32),
+                closeButton.HeightAnchor.ConstraintEqualTo(32),
+                // error description
                 errorTextView.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
-                errorTextView.TopAnchor.ConstraintEqualTo(dismissButton.BottomAnchor, ApplicationTheme.Margin),
+                errorTextView.TopAnchor.ConstraintEqualTo(closeButton.BottomAnchor, ApplicationTheme.Margin),
                 errorTextView.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(errorTextView.BottomAnchor, ApplicationTheme.Margin)
             });
 
-            dismissButton.TouchUpInside += Dismiss_Clicked;
+            closeButton.TouchUpInside += Dismiss_Clicked;
 
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }

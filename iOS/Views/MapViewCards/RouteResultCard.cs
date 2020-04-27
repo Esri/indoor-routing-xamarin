@@ -76,7 +76,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 headerLabel.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
                 headerLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 headerLabel.TrailingAnchor.ConstraintEqualTo(closeButton.LeadingAnchor, -ApplicationTheme.Margin),
-                //clear button
+                // close button
                 closeButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 closeButton.CenterYAnchor.ConstraintEqualTo(headerLabel.CenterYAnchor),
                 closeButton.WidthAnchor.ConstraintEqualTo(32),
@@ -93,7 +93,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 // walk time label
                 _routeDurationLabel.TopAnchor.ConstraintEqualTo(headerLabel.BottomAnchor, ApplicationTheme.Margin),
                 _routeDurationLabel.LeadingAnchor.ConstraintEqualTo(travelModeImageView.TrailingAnchor, ApplicationTheme.Margin),
-                // update bottom size
+                // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(_stopsTable.BottomAnchor, ApplicationTheme.Margin)
             });
 

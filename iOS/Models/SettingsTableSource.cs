@@ -33,6 +33,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         {
             switch (indexPath.Row)
             {
+                // Cell for the home location setting
                 case 0:
                     var homeCell = tableView.DequeueReusableCell(HomeLocationCellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Value1, HomeLocationCellIdentifier);
                     homeCell.TextLabel.Text = "HomeLocationSettingLabel".Localize();
@@ -40,6 +41,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                     homeCell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                     homeCell.BackgroundColor = tableView.BackgroundColor;
                     return homeCell;
+                // Cell for the location services setting
                 case 1:
                     var locationCell = tableView.DequeueReusableCell(LocationServicesCellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Default, LocationServicesCellIdentifier);
                     locationCell.TextLabel.Text = "UseLocationServicesSettingLabel".Localize();
@@ -54,6 +56,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 
                     _locationSwitch.On = AppSettings.CurrentSettings.IsLocationServicesEnabled;
                     return locationCell;
+                // Cell for the routing setting
                 case 2:
                     var routingCell = tableView.DequeueReusableCell(RoutingCellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Default, RoutingCellIdentifier);
                     routingCell.TextLabel.Text = "EnableRoutingSettingLabel".Localize();
@@ -69,6 +72,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                     _routingSwitch.Enabled = _viewModel?.Map?.TransportationNetworks?.Any() ?? false;
                     _routingSwitch.On = AppSettings.CurrentSettings.IsRoutingEnabled;
                     return routingCell;
+                // Cell for the basemap setting
                 case 3:
                     var useOnlineBasemapCell = tableView.DequeueReusableCell(UseOnlineBasemapCellIdentifier) ?? new UITableViewCell(UITableViewCellStyle.Default, UseOnlineBasemapCellIdentifier);
                     useOnlineBasemapCell.TextLabel.Text = "UseOnlineBasemapSettingLabel".Localize();

@@ -82,6 +82,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 containerStack.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 containerStack.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 containerStack.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
+                // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(containerStack.BottomAnchor, ApplicationTheme.Margin)
             });
 

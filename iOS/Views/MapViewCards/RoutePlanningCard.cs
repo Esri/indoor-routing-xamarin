@@ -98,7 +98,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
                 swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(searchRouteButton.CenterYAnchor),
-                // update bottom size
+                // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(searchRouteButton.BottomAnchor, ApplicationTheme.Margin)
             });
 
