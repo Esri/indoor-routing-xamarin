@@ -128,11 +128,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             // Add walk time and distance label
             if (firstRoute.TotalTime.Hours > 0)
             {
-                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Hours} h {firstRoute.TotalTime.Minutes} m");
+                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Hours}:{firstRoute.TotalTime.Minutes}");
             }
             else
             {
-                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Minutes + 1} min");
+                walkTimeStringBuilder.Append($"{firstRoute.TotalTime.Minutes + 1} " + "RouteTimeMinutesLabel".Localize());
             }
 
             _routeDurationLabel.Text = walkTimeStringBuilder.ToString();

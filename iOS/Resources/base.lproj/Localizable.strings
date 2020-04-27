@@ -52,3 +52,4 @@
 "LocationSearchHeaderForDestinationSearch" = "Select Destination";
 "LocationSearchHeaderForOriginSearch" = "Select Origin";
 "ChooseHomeLocationTitle" = "Choose Home Location";
+"RouteTimeMinutesLabel" = "minutes";
