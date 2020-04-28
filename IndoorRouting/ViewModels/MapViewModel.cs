@@ -193,6 +193,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                 if (!Equals(_currentVisibleFloors, value))
                 {
                     _currentVisibleFloors = value;
+
+                    // Hide or show the floors layers
+                    SetBuildingFloorsShown(_currentVisibleFloors?.Any() ?? false);
+
                     OnPropertyChanged();
                 }
             }
@@ -917,15 +921,25 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <summary>
         /// Restricts visibility of the rooms and walls layers to only those on the <see cref="SelectedFloorLevel"/>.
         /// </summary>
-        private void SetFloorVisibility()
+        private void SetFloorVisibility(bool isVisible = true)
         {
             foreach (var featureLayer in Map.OperationalLayers.OfType<FeatureLayer>())
             {
                 // Select the floor
                 featureLayer.DefinitionExpression = $"{AppSettings.CurrentSettings.RoomsLayerFloorColumnName} = '{SelectedFloorLevel}'";
+            }
+        }
 
-                // Ensure the layer is visible
-                featureLayer.IsVisible = true;
+        /// <summary>
+        /// Hides or shows all operational feature layers
+        /// </summary>
+        /// <param name="areShown">true if layers should be shown</param>
+        private void SetBuildingFloorsShown(bool areShown = true)
+        {
+            foreach (var featureLayer in Map.OperationalLayers.OfType<FeatureLayer>())
+            {
+                // Set layer visibility
+                featureLayer.IsVisible = areShown;
             }
         }
 
