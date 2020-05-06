@@ -156,7 +156,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                         item.Modified.LocalDateTime > AppSettings.CurrentSettings.MmpkDownloadDate)
                     {
                         IsDownloading = true;
-                        DownloadUrl = item.Url.AbsoluteUri + "/data";
+                        var data = await item.GetDataAsync();
+
+                        using (var dataStream = await item.GetDataAsync())
+                        {
+                            using (var fileStream = File.Create(Path.Combine(GetDataFolder(), TargetFileName)))
+                            {
+                                await dataStream.CopyToAsync(fileStream);
+                            }
+                        }
+                        IsDownloading = false;
+                        IsReady = true;
                     }
                     else
                     {

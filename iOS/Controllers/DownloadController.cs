@@ -16,7 +16,6 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
-using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
@@ -26,19 +25,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
     /// </summary>
     internal class DownloadController : UIViewController
     {
-        /// <summary>
-        /// Unique identifier for the download session.
-        /// </summary>
-        private const string SessionId = "com.esri.indoorroutesession";
-
-        private UIProgressView _progressView;
+        private UIActivityIndicatorView _progressView;
         private UIButton _retryButton;
         private UILabel _statusLabel;
-
-        /// <summary>
-        /// Session used for transfer.
-        /// </summary>
-        private NSUrlSession _session;
 
         /// <summary>
         /// Gets or sets  the download view model containing the common logic for setting up the download
@@ -54,14 +43,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             try
             {
-                InitializeNsUrlSession();
-
                 // When the application has finished loading, bring in the settings
                 string settingsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 AppSettings.CurrentSettings = await AppSettings.CreateAsync(Path.Combine(settingsPath, "AppSettings.xml")).ConfigureAwait(false);
-
-                // Call GetData to download or load the mobile map package
-                await ViewModel.GetDataAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -80,7 +64,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             // Create the views.
             View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
-            _progressView = new UIProgressView { TranslatesAutoresizingMaskIntoConstraints = false };
+            _progressView = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Gray) { TranslatesAutoresizingMaskIntoConstraints = false };
+            _progressView.HidesWhenStopped = true;
             _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _statusLabel = new UILabel
             {
@@ -100,10 +85,37 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _progressView.CenterYAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.CenterYAnchor),
                 _statusLabel.BottomAnchor.ConstraintEqualTo(_progressView.TopAnchor, -ApplicationTheme.Margin),
                 _retryButton.TopAnchor.ConstraintEqualTo(_progressView.BottomAnchor, 16),
-                _progressView.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor, 0.5f),
+                _progressView.WidthAnchor.ConstraintEqualTo(44),
+                _progressView.HeightAnchor.ConstraintEqualTo(44),
                 _retryButton.WidthAnchor.ConstraintEqualTo(_progressView.WidthAnchor),
                 _statusLabel.WidthAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.WidthAnchor)
             });
+        }
+
+        public override async void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+            try
+            {
+                // Call GetData to download or load the mobile map package
+                await ViewModel.GetDataAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                ErrorLogger.Instance.LogException(ex);
+
+                // Create a new Alert Controller
+                UIAlertController errorAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.Alert);
+
+                // Add Actions
+                errorAlert.AddAction(UIAlertAction.Create("RetryDownloadAlertText".Localize(), UIAlertActionStyle.Destructive, (action) => ViewModel.GetDataAsync().ConfigureAwait(false)));
+                errorAlert.AddAction(UIAlertAction.Create("CloseAppAlertText".Localize(), UIAlertActionStyle.Default, (action) => System.Threading.Thread.CurrentThread.Abort()));
+
+                // Display the alert
+                PresentViewController(errorAlert, true, null);
+            }
         }
 
         public override void ViewWillAppear(bool animated)
@@ -121,12 +133,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             _retryButton.TouchUpInside -= RetryButton_TouchUpInside;
             ViewModel.PropertyChanged -= ViewModelPropertyChanged;
         }
-
-        /// <summary>
-        /// Gets called by the delegate and will update the progress bar as the download runs.
-        /// </summary>
-        /// <param name="percentage">Percentage progress.</param>
-        internal void UpdateProgress(float percentage) => _progressView.SetProgress(percentage, true);
 
         /// <summary>
         /// Gets called by the delegate and tells the controller to load the map controller
@@ -162,17 +168,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             switch (e.PropertyName)
             {
-                case nameof(ViewModel.DownloadUrl):
-                    EnqueueDownload(ViewModel.DownloadUrl);
-                    break;
-
                 case nameof(ViewModel.IsDownloading):
                     if (ViewModel.IsDownloading)
                     {
                         InvokeOnMainThread(() =>
                         {
                             ViewModel.Status = "MapDownloadInProgressStatusLabel".Localize();
-                            _progressView.Hidden = false;
+                            _progressView.StartAnimating();
                             _retryButton.Hidden = true;
                         });
                     }
@@ -180,7 +182,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     {
                         InvokeOnMainThread(() =>
                         {
-                            _progressView.Hidden = true;
+                            _progressView.StopAnimating();
                             _retryButton.Hidden = false;
                         });
                     }
@@ -198,58 +200,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
                     break;
             }
-        }
-
-        /// <summary>
-        /// Initializes the NSUrl session.
-        /// </summary>
-        private void InitializeNsUrlSession()
-        {
-            // Initialize session config. Use a background session to enabled out of process uploads/downloads.
-            using (var sessionConfig = UIDevice.CurrentDevice.CheckSystemVersion(8, 0)
-                ? NSUrlSessionConfiguration.CreateBackgroundSessionConfiguration(SessionId)
-                : NSUrlSessionConfiguration.BackgroundSessionConfiguration(SessionId))
-            {
-                // Allow downloads over cellular network
-                sessionConfig.AllowsCellularAccess = true;
-
-                // Give the OS a hint about what we are downloading. This helps iOS to prioritize. For example "Background" is used to download data that was not requested by the user and
-                // should be ready if the app gets activated.
-                sessionConfig.NetworkServiceType = NSUrlRequestNetworkServiceType.Default;
-
-                // Configure how many downloads to allow at the same time. Set to 1 since we only meed to download one file
-                sessionConfig.HttpMaximumConnectionsPerHost = 1;
-
-                // Create a session delegate and the session itself
-                // Initialize the session itself with the configuration and a session delegate.
-                var sessionDelegate = new DownloadDelegate(this);
-                _session = NSUrlSession.FromConfiguration(sessionConfig, (INSUrlSessionDelegate)sessionDelegate, null);
-            }
-        }
-
-        /// <summary>
-        /// Adds the download to the session.
-        /// </summary>
-        /// <param name="downloadUrl">Download URL for the mobile map package.</param>
-        private void EnqueueDownload(string downloadUrl)
-        {
-            // Create a new download task.
-            var downloadTask = _session.CreateDownloadTask(NSUrl.FromString(downloadUrl));
-
-            // Alert user if download fails
-            if (downloadTask == null)
-            {
-                BeginInvokeOnMainThread(() =>
-                {
-                    var okAlertController = UIAlertController.Create("DownloadErrorAlertTitle".Localize(), "DownloadErrorAlertGuidance".Localize(), UIAlertControllerStyle.Alert);
-                    okAlertController.AddAction(UIAlertAction.Create("OkAlertActionButtonText".Localize(), UIAlertActionStyle.Default, null));
-                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(okAlertController, true, null);
-                });
-                return;
-            }
-
-            // Resume / start the download.
-            downloadTask.Resume();
         }
     }
 }
