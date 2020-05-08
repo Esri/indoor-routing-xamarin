@@ -53,3 +53,5 @@
 "LocationSearchHeaderForOriginSearch" = "Select Origin";
 "ChooseHomeLocationTitle" = "Choose Home Location";
 "RouteTimeMinutesLabel" = "minutes";
+"CloseAppAlertText" = "Close App";
+"RetryDownloadAlertText" = "Retry Download";

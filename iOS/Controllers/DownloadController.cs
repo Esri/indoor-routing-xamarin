@@ -64,7 +64,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             // Create the views.
             View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
-            _progressView = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Gray) { TranslatesAutoresizingMaskIntoConstraints = false };
+            _progressView = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Large) { TranslatesAutoresizingMaskIntoConstraints = false };
             _progressView.HidesWhenStopped = true;
             _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _statusLabel = new UILabel
