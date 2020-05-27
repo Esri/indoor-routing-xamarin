@@ -95,13 +95,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             base.ViewDidAppear(animated);
 
-            // Bottom sheet and attribution setup have to happen after initial view configuration
-            if (_bottomSheet == null)
-            {
-                ConfigureBottomSheet();
-                ConfigureAttribution();
-            }
-
             SetAttributionForCurrentState();
         }
 
@@ -192,6 +185,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 _topBlur.TopAnchor.ConstraintEqualTo(View.TopAnchor),
                 _topBlur.BottomAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
             });
+
+            ConfigureBottomSheet();
         }
 
         /// <summary>
@@ -232,9 +227,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         /// </summary>
         private void ConfigureBottomSheet()
         {
-            _bottomSheet = new BottomSheetViewController(View);
+            _bottomSheet = new BottomSheetViewController();
 
             AddChildViewController(_bottomSheet);
+
+            View.AddSubview(_bottomSheet.View);
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                _bottomSheet.View.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                _bottomSheet.View.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                _bottomSheet.View.TopAnchor.ConstraintEqualTo(View.TopAnchor),
+                _bottomSheet.View.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
+            });
 
             _bottomSheet.DidMoveToParentViewController(this);
 
@@ -305,6 +310,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         /// </summary>
         private void ConfigureAttribution()
         {
+            if (_bottomSheet?.PanelTopAnchor == null)
+            {
+                return;
+            }
+
             // Stack view arranges the esri icon and the info button
             _attributionStack = new UIStackView
             {
@@ -354,6 +364,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         /// </summary>
         private void SetAttributionForCurrentState()
         {
+            if (_attributionStack == null)
+            {
+                // Bottom sheet and attribution setup have to happen after initial view configuration
+                ConfigureAttribution();
+            }
             if (_shadowedAttribution == null)
             {
                 return;

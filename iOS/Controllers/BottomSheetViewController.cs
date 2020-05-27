@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CoreGraphics;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using UIKit;
@@ -29,26 +30,20 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         // Tracks the current state of the bottom sheet
         private BottomSheetState _currentState = BottomSheetState.Partial;
 
-        // The view that contains the bottom sheet, needed for constraints.
-        private readonly UIView _containerView;
-
         // Handlebar is the pill-shaped view that indicates the view is draggable.
-        private readonly UIView _handlebar;
-        private readonly UIView _handlebarSeparator;
+        private UIView _handlebar;
+        private UIView _handlebarSeparator;
 
         // Constraints are stored so that they can be disabled, enabled, and modified as needed.
-        private readonly NSLayoutConstraint[] _regularWidthConstraints;
-        private readonly NSLayoutConstraint[] _compactWidthConstraints;
-        private readonly NSLayoutConstraint _heightConstraint;
+        private NSLayoutConstraint[] _regularWidthConstraints;
+        private NSLayoutConstraint[] _compactWidthConstraints;
+        private NSLayoutConstraint _heightConstraint;
 
-        /// <summary>
-        /// Creates the view controller. This can only be called with a valid view
-        /// </summary>
-        /// <param name="container"></param>
-        public BottomSheetViewController(UIView container)
+        public override void LoadView()
         {
-            // container view is needed because for constraints to work, view must be in same hierarchy
-            _containerView = container;
+            // Special view ignores touches, except for on subviews
+            View = new TouchTransparentView { TranslatesAutoresizingMaskIntoConstraints = false };
+
             var gesture = new UIPanGestureRecognizer(HandleMoveView);
 
             var blurView = new UIVisualEffectView(ApplicationTheme.PanelBackgroundMaterial)
@@ -59,9 +54,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             // Defined in Helpers/ViewExtensions
             var blurShadowContainerView = blurView.EncapsulateInShadowView();
-
-            View = blurShadowContainerView;
-            _containerView.AddSubview(View);
+            View.AddSubview(blurShadowContainerView);
 
             DisplayedContentView.BackgroundColor = UIColor.Clear;
             DisplayedContentView.ClipsToBounds = true;
@@ -99,16 +92,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 DisplayedContentView.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
                 DisplayedContentView.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor),
-                blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor)
+                blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
             });
 
             var regularWidthConstraints = new List<NSLayoutConstraint>()
             {
-                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
+                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
                 blurShadowContainerView.WidthAnchor.ConstraintEqualTo(320),
-                blurShadowContainerView.TopAnchor.ConstraintEqualTo(_containerView.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
+                blurShadowContainerView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
                 blurShadowContainerView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurShadowContainerView.TopAnchor, MinimumHeight - (2 * ApplicationTheme.Margin)),
-                blurShadowContainerView.BottomAnchor.ConstraintLessThanOrEqualTo(_containerView.SafeAreaLayoutGuide.BottomAnchor),
+                blurShadowContainerView.BottomAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.BottomAnchor),
 
                 DisplayedContentView.TopAnchor.ConstraintEqualTo(blurShadowContainerView.TopAnchor),
             };
@@ -128,9 +121,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             var compactWidthConstraints = new List<NSLayoutConstraint>
             {
-                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(_containerView.LeadingAnchor),
-                blurShadowContainerView.TrailingAnchor.ConstraintEqualTo(_containerView.TrailingAnchor),
-                blurShadowContainerView.BottomAnchor.ConstraintEqualTo(_containerView.BottomAnchor, ApplicationTheme.Margin),
+                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                blurShadowContainerView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                blurShadowContainerView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, ApplicationTheme.Margin),
                 DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurShadowContainerView.BottomAnchor)
             };
 
@@ -147,7 +140,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             _compactWidthConstraints = compactWidthConstraints.ToArray();
 
-            _heightConstraint = View.HeightAnchor.ConstraintEqualTo(DefaultPartialHeight);
+            _heightConstraint = blurShadowContainerView.HeightAnchor.ConstraintEqualTo(DefaultPartialHeight);
             _heightConstraint.Active = true;
 
             PanelTopAnchor = blurShadowContainerView.TopAnchor;
@@ -176,7 +169,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         /// <summary>
         /// Anchor to use for constraining views (e.g. attribution) to the top of this panel when in compact width (bottom sheet) mode.
         /// </summary>
-        public NSLayoutYAxisAnchor PanelTopAnchor { get; }
+        public NSLayoutYAxisAnchor PanelTopAnchor { get; private set; }
 
         /// <summary>
         /// Defines the height to use when in the partial state and the height of the content can't be determined.
@@ -210,10 +203,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 switch (TraitCollection.HorizontalSizeClass)
                 {
                     case UIUserInterfaceSizeClass.Compact:
-                        return _containerView.Frame.Height + ApplicationTheme.Margin - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
+                        return View.Frame.Height + ApplicationTheme.Margin - View.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
                     case UIUserInterfaceSizeClass.Regular:
                     default:
-                        return _containerView.Frame.Height - _containerView.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - _containerView.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
+                        return View.Frame.Height - View.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - View.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
                 }
             }
         }
@@ -233,6 +226,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         public void SetState(BottomSheetState state)
         {
             _currentState = state;
+            if (_heightConstraint == null)
+            {
+                return;
+            }
             switch (state)
             {
                 case BottomSheetState.Partial:
@@ -424,6 +421,26 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
 
             return baseHeight;
+        }
+    }
+
+    /// <summary>
+    /// View with special behavior that ignores touches on transparent children and itself.
+    /// </summary>
+    class TouchTransparentView : UIView
+    {
+        public UIView TargetView { get; set; }
+
+        public override bool PointInside(CGPoint point, UIEvent pointEvent)
+        {
+            foreach (var subview in this.Subviews)
+            {
+                if (!subview.Hidden && subview.Alpha > 0 && subview.UserInteractionEnabled && subview.Frame.Contains(point))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
