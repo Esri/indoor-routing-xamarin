@@ -109,6 +109,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
         public override void ViewWillAppear(bool animated)
         {
+            base.ViewWillAppear(animated);
+
             // Skip if already initialized
             if (_initialized)
             {
