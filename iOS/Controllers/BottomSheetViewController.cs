@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CoreGraphics;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using UIKit;
@@ -34,119 +33,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         private UIView _handlebar;
         private UIView _handlebarSeparator;
 
+        private UIVisualEffectView _blurView;
+        private UIPanGestureRecognizer _gesture;
+
         // Constraints are stored so that they can be disabled, enabled, and modified as needed.
         private NSLayoutConstraint[] _regularWidthConstraints;
         private NSLayoutConstraint[] _compactWidthConstraints;
         private NSLayoutConstraint _heightConstraint;
 
-        public override void LoadView()
-        {
-            // Special view ignores touches, except for on subviews
-            View = new TouchTransparentView { TranslatesAutoresizingMaskIntoConstraints = false };
-
-            var gesture = new UIPanGestureRecognizer(HandleMoveView);
-
-            var blurView = new UIVisualEffectView(ApplicationTheme.PanelBackgroundMaterial)
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
-                ClipsToBounds = true
-            };
-
-            // Defined in Helpers/ViewExtensions
-            var blurShadowContainerView = blurView.EncapsulateInShadowView();
-            View.AddSubview(blurShadowContainerView);
-
-            DisplayedContentView.BackgroundColor = UIColor.Clear;
-            DisplayedContentView.ClipsToBounds = true;
-
-            blurView.ContentView.AddSubview(DisplayedContentView);
-
-            if (AllowsManualResize)
-            {
-                _handlebar = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
-                _handlebar.Layer.CornerRadius = ApplicationTheme.HandlebarCornerRadius;
-                _handlebar.BackgroundColor = ApplicationTheme.SeparatorColor;
-                blurView.ContentView.AddSubview(_handlebar);
-
-                _handlebarSeparator = new UIView
-                {
-                    TranslatesAutoresizingMaskIntoConstraints = false,
-                    BackgroundColor = ApplicationTheme.SeparatorColor
-                };
-                blurView.ContentView.AddSubview(_handlebarSeparator);
-
-                NSLayoutConstraint.ActivateConstraints(new[]
-                {
-                    _handlebar.CenterXAnchor.ConstraintEqualTo(blurView.CenterXAnchor),
-                    _handlebar.HeightAnchor.ConstraintEqualTo(ApplicationTheme.HandlebarThickness),
-                    _handlebar.WidthAnchor.ConstraintEqualTo(ApplicationTheme.HandlebarLength),
-                    _handlebarSeparator.HeightAnchor.ConstraintEqualTo(0.5f),
-                    _handlebarSeparator.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
-                    _handlebarSeparator.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor)
-                });
-
-                blurView.AddGestureRecognizer(gesture);
-            }
-
-            NSLayoutConstraint.ActivateConstraints(new[]
-            {
-                DisplayedContentView.LeadingAnchor.ConstraintEqualTo(blurView.LeadingAnchor),
-                DisplayedContentView.TrailingAnchor.ConstraintEqualTo(blurView.TrailingAnchor),
-                blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(View.SafeAreaLayoutGuide.TopAnchor)
-            });
-
-            var regularWidthConstraints = new List<NSLayoutConstraint>()
-            {
-                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
-                blurShadowContainerView.WidthAnchor.ConstraintEqualTo(320),
-                blurShadowContainerView.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
-                blurShadowContainerView.BottomAnchor.ConstraintGreaterThanOrEqualTo(blurShadowContainerView.TopAnchor, MinimumHeight - (2 * ApplicationTheme.Margin)),
-                blurShadowContainerView.BottomAnchor.ConstraintLessThanOrEqualTo(View.SafeAreaLayoutGuide.BottomAnchor),
-
-                DisplayedContentView.TopAnchor.ConstraintEqualTo(blurShadowContainerView.TopAnchor),
-            };
-
-            if (AllowsManualResize)
-            {
-                regularWidthConstraints.Add(_handlebar.BottomAnchor.ConstraintEqualTo(blurShadowContainerView.BottomAnchor, -(0.5f * ApplicationTheme.Margin)));
-                regularWidthConstraints.Add(DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebarSeparator.TopAnchor, -ApplicationTheme.Margin));
-                regularWidthConstraints.Add(_handlebarSeparator.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -(0.5f * ApplicationTheme.Margin)));
-            }
-            else
-            {
-                regularWidthConstraints.Add(DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurShadowContainerView.BottomAnchor));
-            }
-
-            _regularWidthConstraints = regularWidthConstraints.ToArray();
-
-            var compactWidthConstraints = new List<NSLayoutConstraint>
-            {
-                blurShadowContainerView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                blurShadowContainerView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
-                blurShadowContainerView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, ApplicationTheme.Margin),
-                DisplayedContentView.BottomAnchor.ConstraintEqualTo(blurShadowContainerView.BottomAnchor)
-            };
-
-            if (AllowsManualResize)
-            {
-                compactWidthConstraints.Add(_handlebarSeparator.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor, (0.5f * ApplicationTheme.Margin)));
-                compactWidthConstraints.Add(_handlebar.TopAnchor.ConstraintEqualTo(blurShadowContainerView.TopAnchor, ApplicationTheme.Margin));
-                compactWidthConstraints.Add(DisplayedContentView.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor));
-            }
-            else
-            {
-                compactWidthConstraints.Add(DisplayedContentView.TopAnchor.ConstraintEqualTo(blurShadowContainerView.TopAnchor));
-            }
-
-            _compactWidthConstraints = compactWidthConstraints.ToArray();
-
-            _heightConstraint = blurShadowContainerView.HeightAnchor.ConstraintEqualTo(DefaultPartialHeight);
-            _heightConstraint.Active = true;
-
-            PanelTopAnchor = blurShadowContainerView.TopAnchor;
-
-            UpdateInterfaceForCurrentTraits();
-        }
+        // Flag to track whether constraints have been set up.
+        private bool _initialized;
 
         /// <summary>
         /// Enumeration of possible layout states
@@ -203,14 +99,133 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 switch (TraitCollection.HorizontalSizeClass)
                 {
                     case UIUserInterfaceSizeClass.Compact:
-                        return View.Frame.Height + ApplicationTheme.Margin - View.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
+                        return View.Superview.Frame.Height + ApplicationTheme.Margin - View.Superview.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin);
                     case UIUserInterfaceSizeClass.Regular:
                     default:
-                        return View.Frame.Height - View.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - View.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
+                        return View.Superview.Frame.Height - View.Superview.SafeAreaInsets.Top - (2 * ApplicationTheme.Margin) - View.Superview.SafeAreaInsets.Bottom - (2 * ApplicationTheme.Margin);
                 }
             }
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            // Skip if already initialized
+            if (_initialized)
+            {
+                return;
+            }
+
+            if (AllowsManualResize)
+            {
+                _handlebar = new UIView { TranslatesAutoresizingMaskIntoConstraints = false };
+                _handlebar.Layer.CornerRadius = ApplicationTheme.HandlebarCornerRadius;
+                _handlebar.BackgroundColor = ApplicationTheme.SeparatorColor;
+                _blurView.ContentView.AddSubview(_handlebar);
+
+                _handlebarSeparator = new UIView
+                {
+                    TranslatesAutoresizingMaskIntoConstraints = false,
+                    BackgroundColor = ApplicationTheme.SeparatorColor
+                };
+                _blurView.ContentView.AddSubview(_handlebarSeparator);
+
+                NSLayoutConstraint.ActivateConstraints(new[]
+                {
+                    _handlebar.CenterXAnchor.ConstraintEqualTo(_blurView.CenterXAnchor),
+                    _handlebar.HeightAnchor.ConstraintEqualTo(ApplicationTheme.HandlebarThickness),
+                    _handlebar.WidthAnchor.ConstraintEqualTo(ApplicationTheme.HandlebarLength),
+                    _handlebarSeparator.HeightAnchor.ConstraintEqualTo(0.5f),
+                    _handlebarSeparator.LeadingAnchor.ConstraintEqualTo(_blurView.LeadingAnchor),
+                    _handlebarSeparator.TrailingAnchor.ConstraintEqualTo(_blurView.TrailingAnchor)
+                });
+
+                _blurView.AddGestureRecognizer(_gesture);
+            }
+
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                DisplayedContentView.LeadingAnchor.ConstraintEqualTo(_blurView.LeadingAnchor),
+                DisplayedContentView.TrailingAnchor.ConstraintEqualTo(_blurView.TrailingAnchor),
+                _blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(View.Superview.SafeAreaLayoutGuide.TopAnchor)
+            });
+
+            var regularWidthConstraints = new List<NSLayoutConstraint>()
+            {
+                View.LeadingAnchor.ConstraintEqualTo(View.Superview.SafeAreaLayoutGuide.LeadingAnchor, ApplicationTheme.Margin),
+                View.WidthAnchor.ConstraintEqualTo(320),
+                View.TopAnchor.ConstraintEqualTo(View.Superview.SafeAreaLayoutGuide.TopAnchor, ApplicationTheme.Margin),
+                View.BottomAnchor.ConstraintGreaterThanOrEqualTo(View.TopAnchor, MinimumHeight - (2 * ApplicationTheme.Margin)),
+                View.BottomAnchor.ConstraintLessThanOrEqualTo(View.Superview.SafeAreaLayoutGuide.BottomAnchor),
+
+                DisplayedContentView.TopAnchor.ConstraintEqualTo(View.TopAnchor),
+            };
+
+            if (AllowsManualResize)
+            {
+                regularWidthConstraints.Add(_handlebar.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -(0.5f * ApplicationTheme.Margin)));
+                regularWidthConstraints.Add(DisplayedContentView.BottomAnchor.ConstraintEqualTo(_handlebarSeparator.TopAnchor, -ApplicationTheme.Margin));
+                regularWidthConstraints.Add(_handlebarSeparator.BottomAnchor.ConstraintEqualTo(_handlebar.TopAnchor, -(0.5f * ApplicationTheme.Margin)));
+            }
+            else
+            {
+                regularWidthConstraints.Add(DisplayedContentView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor));
+            }
+
+            _regularWidthConstraints = regularWidthConstraints.ToArray();
+
+            var compactWidthConstraints = new List<NSLayoutConstraint>
+            {
+                View.LeadingAnchor.ConstraintEqualTo(View.Superview.LeadingAnchor),
+                View.TrailingAnchor.ConstraintEqualTo(View.Superview.TrailingAnchor),
+                View.BottomAnchor.ConstraintEqualTo(View.Superview.BottomAnchor, ApplicationTheme.Margin),
+                DisplayedContentView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
+            };
+
+            if (AllowsManualResize)
+            {
+                compactWidthConstraints.Add(_handlebarSeparator.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor, (0.5f * ApplicationTheme.Margin)));
+                compactWidthConstraints.Add(_handlebar.TopAnchor.ConstraintEqualTo(View.TopAnchor, ApplicationTheme.Margin));
+                compactWidthConstraints.Add(DisplayedContentView.TopAnchor.ConstraintEqualTo(_handlebar.BottomAnchor));
+            }
+            else
+            {
+                compactWidthConstraints.Add(DisplayedContentView.TopAnchor.ConstraintEqualTo(View.TopAnchor));
+            }
+
+            _compactWidthConstraints = compactWidthConstraints.ToArray();
+
+            _heightConstraint = View.HeightAnchor.ConstraintEqualTo(DefaultPartialHeight);
+            _heightConstraint.Active = true;
+
+            UpdateInterfaceForCurrentTraits();
+
+            _initialized = true;
+        }
+
+        public override void LoadView()
+        {
+            _gesture = new UIPanGestureRecognizer(HandleMoveView);
+
+            _blurView = new UIVisualEffectView(ApplicationTheme.PanelBackgroundMaterial)
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                ClipsToBounds = true
+            };
+
+            // Defined in Helpers/ViewExtensions
+            var blurShadowContainerView = _blurView.EncapsulateInShadowView();
+            View = blurShadowContainerView;
+
+            DisplayedContentView.BackgroundColor = UIColor.Clear;
+            DisplayedContentView.ClipsToBounds = true;
+
+            _blurView.ContentView.AddSubview(DisplayedContentView);
+
+            // Note: most constraint setup happens in ViewWillAppear, because
+            // positioning needs to be relative to SuperView, which is only available after LoadView completes
+
+            PanelTopAnchor = blurShadowContainerView.TopAnchor;
+        }
 
         public override void TraitCollectionDidChange(UITraitCollection previousTraitCollection)
         {
@@ -421,26 +436,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
 
             return baseHeight;
-        }
-    }
-
-    /// <summary>
-    /// View with special behavior that ignores touches on transparent children and itself.
-    /// </summary>
-    class TouchTransparentView : UIView
-    {
-        public UIView TargetView { get; set; }
-
-        public override bool PointInside(CGPoint point, UIEvent pointEvent)
-        {
-            foreach (var subview in this.Subviews)
-            {
-                if (!subview.Hidden && subview.Alpha > 0 && subview.UserInteractionEnabled && subview.Frame.Contains(point))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

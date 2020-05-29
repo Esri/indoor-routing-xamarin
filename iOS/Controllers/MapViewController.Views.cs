@@ -233,14 +233,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             View.AddSubview(_bottomSheet.View);
 
-            NSLayoutConstraint.ActivateConstraints(new[]
-            {
-                _bottomSheet.View.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
-                _bottomSheet.View.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
-                _bottomSheet.View.TopAnchor.ConstraintEqualTo(View.TopAnchor),
-                _bottomSheet.View.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
-            });
-
             _bottomSheet.DidMoveToParentViewController(this);
 
             _locationCard = new LocationInfoCard(_viewModel)
