@@ -392,9 +392,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 CurrentState = UiState.LocationFound;
             }
-            else
+            else if (CurrentRoom == null && AppSettings.CurrentSettings.ShowLocationNotFoundCard)
             {
                 CurrentState = UiState.LocationNotFound;
+            }
+            else
+            {
+                CurrentState = UiState.ReadyWaiting;
             }
         }
 
@@ -625,7 +629,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             CurrentRoom = Room.ConstructFromIdentifyResult(result);
 
             // Set state based on whether the room was found
-            CurrentState = CurrentRoom != null ? UiState.LocationFound : UiState.LocationNotFound;
+            if (CurrentRoom != null)
+            {
+                CurrentState = UiState.LocationFound;
+            }
+            else if (CurrentRoom == null && AppSettings.CurrentSettings.ShowLocationNotFoundCard)
+            {
+                CurrentState = UiState.LocationNotFound;
+            }
+            else
+            {
+                CurrentState = UiState.ReadyWaiting;
+            }
         }
 
         /// <summary>
@@ -678,7 +693,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 
         /// <summary>
         /// Selects/identifies the geocode result for the search text and transitions to the <see cref="UiState.LocationFound"/> state,
-        /// or transitions to the <see cref="UiState.LocationNotFound"/> state if nothing is found.
+        /// or transitions to the <see cref="UiState.LocationNotFound"/> or <see cref="UiState.ReadyWaiting"/> state if nothing is found.
         /// </summary>
         /// <param name="searchText">Search text entered by user.</param>
         public async Task SearchFeatureAsync(string searchText)
@@ -703,11 +718,22 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     CurrentRoom = Room.ConstructFromFeature(roomFeature);
 
                     // Set the UI state to location found or location not found
-                    CurrentState = roomFeature != null ? UiState.LocationFound : UiState.LocationNotFound;
+                    if (roomFeature != null)
+                    {
+                        CurrentState = UiState.LocationFound;
+                    }
+                    else if (roomFeature == null && AppSettings.CurrentSettings.ShowLocationNotFoundCard)
+                    {
+                        CurrentState = UiState.LocationNotFound;
+                    }
+                    else
+                    {
+                        CurrentState = UiState.ReadyWaiting;
+                    }
                 }
                 else
                 {
-                    CurrentState = UiState.LocationNotFound;
+                    CurrentState = AppSettings.CurrentSettings.ShowLocationNotFoundCard ? UiState.LocationNotFound : UiState.ReadyWaiting;
                 }
             }
         }

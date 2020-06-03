@@ -47,6 +47,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         private double _roomsLayerMinimumZoomLevel;
         private SerializableKeyValuePair<string, double>[] _initialViewpointCoordinates;
         private SerializableKeyValuePair<string, double>[] _homeCoordinates;
+        private bool _showLocationNotFoundCard = false;
 
         /// <summary>
         /// Gets or sets the current settings.
@@ -398,6 +399,24 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                 {
                     _useOnlineBasemap = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UseOnlineBasemap)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to show a 'location not found' card when location isn't found.
+        /// View transitions to default state automatically if this is false.
+        /// </summary>
+        [XmlElement]
+        public bool ShowLocationNotFoundCard
+        {
+            get => _showLocationNotFoundCard;
+            set
+            {
+                if (_showLocationNotFoundCard != value)
+                {
+                    _showLocationNotFoundCard = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowLocationNotFoundCard)));
                 }
             }
         }
