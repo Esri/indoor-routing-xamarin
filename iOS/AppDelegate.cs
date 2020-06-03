@@ -95,10 +95,5 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
                 }
             });
         }
-
-        /// <summary>
-        /// Call this when the transfer of all files is done.
-        /// </summary>
-        public static Action BackgroundSessionCompletionHandler;
     }
 }
