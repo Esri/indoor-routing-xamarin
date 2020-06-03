@@ -156,7 +156,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                         if (room.IsHome)
                         {
                             _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                            TrySetViewpoint(room.CenterPoint, 150);
+                            if (!GeometryEngine.Contains(_mapView.VisibleArea, room.CenterPoint))
+                            {
+                                TrySetViewpoint(room.CenterPoint, 150);
+                            }
                         }
                         // If the room is standing in for the user's current location, re-enable location display automatic panning
                         else if (_viewModel.CurrentRoom.IsCurrentLocation)
@@ -168,7 +171,10 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                         else
                         {
                             _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
-                            TrySetViewpoint(room.Geometry, 30);
+                            if (!GeometryEngine.Contains(_mapView.VisibleArea, room.Geometry))
+                            {
+                                TrySetViewpoint(room.Geometry, 30);
+                            }
                         }
                     }
                     // need to explicitly request re-layout because identified room can change without UI state changing
