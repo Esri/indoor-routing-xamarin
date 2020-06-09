@@ -67,6 +67,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 _primaryLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 _primaryLabel.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
                 _primaryLabel.TrailingAnchor.ConstraintEqualTo(closeButton.LeadingAnchor, -ApplicationTheme.Margin),
+                _primaryLabel.HeightAnchor.ConstraintEqualTo(40),
                 // secondary label
                 _secondaryLabel.LeadingAnchor.ConstraintEqualTo(_primaryLabel.LeadingAnchor),
                 _secondaryLabel.TrailingAnchor.ConstraintEqualTo(_primaryLabel.TrailingAnchor),
@@ -79,8 +80,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 // directions button
                 _startDirectionsButton.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 _startDirectionsButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
-                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(_secondaryLabel.BottomAnchor, ApplicationTheme.Margin),
-                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(closeButton.BottomAnchor, ApplicationTheme.Margin),
+                _startDirectionsButton.TopAnchor.ConstraintEqualTo(_secondaryLabel.BottomAnchor, ApplicationTheme.Margin),
                 _startDirectionsButton.HeightAnchor.ConstraintEqualTo(44),
                 // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(_startDirectionsButton.BottomAnchor, ApplicationTheme.Margin)
