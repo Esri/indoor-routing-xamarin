@@ -70,7 +70,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 routeSearchHeader.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 routeSearchHeader.TrailingAnchor.ConstraintEqualTo(cancelRouteSearchButton.LeadingAnchor, -ApplicationTheme.Margin),
                 // close button
-                cancelRouteSearchButton.CenterYAnchor.ConstraintEqualTo(routeSearchHeader.CenterYAnchor),
+                cancelRouteSearchButton.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
                 cancelRouteSearchButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 cancelRouteSearchButton.HeightAnchor.ConstraintEqualTo(32),
                 cancelRouteSearchButton.WidthAnchor.ConstraintEqualTo(32),
@@ -83,21 +83,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 // search bars
                 _startTextPlaceholder.LeadingAnchor.ConstraintEqualTo(searchStartLabel.TrailingAnchor, ApplicationTheme.Margin),
                 _startTextPlaceholder.TopAnchor.ConstraintEqualTo(routeSearchHeader.BottomAnchor, ApplicationTheme.Margin),
-                _startTextPlaceholder.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                _startTextPlaceholder.TrailingAnchor.ConstraintEqualTo(swapOriginDestinationButton.LeadingAnchor, -ApplicationTheme.Margin),
                 _startTextPlaceholder.HeightAnchor.ConstraintEqualTo(44),
                 _endTextPlaceholder.LeadingAnchor.ConstraintEqualTo(_startTextPlaceholder.LeadingAnchor),
                 _endTextPlaceholder.TrailingAnchor.ConstraintEqualTo(_startTextPlaceholder.TrailingAnchor),
                 _endTextPlaceholder.TopAnchor.ConstraintEqualTo(_startTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
                 _endTextPlaceholder.HeightAnchor.ConstraintEqualTo(44),
+                // swap origin and destinations button
+                swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(32),
+                swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(32),
+                swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
+                swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(_endTextPlaceholder.CenterYAnchor),
                 // search button
-                searchRouteButton.TrailingAnchor.ConstraintEqualTo(swapOriginDestinationButton.LeadingAnchor),
+                searchRouteButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 searchRouteButton.TopAnchor.ConstraintEqualTo(_endTextPlaceholder.BottomAnchor, ApplicationTheme.Margin),
                 searchRouteButton.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
-                // swap origin and destinations button
-                swapOriginDestinationButton.HeightAnchor.ConstraintEqualTo(44),
-                swapOriginDestinationButton.WidthAnchor.ConstraintEqualTo(44),
-                swapOriginDestinationButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
-                swapOriginDestinationButton.CenterYAnchor.ConstraintEqualTo(searchRouteButton.CenterYAnchor),
                 // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(searchRouteButton.BottomAnchor, ApplicationTheme.Margin)
             });
