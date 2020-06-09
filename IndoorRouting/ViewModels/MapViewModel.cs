@@ -334,8 +334,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
             {
                 if (Locator.LocatorInfo.SupportsSuggestions)
                 {
-                    // restrict the search to return no more than 10 suggestions
-                    var suggestParams = new SuggestParameters { MaxResults = 10 };
+                    // restrict the search to return no more than 15 suggestions
+                    var suggestParams = new SuggestParameters { MaxResults = 15 };
 
                     // get suggestions for the text provided by the user
                     return await Locator.SuggestAsync(userInput, suggestParams);
