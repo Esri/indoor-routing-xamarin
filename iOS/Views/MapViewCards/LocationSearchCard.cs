@@ -50,6 +50,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 BackgroundColor = UIColor.Clear,
                 SeparatorColor = UIColor.SystemGrayColor,
                 Source = _suggestionSource,
+                RowHeight = UITableView.AutomaticDimension,
+                EstimatedRowHeight = 50
             };
 
             _searchBar = new UISearchBar

@@ -38,6 +38,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
             // Whenever the data changes, the intrinsic content size needs to be recalculated
             InvalidateIntrinsicContentSize();
             LayoutIfNeeded();
+            InvalidateIntrinsicContentSize();
         }
 
         public override CGSize IntrinsicContentSize => ContentSize;
