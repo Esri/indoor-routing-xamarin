@@ -467,7 +467,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     MmpkDownloadDate = new DateTime(1900, 1, 1),
                     HomeLocation = string.Empty,
                     IsLocationServicesEnabled = false,
-                    IsRoutingEnabled = false,
+                    IsRoutingEnabled = true,
                     IsPreferElevatorsEnabled = false,
                     InitialViewpointCoordinates = new[]
                     {

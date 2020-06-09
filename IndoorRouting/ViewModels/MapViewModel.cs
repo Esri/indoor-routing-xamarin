@@ -496,8 +496,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         public void CloseRouteResult()
         {
+            // Reset search fields
             CurrentRoute = null;
-            CurrentState = UiState.PlanningRoute;
+            CurrentRoom = null;
+            
+            OriginSearchText = null;
+            DestinationSearchText = null;
+            FeatureSearchText = null;
+
+            CurrentState = UiState.ReadyWaiting;
         }
 
         /// <summary>
