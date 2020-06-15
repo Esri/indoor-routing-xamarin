@@ -20,8 +20,8 @@
 "OriginSearchBarPlaceholder" = "Origin";
 "DestinationSearchBarPlaceholder" = "Destination";
 "SearchForRouteButtonText" = "Find Route";
-"OriginRouteSearchFieldLabel" = "From:";
-"DestinationRouteSearchFieldLabel" = "To:";
+"OriginRouteSearchFieldLabel" = "Start:";
+"DestinationRouteSearchFieldLabel" = "End:";
 "LocationSearchBarPlaceholder" = "Search for a room or person";
 "HomeLocationSettingLabel" = "Home Location";
 "UseLocationServicesSettingLabel" = "Use Location Services";
