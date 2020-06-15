@@ -35,6 +35,9 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         // Special suggestions corresponding to home location, current device location
         private readonly List<string> _specialSettings = new List<string>();
 
+        // Images corresponding to home location, current device location
+        private readonly List<UIImage> _specialSettingsImages = new List<UIImage>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models.AutosuggestionsTableSource"/> class.
         /// </summary>
@@ -106,15 +109,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
         private void ResetSpecialSettings()
         {
             _specialSettings.Clear();
+            _specialSettingsImages.Clear();
 
             if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
             {
                 _specialSettings.Add(AppSettings.LocalizedCurrentLocationString);
+                _specialSettingsImages.Add(UIImage.FromBundle("gps-on"));
             }
 
             if (!string.IsNullOrWhiteSpace(AppSettings.CurrentSettings.HomeLocation))
             {
                 _specialSettings.Add(AppSettings.CurrentSettings.HomeLocation);
+                _specialSettingsImages.Add(UIImage.FromBundle("home"));
             }
         }
 
@@ -138,11 +144,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 if (_specialSettings.Any() && indexPath.Section == 0 && ShouldShowSpecialItems && !_items.Any())
                 {
                     cell.TextLabel.Text = _specialSettings[indexPath.Row];
+                    cell.ImageView.Image = _specialSettingsImages[indexPath.Row];
                 }
                 else
                 {
                     var item = _items.ElementAt(indexPath.Row);
                     cell.TextLabel.Text = item.Label;
+                    cell.ImageView.Image = null;
                 }
 
                 return cell;
