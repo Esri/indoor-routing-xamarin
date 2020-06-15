@@ -165,6 +165,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                                 await dataStream.CopyToAsync(fileStream);
                             }
                         }
+                        AppSettings.CurrentSettings.MmpkDownloadDate = DateTime.Now;
+                        AppSettings.SaveSettings(Path.Combine(GetDataFolder(), "AppSettings.xml"));
                         IsDownloading = false;
                         IsReady = true;
                     }
