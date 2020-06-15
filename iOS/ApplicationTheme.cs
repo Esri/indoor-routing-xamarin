@@ -40,6 +40,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         // Accessory button is a light/dark responsive color defined in the asset catalog
         public static UIColor AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
         public static nint ActionButtonHeight = 44;
-        public static UIFont HeaderFont = UIFont.BoldSystemFontOfSize(28);
+        public static UIFont HeaderFont = UIFont.PreferredTitle1;
     }
 }

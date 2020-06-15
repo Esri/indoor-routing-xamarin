@@ -29,6 +29,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
         private readonly ActionButton _startDirectionsButton;
         private readonly UILabel _primaryLabel;
         private readonly UILabel _secondaryLabel;
+        private readonly NSLayoutConstraint _directionsButtonToSecondaryLabelTopConstraint;
+        private readonly NSLayoutConstraint _directionsButtonToPrimaryLabelTopConstraint;
 
         public LocationInfoCard(MapViewModel viewModel)
         {
@@ -50,16 +52,28 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 TextColor = UIColor.LabelColor,
-                Font = ApplicationTheme.HeaderFont
+                Font = ApplicationTheme.HeaderFont,
+                ClipsToBounds = false
             };
 
             _secondaryLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.LabelColor
+                TextColor = UIColor.SecondaryLabelColor,
+                Font = UIFont.PreferredTitle3,
+                BaselineAdjustment = UIBaselineAdjustment.AlignCenters,
+                ClipsToBounds = false
             };
+            _primaryLabel.Layer.MasksToBounds = false;
+            _secondaryLabel.Layer.MasksToBounds = false;
 
-            AddSubviews(_startDirectionsButton, closeButton, _primaryLabel, _secondaryLabel);
+            _secondaryLabel.SetContentCompressionResistancePriority((float)UILayoutPriority.Required, UILayoutConstraintAxis.Vertical);
+            _primaryLabel.SetContentCompressionResistancePriority((float)UILayoutPriority.Required, UILayoutConstraintAxis.Vertical);
+
+            AddSubviews(_primaryLabel, _secondaryLabel, closeButton, _startDirectionsButton);
+
+            _directionsButtonToSecondaryLabelTopConstraint = _startDirectionsButton.TopAnchor.ConstraintEqualTo(_secondaryLabel.BottomAnchor, ApplicationTheme.Margin);
+            _directionsButtonToPrimaryLabelTopConstraint = _startDirectionsButton.TopAnchor.ConstraintEqualTo(_primaryLabel.BottomAnchor, ApplicationTheme.Margin);
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
@@ -67,7 +81,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 _primaryLabel.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 _primaryLabel.TopAnchor.ConstraintEqualTo(TopAnchor, ApplicationTheme.Margin),
                 _primaryLabel.TrailingAnchor.ConstraintEqualTo(closeButton.LeadingAnchor, -ApplicationTheme.Margin),
-                _primaryLabel.HeightAnchor.ConstraintEqualTo(40),
                 // secondary label
                 _secondaryLabel.LeadingAnchor.ConstraintEqualTo(_primaryLabel.LeadingAnchor),
                 _secondaryLabel.TrailingAnchor.ConstraintEqualTo(_primaryLabel.TrailingAnchor),
@@ -80,8 +93,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 // directions button
                 _startDirectionsButton.LeadingAnchor.ConstraintEqualTo(LeadingAnchor, ApplicationTheme.Margin),
                 _startDirectionsButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
-                _startDirectionsButton.TopAnchor.ConstraintEqualTo(_secondaryLabel.BottomAnchor, ApplicationTheme.Margin),
-                _startDirectionsButton.HeightAnchor.ConstraintEqualTo(44),
+                _directionsButtonToPrimaryLabelTopConstraint,
+                _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(closeButton.BottomAnchor, ApplicationTheme.Margin),
                 // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(_startDirectionsButton.BottomAnchor, ApplicationTheme.Margin)
             });
@@ -126,6 +139,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
 
             _primaryLabel.Text = _viewModel.CurrentRoom?.PrimaryDisplayField;
             _secondaryLabel.Text = _viewModel.CurrentRoom?.SecondaryDisplayField;
+
+            if (string.IsNullOrWhiteSpace(_secondaryLabel.Text))
+            {
+                _directionsButtonToSecondaryLabelTopConstraint.Active = false;
+                _directionsButtonToPrimaryLabelTopConstraint.Active = true;
+            }
+            else
+            {
+                _directionsButtonToSecondaryLabelTopConstraint.Active = true;
+                _directionsButtonToPrimaryLabelTopConstraint.Active = false;
+            }
 
             // Since values have changed, UI may now need more space.
             RelayoutRequested?.Invoke(this, EventArgs.Empty);
