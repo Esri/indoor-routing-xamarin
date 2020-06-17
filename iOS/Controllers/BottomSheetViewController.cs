@@ -431,7 +431,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             if (TraitCollection.HorizontalSizeClass == UIUserInterfaceSizeClass.Compact)
             {
                 // Margin from bottom safe area
-                baseHeight += ApplicationTheme.Margin;
+                baseHeight += 3 * ApplicationTheme.Margin;
 
                 // Space taken by bottom area
                 baseHeight += UIApplication.SharedApplication.KeyWindow.SafeAreaInsets.Bottom;

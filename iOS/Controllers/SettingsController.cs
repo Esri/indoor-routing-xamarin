@@ -69,6 +69,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             // Show the navigation bar
             NavigationController.NavigationBarHidden = false;
+            NavigationController.NavigationBar.TintColor = ApplicationTheme.AccessoryButtonColor;
             NavigationItem.SetRightBarButtonItem(_closeButton, false);
 
             // Subscribe to events

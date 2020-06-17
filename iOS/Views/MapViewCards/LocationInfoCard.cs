@@ -51,7 +51,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _primaryLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.LabelColor,
+                TextColor = ApplicationTheme.PrimaryLabelColor,
                 Font = ApplicationTheme.HeaderFont,
                 ClipsToBounds = false
             };
@@ -59,7 +59,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             _secondaryLabel = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TextColor = UIColor.SecondaryLabelColor,
+                TextColor = ApplicationTheme.SecondaryLabelColor,
                 Font = UIFont.PreferredTitle3,
                 BaselineAdjustment = UIBaselineAdjustment.AlignCenters,
                 ClipsToBounds = false
@@ -95,6 +95,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 _startDirectionsButton.TrailingAnchor.ConstraintEqualTo(TrailingAnchor, -ApplicationTheme.Margin),
                 _directionsButtonToPrimaryLabelTopConstraint,
                 _startDirectionsButton.TopAnchor.ConstraintGreaterThanOrEqualTo(closeButton.BottomAnchor, ApplicationTheme.Margin),
+                _startDirectionsButton.HeightAnchor.ConstraintEqualTo(44),
                 // constrains view bottom to bottom of last element
                 BottomAnchor.ConstraintEqualTo(_startDirectionsButton.BottomAnchor, ApplicationTheme.Margin)
             });

@@ -52,7 +52,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
             var travelModeImageView = new UIImageView(UIImage.FromBundle("walking"))
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TintColor = UIColor.LabelColor,
+                TintColor = ApplicationTheme.PrimaryLabelColor,
                 ContentMode = UIViewContentMode.ScaleAspectFit
             };
 

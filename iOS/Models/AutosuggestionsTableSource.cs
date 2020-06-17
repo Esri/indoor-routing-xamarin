@@ -145,6 +145,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
                 {
                     cell.TextLabel.Text = _specialSettings[indexPath.Row];
                     cell.ImageView.Image = _specialSettingsImages[indexPath.Row];
+                    cell.ImageView.TintColor = ApplicationTheme.AccessoryButtonColor;
                 }
                 else
                 {

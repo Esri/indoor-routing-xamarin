@@ -103,6 +103,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             if (NavigationController != null)
             {
                 NavigationController.NavigationBarHidden = false;
+                NavigationController.NavigationBar.TintColor = ApplicationTheme.AccessoryButtonColor;
             }
 
             _homeLocationSearchBar.CancelButtonClicked += ClearHome_Clicked;

@@ -77,6 +77,46 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             SubscribeToEvents();
 
+            // Before iOS 13, the main view disappears, causing the event subscriptions keeping things up to date to be unsubscribed.
+            if (!UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
+            {
+                if (AppSettings.CurrentSettings.UseOnlineBasemap && _mapView?.Map != null)
+                {
+                    _mapView.Map.Basemap = Basemap.CreateLightGrayCanvasVector();
+                }
+                else if (_mapView?.Map != null)
+                {
+                    _mapView.Map.Basemap = null;
+                }
+                if (_homeButton != null)
+                {
+                    _homeButton.Hidden = !AppSettings.CurrentSettings.IsHomeSet;
+                }
+                _mapView.LocationDisplay.LocationChanged -= MapView_LocationChanged;
+                if (_locationButton != null)
+                {
+                    _locationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
+                }
+                if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
+                {
+                    _mapView.LocationDisplay.IsEnabled = true;
+                    _mapView.LocationDisplay.LocationChanged += MapView_LocationChanged;
+                }
+                else
+                {
+                    _mapView.LocationDisplay.IsEnabled = false;
+                }
+                if (_mapView?.Map != null)
+                {
+                    _mapView.Map.MinScale = AppSettings.CurrentSettings.MapViewMinScale;
+                }
+                if (_mapView?.Map != null)
+                {
+                    _mapView.Map.MaxScale = AppSettings.CurrentSettings.MapViewMaxScale;
+                }
+                _accessoryView.ReloadData();
+            }
+
             // Hide the navigation bar on the main screen 
             NavigationController.NavigationBarHidden = true;
         }
@@ -317,13 +357,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 Spacing = ApplicationTheme.Margin
             };
 
-            _attributionImageButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, TintColor = UIColor.SystemBackgroundColor };
+            _attributionImageButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false, TintColor = UIColor.Black };
             _attributionImageButton.SetImage(UIImage.FromBundle("information").ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate), UIControlState.Normal);
 
             _esriIcon = new UIButton
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
-                TintColor = UIColor.SystemBackgroundColor,
+                TintColor = UIColor.Black,
                 AdjustsImageWhenHighlighted = false
             };
             _esriIcon.SetImage(UIImage.FromBundle("esri"), UIControlState.Normal);

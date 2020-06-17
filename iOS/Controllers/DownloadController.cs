@@ -64,7 +64,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             // Create the views.
             View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor, TintColor = ApplicationTheme.ActionBackgroundColor };
 
-            _progressView = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Large) { TranslatesAutoresizingMaskIntoConstraints = false };
+            _progressView = new UIActivityIndicatorView { TranslatesAutoresizingMaskIntoConstraints = false };
             _progressView.HidesWhenStopped = true;
             _retryButton = new UIButton { TranslatesAutoresizingMaskIntoConstraints = false };
             _statusLabel = new UILabel
@@ -73,6 +73,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                 TextAlignment = UITextAlignment.Center,
                 Text = "MapDownloadInProgressStatusLabel".Localize()
             };
+
+            if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
+            {
+                _progressView.ActivityIndicatorViewStyle = UIActivityIndicatorViewStyle.Large;
+            }
+
+            _progressView.Color = ApplicationTheme.AccessoryButtonColor;
 
             // Add subviews
             View.AddSubviews(_progressView, _retryButton, _statusLabel);

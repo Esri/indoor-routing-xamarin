@@ -72,6 +72,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             if (NavigationController != null)
             {
                 NavigationController.NavigationBarHidden = false;
+                NavigationController.NavigationBar.TintColor = ApplicationTheme.AccessoryButtonColor;
                 NavigationItem.SetRightBarButtonItem(_closeButton, false);
             }
 

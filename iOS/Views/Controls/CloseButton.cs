@@ -26,10 +26,21 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls
 
         public CloseButton()
         {
-            BackgroundColor = UIColor.SystemGray4Color;
+            
             Layer.CornerRadius = CircleButtonRadius;
             SetImage(UIImage.FromBundle("x"), UIControlState.Normal);
-            TintColor = UIColor.SystemGrayColor;
+            
+
+            if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
+            {
+                BackgroundColor = UIColor.SystemGray4Color;
+                TintColor = UIColor.SystemGrayColor;
+            }
+            else
+            {
+                BackgroundColor = UIColor.LightGray;
+                TintColor = UIColor.Black;
+            }
         }
 
         public override CGSize IntrinsicContentSize => new CGSize(2 * CircleButtonRadius, 2 * CircleButtonRadius);

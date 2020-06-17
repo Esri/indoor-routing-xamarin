@@ -42,11 +42,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards
                 Text = "NotFoundTitle".Localize()
             };
 
-            var errorTextView = new UITextView
+            var errorTextView = new UILabel
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 TextColor = ApplicationTheme.ForegroundColor,
-                Text = "NotFoundCardMessage".Localize()
+                Text = "NotFoundCardMessage".Localize(),
+                BackgroundColor = UIColor.Clear
             };
 
             var closeButton = new CloseButton
