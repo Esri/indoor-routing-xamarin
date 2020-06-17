@@ -49,7 +49,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 
                     if (_locationSwitch == null)
                     {
-                        _locationSwitch = new UISwitch();
+                        _locationSwitch = new UISwitch { OnTintColor = ApplicationTheme.AccessoryButtonColor };
                         _locationSwitch.ValueChanged += EnableLocationSwitch_Toggled;
                     }
                     locationCell.AccessoryView = _locationSwitch;
@@ -64,7 +64,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 
                     if (_routingSwitch == null)
                     {
-                        _routingSwitch = new UISwitch();
+                        _routingSwitch = new UISwitch { OnTintColor = ApplicationTheme.AccessoryButtonColor };
                         _routingSwitch.ValueChanged += EnableRoutingSwitch_Toggled;
                     }
                     routingCell.AccessoryView = _routingSwitch;
@@ -80,7 +80,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
 
                     if (_useOnlineBasemapSwitch == null)
                     {
-                        _useOnlineBasemapSwitch = new UISwitch();
+                        _useOnlineBasemapSwitch = new UISwitch { OnTintColor = ApplicationTheme.AccessoryButtonColor };
                         _useOnlineBasemapSwitch.ValueChanged += UseOnlineBasemapSwitch_Toggled;
                     }
                     useOnlineBasemapCell.AccessoryView = _useOnlineBasemapSwitch;
