@@ -593,11 +593,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         {
             switch (e)
             {
-                case UI.LocationDisplayAutoPanMode.Recenter:
-                    _locationButton.SetImage(UIImage.FromBundle("gps-on-f"), UIControlState.Normal);
+                case LocationDisplayAutoPanMode.Recenter:
+                    InvokeOnMainThread(() => _locationButton.SetImage(UIImage.FromBundle("gps-on-f"), UIControlState.Normal));
                     break;
-                case UI.LocationDisplayAutoPanMode.Off:
-                    _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
+                case LocationDisplayAutoPanMode.Off:
+                    InvokeOnMainThread(() => _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal));
                     break;
             }
         }
