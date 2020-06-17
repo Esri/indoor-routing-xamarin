@@ -46,7 +46,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             };
 
             // Button will be placed in navigation area in ViewWillAppear
-            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Plain, null);
+            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Done, null);
 
             // Add views
             View.AddSubview(_attributionTextView);

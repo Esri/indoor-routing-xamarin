@@ -62,7 +62,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             });
 
             // Close button is shown directly in the navigation area, configured in ViewWillAppear
-            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Plain, null);
+            _closeButton = new UIBarButtonItem("ModalCloseButtonText".Localize(), UIBarButtonItemStyle.Done, null);
         }
 
         public override void ViewWillAppear(bool animated)
