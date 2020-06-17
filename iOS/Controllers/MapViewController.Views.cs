@@ -21,6 +21,7 @@ using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.Controls;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Views.MapViewCards;
 using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
 using Esri.ArcGISRuntime.Toolkit.UI.Controls;
+using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using UIKit;
 
@@ -172,6 +173,11 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
             _locationButton.AccessibilityLabel = "LocationButtonAccessibilityLabel".Localize();
             _locationButton.AccessibilityHint = "LocationButtonAccessibilityHint".Localize();
+
+            if (_mapView.LocationDisplay?.AutoPanMode == LocationDisplayAutoPanMode.Recenter && _mapView.LocationDisplay?.IsEnabled == true)
+            {
+                _locationButton.SetImage(UIImage.FromBundle("gps-on-f"), UIControlState.Normal);
+            }
 
             _topRightStack = new IntrinsicContentSizedStackView
             {
@@ -553,6 +559,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             _mapView.LocationDisplay.LocationChanged += MapView_LocationChanged;
 
+            _mapView.LocationDisplay.AutoPanModeChanged += LocationDisplay_AutoPanModeChanged;
+
             //  the settings button
             _settingsButton.TouchUpInside += SettingsButton_Clicked;
 
@@ -578,6 +586,19 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             if (_locationCard != null)
             {
                 _locationCard.RelayoutRequested += Card_RelayoutRequested;
+            }
+        }
+
+        private void LocationDisplay_AutoPanModeChanged(object sender, UI.LocationDisplayAutoPanMode e)
+        {
+            switch (e)
+            {
+                case UI.LocationDisplayAutoPanMode.Recenter:
+                    _locationButton.SetImage(UIImage.FromBundle("gps-on-f"), UIControlState.Normal);
+                    break;
+                case UI.LocationDisplayAutoPanMode.Off:
+                    _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
+                    break;
             }
         }
 
@@ -609,6 +630,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             {
                 _attributionImageButton.TouchUpInside -= Attribution_Tapped;
             }
+
+            _mapView.LocationDisplay.AutoPanModeChanged -= LocationDisplay_AutoPanModeChanged;
 
             //  the settings button
             _settingsButton.TouchUpInside -= SettingsButton_Clicked;

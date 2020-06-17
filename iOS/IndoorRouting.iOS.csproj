@@ -290,6 +290,10 @@
     <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%402x.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%401x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%402x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
