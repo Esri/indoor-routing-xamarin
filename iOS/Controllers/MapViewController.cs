@@ -165,7 +165,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                         // If the room is standing in for the user's current location, re-enable location display automatic panning
                         else if (_viewModel.CurrentRoom.IsCurrentLocation)
                         {
-                            _mapView.SetViewpointCenterAsync(_mapView.LocationDisplay.MapLocation, 150).ContinueWith((_) => _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter);
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
                         }
                         // If the room is just a room, show the default graphic and zoom to the room geometry
                         else
@@ -289,7 +289,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
                         // Add Actions
                         actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".Localize(), UIAlertActionStyle.Destructive,
-                            (action) => _viewModel.ReturnToWaitingState()));
+                            (action) => _viewModel.CloseRouteResult()));
 
                         actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".Localize(), UIAlertActionStyle.Default, null));
 
