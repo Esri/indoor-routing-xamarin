@@ -589,7 +589,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
             }
         }
 
-        private void LocationDisplay_AutoPanModeChanged(object sender, UI.LocationDisplayAutoPanMode e)
+        private void LocationDisplay_AutoPanModeChanged(object sender, LocationDisplayAutoPanMode e)
         {
             switch (e)
             {

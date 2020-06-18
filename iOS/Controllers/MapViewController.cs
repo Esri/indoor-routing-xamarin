@@ -147,8 +147,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                     // Clear any existing graphics when the selected/identified room changes
                     _identifiedFeatureOverlay.Graphics.Clear();
                     _homeOverlay.Graphics.Clear();
-                    // Turn off location display
-                    _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
                     // If the room is null, the view is now reset to a neutral state
                     if (_viewModel.CurrentRoom is Room room)
                     {
@@ -160,22 +158,32 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
                             {
                                 TrySetViewpoint(room.CenterPoint, 150);
                             }
+
+                            // Turn off location display
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
                         }
                         // If the room is standing in for the user's current location, re-enable location display automatic panning
                         else if (_viewModel.CurrentRoom.IsCurrentLocation)
                         {
-                            TrySetViewpoint(_mapView.LocationDisplay.MapLocation, 150);
-                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                            _mapView.SetViewpointCenterAsync(_mapView.LocationDisplay.MapLocation, 150).ContinueWith((_) => _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter);
                         }
                         // If the room is just a room, show the default graphic and zoom to the room geometry
                         else
                         {
+                            // Turn off location display
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+
                             _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
                             if (!GeometryEngine.Contains(_mapView.VisibleArea, room.Geometry))
                             {
                                 TrySetViewpoint(room.Geometry, 30);
                             }
                         }
+                    }
+                    else
+                    {
+                        _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                        _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
                     }
                     // need to explicitly request re-layout because identified room can change without UI state changing
                     _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
@@ -360,7 +368,18 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
         /// <summary>
         /// Tells the viewmodel to navigate to the user's current location.
         /// </summary>
-        private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToCurrentLocation();
+        private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e)
+        {
+            switch (_mapView.LocationDisplay.AutoPanMode)
+            {
+                case LocationDisplayAutoPanMode.Recenter:
+                    _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                    break;
+                case LocationDisplayAutoPanMode.Off:
+                    _viewModel.MoveToCurrentLocation();
+                    break;
+            }
+        }
 
         /// <summary>
         /// Updates the viewmodel with the current user location when it changes.
