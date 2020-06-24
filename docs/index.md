@@ -80,7 +80,7 @@ internal static async Task<AppSettings> CreateAsync(string filePath)
         MmpkDownloadDate = new DateTime(1900, 1, 1),
         HomeLocation = string.Empty,
         IsLocationServicesEnabled = false,
-        IsRoutingEnabled = false,
+        IsRoutingEnabled = true,
         UseOnlineBasemap = false,
         IsPreferElevatorsEnabled = false,
         InitialViewpointCoordinates = new[]
@@ -393,30 +393,74 @@ iPad (2019):
 
 ## Customize app appearance
 
-To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way.
+To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way. Note that some values differ between iOS 12 and later versions, due to limitations in support for dark mode APIs.
 
 ```cs
 public static class ApplicationTheme
 {
-    public static nint Margin = 8;
-    public static UIColor BackgroundColor = UIColor.SystemBackgroundColor;
-    public static UIColor ForegroundColor = UIColor.LabelColor;
-    public static UIColor SeparatorColor = UIColor.SystemGray2Color;
-    public static UIBlurEffect PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
-    public static nint SideWidgetWidth = 48;
-    public static nint FloorWidthMaxHeight = 240;
-    public static nint HandlebarThickness = 4;
-    public static nint HandlebarLength = 48;
-    public static nint HandlebarCornerRadius = 2;
-    public static nint CornerRadius = 8;
-    public static UIColor ActionBackgroundColor = new UIColor(0.071f, 0.475f, 0.757f, 1.00f);
-    public static UIColor ActionForegroundColor = UIColor.White;
-    public static UIColor SelectionBackgroundColor = ActionBackgroundColor;
-    public static UIColor SelectionForegroundColor = ActionForegroundColor;
-    public static nint ActionButtonHeight = 44;
-    public static UIFont HeaderFont = UIFont.BoldSystemFontOfSize(28);
+    public static nint Margin;
+    public static UIColor BackgroundColor;
+    public static UIColor ForegroundColor;
+    public static UIColor SeparatorColor;
+    public static UIBlurEffect PanelBackgroundMaterial;
+    public static nint SideWidgetWidth;
+    public static nint FloorWidthMaxHeight;
+    public static nint HandlebarThickness;
+    public static nint HandlebarLength;
+    public static nint HandlebarCornerRadius;
+    public static nint CornerRadius;
+    public static UIColor ActionBackgroundColor;
+    public static UIColor ActionForegroundColor;
+    public static UIColor SelectionBackgroundColor;
+    public static UIColor SelectionForegroundColor;
+    public static UIColor PrimaryLabelColor;
+    public static UIColor SecondaryLabelColor;
     // Accessory button is a light/dark responsive color defined in the asset catalog
-    public static UIColor AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
+    public static UIColor AccessoryButtonColor;
+    public static nint ActionButtonHeight;
+    public static UIFont HeaderFont;
+
+    static ApplicationTheme()
+    {
+        Margin = 8;
+        SideWidgetWidth = 48;
+        FloorWidthMaxHeight = 240;
+        HandlebarThickness = 4;
+        HandlebarLength = 48;
+        HandlebarCornerRadius = 2;
+        CornerRadius = 8;
+        
+
+        // Accessory button is a light/dark responsive color defined in the asset catalog
+        AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
+        ActionBackgroundColor = AccessoryButtonColor;
+        ActionForegroundColor = UIColor.White;
+        SelectionBackgroundColor = ActionBackgroundColor;
+        SelectionForegroundColor = ActionForegroundColor;
+
+        ActionButtonHeight = 44;
+        HeaderFont = UIFont.PreferredTitle1;
+
+        if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
+        {
+            BackgroundColor = UIColor.SystemBackgroundColor;
+            ForegroundColor = UIColor.LabelColor;
+            SeparatorColor = UIColor.SystemGray2Color;
+            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
+            PrimaryLabelColor = UIColor.LabelColor;
+            SecondaryLabelColor = UIColor.SecondaryLabelColor;
+        }
+        else
+        {
+            BackgroundColor = UIColor.White;
+            ForegroundColor = UIColor.Black;
+            SeparatorColor = UIColor.LightGray;
+            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent);
+            PrimaryLabelColor = UIColor.Black;
+            SecondaryLabelColor = UIColor.DarkGray;
+        }
+        
+    }
 }
 ```
 

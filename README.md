@@ -1,6 +1,7 @@
 # Indoor Routing Xamarin
 
 This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/)
+
 ## Features
  * Geocoding
  * Locators with Autosuggestions
@@ -11,8 +12,6 @@ This repo provides an example app called [Indoor Routing for iOS](https://develo
  * Identify
  * Using GraphicsOverlays
  * Offline mode using Mobile Map Packages
-
-
 
 ## Development Instructions
 This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned and imported into Xamarin Studio or Visual Studio.
@@ -42,9 +41,10 @@ If there are changes made in the Original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
-* [ArcGIS Runtime SDK for .NET 100.5 or higher](https://developers.arcgis.com/net/latest/)
-* [XCode 10.2 or higher](https://developer.apple.com/xcode/downloads/)
-* [Visual Studio for Mac 8.0.2 or higher](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
+* [ArcGIS Runtime SDK for .NET 100.8 or higher](https://developers.arcgis.com/net/latest/)
+* [XCode 11 or higher](https://developer.apple.com/xcode/downloads/)
+    * App supports iOS 12 and above, but requires the iOS 13 SDK to build
+* [Visual Studio for Mac - latest](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 
 ## Resources
 * [ArcGIS Runtime SDK for .NET Developers Site](https://developers.arcgis.com/net/)
@@ -66,7 +66,7 @@ Anyone and everyone is welcome to [contribute](CONTRIBUTING.md). We do accept pu
 4. Improve documentation
 
 ## Licensing
-Copyright 2017-2019 Esri
+Copyright 2017-2020 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
