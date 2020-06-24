@@ -1,104 +1,96 @@
-// <copyright file="HomeLocationController.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
+// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models;
+using Esri.ArcGISRuntime.Tasks.Geocoding;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 {
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
-    using UIKit;
-
     /// <summary>
-    /// Controller handles the ui and logic of the user choosing a home location
+    /// Controller handles the UI for choosing a new home location
     /// </summary>
-    internal partial class HomeLocationController : UIViewController
+    internal class HomeLocationController : UIViewController
     {
-        /// <summary>
-        /// The home location.
-        /// </summary>
-        private GeocodeResult homeLocation;
+        private readonly MapViewModel _viewModel;
+        private UITableView _autosuggestionsTableView;
+        private UISearchBar _homeLocationSearchBar;
+        private AutosuggestionsTableSource _suggestionSource;
 
-        /// <summary>
-        /// The home floor level.
-        /// </summary>
-        private string floorLevel;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.HomeLocationController"/> class.
-        /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private HomeLocationController(IntPtr handle) : base(handle)
+        public HomeLocationController(MapViewModel viewModel)
         {
+            Title = "ChooseHomeLocationTitle".Localize();
+            _viewModel = viewModel;
         }
-        
-        /// <summary>
-        /// Gets the coordinates for the home location
-        /// </summary>
-        public GeocodeResult HomeLocation
+
+        public override void LoadView()
         {
-            get
+            // Create views
+            View = new UIView { BackgroundColor = ApplicationTheme.BackgroundColor };
+
+            _homeLocationSearchBar = new UISearchBar
             {
-                return this.homeLocation;
-            }
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Placeholder = "LocationSearchBarPlaceholder".Localize(),
+                BackgroundImage = new UIImage(),
+                ShowsCancelButton = true,
+                Text = AppSettings.CurrentSettings.HomeLocation,
+                TintColor = ApplicationTheme.ActionBackgroundColor
+            };
 
-            private set
+            _autosuggestionsTableView = new UITableView { TranslatesAutoresizingMaskIntoConstraints = false, BackgroundColor = UIColor.Clear };
+
+            // Add views
+            View.AddSubviews(_homeLocationSearchBar, _autosuggestionsTableView);
+
+            // Lay out views
+            NSLayoutConstraint.ActivateConstraints(new[]
             {
-                if (this.homeLocation != value && value != null)
-                {
-                    this.homeLocation = value;
-
-                    // Save extent of home location and floor level to Settings file
-                    CoordinatesKeyValuePair<string, double>[] homeCoordinates =
-                    {
-                    new CoordinatesKeyValuePair<string, double>("X", this.homeLocation.DisplayLocation.X),
-                    new CoordinatesKeyValuePair<string, double>("Y", this.homeLocation.DisplayLocation.Y),
-                    new CoordinatesKeyValuePair<string, double>("WKID", this.homeLocation.DisplayLocation.SpatialReference.Wkid)
-                    };
-
-                    AppSettings.CurrentSettings.HomeCoordinates = homeCoordinates;
-
-                    // Save user settings
-                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
-                }
-            }
+                _homeLocationSearchBar.TopAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TopAnchor),
+                _homeLocationSearchBar.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                _homeLocationSearchBar.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                _autosuggestionsTableView.TopAnchor.ConstraintEqualTo(_homeLocationSearchBar.BottomAnchor),
+                _autosuggestionsTableView.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                _autosuggestionsTableView.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                _autosuggestionsTableView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
+            });
         }
 
         /// <summary>
-        /// Gets or sets the floor level for the home location.
+        /// Overrides the behavior of the controller once the view has loaded
         /// </summary>
-        /// <value>The floor level.</value>
-        public string FloorLevel
+        public override void ViewDidAppear(bool animated)
         {
-            get
-            {
-                return this.floorLevel;
-            }
+            base.ViewDidAppear(animated);
 
-            set
-            {
-                if (this.floorLevel != value && value != string.Empty)
-                {
-                    this.floorLevel = value;
-                    AppSettings.CurrentSettings.HomeFloorLevel = this.floorLevel;
+            // Automatically put the cursor in the search bar and show the keyboard
+            _homeLocationSearchBar.BecomeFirstResponder();
+        }
 
-                    // Save user settings
-                    Task.Run(() => AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
-                }
-            }
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            _homeLocationSearchBar.TextChanged -= HomeLocationSearchBar_TextChanged;
+            _homeLocationSearchBar.SearchButtonClicked -= HomeLocationSearchBar_SearchButtonClicked;
+            _homeLocationSearchBar.CancelButtonClicked -= ClearHome_Clicked;
         }
 
         /// <summary>
@@ -107,54 +99,80 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <param name="animated">If set to <c>true</c> animated.</param>
         public override void ViewWillAppear(bool animated)
         {
-            // Show the navigation bar
-            NavigationController.NavigationBarHidden = false;
+            // Show the navigation bar if applicable
+            if (NavigationController != null)
+            {
+                NavigationController.NavigationBarHidden = false;
+                NavigationController.NavigationBar.TintColor = ApplicationTheme.AccessoryButtonColor;
+            }
+
+            _homeLocationSearchBar.CancelButtonClicked += ClearHome_Clicked;
+            _homeLocationSearchBar.TextChanged += HomeLocationSearchBar_TextChanged;
+            _homeLocationSearchBar.SearchButtonClicked += HomeLocationSearchBar_SearchButtonClicked;
+
             base.ViewWillAppear(animated);
         }
 
         /// <summary>
-        /// Overrides the behavior of the controller once the view has loaded
+        /// Sets the home location with the user's search
         /// </summary>
-        public override void ViewDidLoad()
+        private void HomeLocationSearchBar_SearchButtonClicked(object sender, EventArgs e) => SetHomeLocationAsync(_homeLocationSearchBar.Text);
+
+        /// <summary>
+        /// Updates suggestions as the user types
+        /// </summary>
+        private async void HomeLocationSearchBar_TextChanged(object sender, UISearchBarTextChangedEventArgs e)
         {
-            base.ViewDidLoad();
-            this.HomeLocationSearchBar.BecomeFirstResponder();
-
-            // Set text changed event on the search bar
-            this.HomeLocationSearchBar.TextChanged += async (sender, e) =>
+            try
             {
-                // This is the method that is called when the user searchess
+                // This is the method that is called when the user searches
                 await GetSuggestionsFromLocatorAsync();
-            };
-
-            this.HomeLocationSearchBar.SearchButtonClicked += async (sender, e) =>
+            }
+            catch (Exception ex)
             {
-                var locationText = ((UISearchBar)sender).Text;
-                await SetHomeLocationAsync(locationText);
-            };
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Clear the home location when user cancels the search
+        /// </summary>
+        private void ClearHome_Clicked(object sender, EventArgs e)
+        {
+            _homeLocationSearchBar.Text = null;
+            SetHomeLocationAsync(null);
         }
 
         /// <summary>
-        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
+        /// Retrieves the suggestions from locator and displays them in a tableview below the search field.
         /// </summary>
-        /// <returns>Async task</returns>
         private async Task GetSuggestionsFromLocatorAsync()
         {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.HomeLocationSearchBar.Text);
-            if (suggestions == null || suggestions.Count == 0)
-            {
-                this.AutosuggestionsTableView.Hidden = true;
-            }
+            // Get the suggestions
+            var suggestions = await _viewModel.GetLocationSuggestionsAsync(_homeLocationSearchBar.Text);
 
             // Only show the floors tableview if the buildings in view have more than one floor
-            if (suggestions.Count > 0)
+            if (suggestions?.Any() ?? false)
             {
                 // Show the tableview with autosuggestions and populate it
-                this.AutosuggestionsTableView.Hidden = false;
-                var tableSource = new AutosuggestionsTableSource(suggestions);
-                tableSource.TableRowSelected += this.TableSource_TableRowSelected;
-                this.AutosuggestionsTableView.Source = tableSource;
-                this.AutosuggestionsTableView.ReloadData();
+                _autosuggestionsTableView.Hidden = false;
+
+                // Unsubscribe from events to prevent memory leak
+                if (_suggestionSource != null)
+                {
+                    _suggestionSource.TableRowSelected -= TableSource_TableRowSelected;
+                }
+
+                // Create new table source and use it
+                _suggestionSource = new AutosuggestionsTableSource(suggestions, false);
+                _suggestionSource.TableRowSelected += TableSource_TableRowSelected;
+                _autosuggestionsTableView.Source = _suggestionSource;
+                _autosuggestionsTableView.ReloadData();
+            }
+            else
+            {
+                _autosuggestionsTableView.Hidden = true;
             }
         }
 
@@ -163,13 +181,13 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="sender">Sender element.</param>
         /// <param name="e">Event args.</param>
-        private async void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
+        private void TableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
         {
             var selectedItem = e.SelectedItem;
             if (selectedItem != null)
             {
-                this.HomeLocationSearchBar.Text = selectedItem.Label;
-                await this.SetHomeLocationAsync(selectedItem.Label);
+                _homeLocationSearchBar.Text = selectedItem;
+                SetHomeLocationAsync(selectedItem);
             }
         }
 
@@ -178,11 +196,39 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// </summary>
         /// <param name="locationText">Location text.</param>
         /// <returns>Async task</returns>
-        private async Task SetHomeLocationAsync(string locationText)
+        private async void SetHomeLocationAsync(string locationText)
         {
-            AppSettings.CurrentSettings.HomeLocation = locationText;
-            this.HomeLocation = await LocationViewModel.Instance.GetSearchedLocationAsync(locationText);
-            this.FloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(locationText);
+            try
+            {
+                GeocodeResult homeLocation = await _viewModel.GetSearchedLocationAsync(locationText);
+                Feature homeFeature = await _viewModel.GetRoomFeatureAsync(locationText);
+                if (homeFeature != null)
+                {
+                    AppSettings.CurrentSettings.HomeCoordinates = new[]
+                    {
+                        new SerializableKeyValuePair<string, double>("X", homeLocation.DisplayLocation.X),
+                        new SerializableKeyValuePair<string, double>("Y", homeLocation.DisplayLocation.Y),
+                        new SerializableKeyValuePair<string, double>("WKID", homeLocation.DisplayLocation.SpatialReference.Wkid)
+                    };
+                    AppSettings.CurrentSettings.HomeFloorLevel = homeFeature
+                        .Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName].ToString();
+                    AppSettings.CurrentSettings.HomeLocation = locationText;
+                }
+                else
+                {
+                    AppSettings.CurrentSettings.HomeCoordinates = null;
+                    AppSettings.CurrentSettings.HomeFloorLevel = null;
+                    AppSettings.CurrentSettings.HomeLocation = null;
+                }
+
+                await Task.Run(() =>
+                    AppSettings.SaveSettings(Path.Combine(DownloadViewModel.GetDataFolder(), "AppSettings.xml")));
+                _viewModel.UpdateHomeLocation();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
 
             NavigationController.PopViewController(true);
         }

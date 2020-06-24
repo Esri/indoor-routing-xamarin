@@ -1,23 +1,22 @@
-﻿// <copyright file="AppSettings.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
+﻿// Copyright 2020 Esri.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -26,13 +25,41 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
     /// <summary>
     /// Class holding the settings for the application
     /// </summary>
-    public class AppSettings
+    public class AppSettings : INotifyPropertyChanged
     {
+        // Backing fields for properties
+        private string _portalItemId;
+        private string _portalItemName;
+        private DateTime _mmpkDownloadDate;
+        private string _homeLocation;
+        private bool _isLocationServicesEnabled;
+        private bool _isRoutingEnabled;
+        private bool _isPrefersElevatorsEnabled;
+        private int _roomsLayerIndex;
+        private int _floorPlanLinesLayerIndex;
+        private string _homeFloorLevel;
+        private int _mapViewMaxScale;
+        private int _mapViewMinScale;
+        private bool _useOnlineBasemap;
+        private List<string> _contactCardDisplayFields;
+        private List<string> _locatorFields;
+        private string _roomsLayerFloorColumnName;
+        private double _roomsLayerMinimumZoomLevel;
+        private SerializableKeyValuePair<string, double>[] _initialViewpointCoordinates;
+        private SerializableKeyValuePair<string, double>[] _homeCoordinates;
+        private bool _showLocationNotFoundCard = false;
+
         /// <summary>
         /// Gets or sets the current settings.
         /// </summary>
         /// <value>Static instance of the settings for the application</value>
         public static AppSettings CurrentSettings { get; set; }
+
+        /// <summary>
+        /// 'Current Location' string needs to be consistent throughout the app for comparisons to be reliable.
+        /// If localizing, set this string to the translated value at startup.
+        /// </summary>
+        public static string LocalizedCurrentLocationString { get; set; } = "Current Location";
 
         /// <summary>
         /// Gets or sets the item identifier.
@@ -41,7 +68,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public string PortalItemID
         {
-            get; set;
+            get => _portalItemId;
+            set
+            {
+                if (value != _portalItemId)
+                {
+                    _portalItemId = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PortalItemID)));
+                }
+            }
         }
 
         /// <summary>
@@ -51,7 +86,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public string PortalItemName
         {
-            get; set;
+            get => _portalItemName;
+            set
+            {
+                if (value != _portalItemName)
+                {
+                    _portalItemName = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PortalItemName)));
+                }
+            }
         }
 
         /// <summary>
@@ -61,7 +104,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public DateTime MmpkDownloadDate
         {
-            get; set;
+            get => _mmpkDownloadDate;
+            set
+            {
+                if (value != _mmpkDownloadDate)
+                {
+                    _mmpkDownloadDate = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MmpkDownloadDate)));
+                }
+            }
         }
 
         /// <summary>
@@ -71,7 +122,16 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public string HomeLocation
         {
-            get; set;
+            get => _homeLocation;
+            set
+            {
+                if(value != _homeLocation)
+                {
+                    _homeLocation = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HomeLocation)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsHomeSet)));
+                }
+            }
         }
 
         /// <summary>
@@ -81,7 +141,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public bool IsLocationServicesEnabled
         {
-            get; set;
+            get => _isLocationServicesEnabled;
+            set
+            {
+                if(value != _isLocationServicesEnabled)
+                {
+                    _isLocationServicesEnabled = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLocationServicesEnabled)));
+                }
+            }
         }
 
         /// <summary>
@@ -91,7 +159,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public bool IsRoutingEnabled
         {
-        	get; set;
+            get => _isRoutingEnabled;
+            set
+            {
+                if (value != _isRoutingEnabled)
+                {
+                    _isRoutingEnabled = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRoutingEnabled)));
+                }
+            }
         }
 
         /// <summary>
@@ -101,7 +177,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public bool IsPreferElevatorsEnabled
         {
-            get; set;
+            get => _isPrefersElevatorsEnabled;
+            set
+            {
+                if (value != _isPrefersElevatorsEnabled)
+                {
+                    _isPrefersElevatorsEnabled = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPreferElevatorsEnabled)));
+                }
+            }
         }
 
         /// <summary>
@@ -111,17 +195,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public int RoomsLayerIndex
         {
-            get; set;
+            get => _roomsLayerIndex;
+            set
+            {
+                if (value != _roomsLayerIndex)
+                {
+                    _roomsLayerIndex = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RoomsLayerIndex)));
+                }
+            }
         }
-
+        
         /// <summary>
-        /// Gets or sets the index of the floorplan lines layer.
+        /// Gets or sets the index of the floor plan lines layer.
         /// </summary>
-        /// <value>The index of the floorplan lines layer.</value>
+        /// <value>The index of the floor plan lines layer.</value>
         [XmlElement]
-        public int FloorplanLinesLayerIndex
+        public int FloorPlanLinesLayerIndex
         {
-            get; set;
+            get => _floorPlanLinesLayerIndex;
+            set
+            {
+                if (value != _floorPlanLinesLayerIndex)
+                {
+                    _floorPlanLinesLayerIndex = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FloorPlanLinesLayerIndex)));
+                }
+            }
         }
 
         /// <summary>
@@ -131,17 +231,33 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public double RoomsLayerMinimumZoomLevel
         {
-            get; set;
+            get => _roomsLayerMinimumZoomLevel;
+            set
+            {
+                if (value != _roomsLayerMinimumZoomLevel)
+                {
+                    _roomsLayerMinimumZoomLevel = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RoomsLayerMinimumZoomLevel)));
+                }
+            }
         }
 
         /// <summary>
-        /// Gets or sets the name of the floor column in rooms tabel.
+        /// Gets or sets the name of the floor column in rooms table.
         /// </summary>
-        /// <value>The floor column in rooms tabel.</value>
+        /// <value>The floor column in rooms table.</value>
         [XmlElement]
         public string RoomsLayerFloorColumnName
         {
-            get; set;
+            get => _roomsLayerFloorColumnName;
+            set
+            {
+                if(value != _roomsLayerFloorColumnName)
+                {
+                    _roomsLayerFloorColumnName = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RoomsLayerFloorColumnName)));
+                }
+            }
         }
 
         /// <summary>
@@ -149,9 +265,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         /// <value>The coordinates and floor level for the home location. This also includes the WKID</value>
         [XmlArray("HomeCoordinates")]
-        public CoordinatesKeyValuePair<string, double>[] HomeCoordinates
+        public SerializableKeyValuePair<string, double>[] HomeCoordinates
         {
-            get; set;
+            get => _homeCoordinates;
+            set
+            {
+                if (value != _homeCoordinates)
+                {
+                    _homeCoordinates = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HomeCoordinates)));
+                }
+            }
         }
 
         /// <summary>
@@ -161,7 +285,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public string HomeFloorLevel
         {
-            get; set;
+            get => _homeFloorLevel;
+            set
+            {
+                if (_homeFloorLevel != value)
+                {
+                    _homeFloorLevel = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HomeFloorLevel)));
+                }
+            }
         }
 
         /// <summary>
@@ -169,9 +301,17 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// </summary>
         /// <value>The initial viewpoint coordinates used for the map.</value>
         [XmlArray("InitialViewpointCoordinates")]
-        public CoordinatesKeyValuePair<string, double>[] InitialViewpointCoordinates
+        public SerializableKeyValuePair<string, double>[] InitialViewpointCoordinates
         {
-            get; set;
+            get => _initialViewpointCoordinates;
+            set
+            {
+                if (value != _initialViewpointCoordinates)
+                {
+                    _initialViewpointCoordinates = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InitialViewpointCoordinates)));
+                }
+            }
         }
 
         /// <summary>
@@ -181,7 +321,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlArray("LocatorFields")]
         public List<string> LocatorFields
         {
-            get; set;
+            get => _locatorFields;
+            set
+            {
+                if (_locatorFields != value)
+                {
+                    _locatorFields = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocatorFields)));
+                }
+            }
         }
 
         /// <summary>
@@ -191,7 +339,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlArray("ContactCardDisplayFields")]
         public List<string> ContactCardDisplayFields
         {
-            get; set;
+            get => _contactCardDisplayFields;
+            set
+            {
+                if (_contactCardDisplayFields != value)
+                {
+                    _contactCardDisplayFields = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ContactCardDisplayFields)));
+                }
+            }
         }
 
         /// <summary>
@@ -201,7 +357,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public int MapViewMinScale
         {
-            get; set;
+            get => _mapViewMinScale;
+            set
+            {
+                if (_mapViewMinScale != value)
+                {
+                    _mapViewMinScale = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MapViewMinScale)));
+                }
+            }
         }
 
         /// <summary>
@@ -211,14 +375,56 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         [XmlElement]
         public int MapViewMaxScale
         {
-            get; set;
+            get => _mapViewMaxScale;
+            set
+            {
+                if (_mapViewMaxScale != value)
+                {
+                    _mapViewMaxScale = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MapViewMaxScale)));
+                }
+            }
         }
 
+        /// <summary>
+        /// Gets or sets whether to supplement the MMPK basemap with an online basemap.
+        /// </summary>
         [XmlElement]
         public bool UseOnlineBasemap
         {
-            get; set;
+            get => _useOnlineBasemap;
+            set
+            {
+                if (_useOnlineBasemap != value)
+                {
+                    _useOnlineBasemap = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UseOnlineBasemap)));
+                }
+            }
         }
+
+        /// <summary>
+        /// Gets or sets whether to show a 'location not found' card when location isn't found.
+        /// View transitions to default state automatically if this is false.
+        /// </summary>
+        [XmlElement]
+        public bool ShowLocationNotFoundCard
+        {
+            get => _showLocationNotFoundCard;
+            set
+            {
+                if (_showLocationNotFoundCard != value)
+                {
+                    _showLocationNotFoundCard = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowLocationNotFoundCard)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns <value>true</value> if a home location has been set.
+        /// </summary>
+        public bool IsHomeSet => !string.IsNullOrWhiteSpace(HomeLocation);
 
         /// <summary>
         /// Loads the app settings if the file exists, otherwise it creates default settings. 
@@ -227,62 +433,52 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
         /// <param name="filePath">File path.</param>
         internal static async Task<AppSettings> CreateAsync(string filePath)
         {
+            var directoryName = Path.GetDirectoryName(filePath);
+
+            if (directoryName == null)
+            {
+                throw new DirectoryNotFoundException("Couldn't find settings directory");
+            }
             // Get all the files in the device directory
-            List<string> files = Directory.EnumerateFiles(Path.GetDirectoryName(filePath)).ToList();
+            List<string> files = Directory.EnumerateFiles(directoryName).ToList();
 
             // If the settings file doesn't exist, create it
             // Otherwise load the settings from the settings file
             // If settings file is invalid, delete it and recreate it
             if (!files.Contains(filePath))
             {
-               var appSettings = new AppSettings();
-
-                // Change the Portal Item
-                appSettings.PortalItemID = "52346d5fc4c348589f976b6a279ec3e6";
-                appSettings.PortalItemName = "RedlandsCampus.mmpk";
-
-                // Change the room and walls layers
-                appSettings.RoomsLayerIndex = 1;
-                appSettings.FloorplanLinesLayerIndex = 2;
-
-                //Change the floor column name
-                appSettings.RoomsLayerFloorColumnName = "FLOOR";
-
-                // Decide if you want to use online basemap or not
-                appSettings.UseOnlineBasemap = false;
-
-                // Change fields used by the locator
-                appSettings.LocatorFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
-
-                // Change fields displayed in the bottom card
-                appSettings.ContactCardDisplayFields = new List<string>() { "LONGNAME", "KNOWN_AS_N"  };
-
-                // Change initial viewpoint
-                CoordinatesKeyValuePair<string, double>[] initialViewpointCoordinates =
+                var appSettings = new AppSettings
                 {
-                    new CoordinatesKeyValuePair<string, double>("X", -13046209),
-                    new CoordinatesKeyValuePair<string, double>("Y", 4036456),
-                    new CoordinatesKeyValuePair<string, double>("WKID", 3857),
-                    new CoordinatesKeyValuePair<string, double>("ZoomLevel", 13000),
+                    PortalItemID = "52346d5fc4c348589f976b6a279ec3e6",
+                    PortalItemName = "RedlandsCampus.mmpk",
+                    // Set the room and walls layers
+                    RoomsLayerIndex = 1,
+                    FloorPlanLinesLayerIndex = 2,
+                    RoomsLayerFloorColumnName = "FLOOR",
+                    UseOnlineBasemap = false,
+                    // Set fields displayed in the bottom card
+                    LocatorFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
+                    ContactCardDisplayFields = new List<string> {"LONGNAME", "KNOWN_AS_N"},
+                    // Change at what zoom levels the room data becomes visible
+                    RoomsLayerMinimumZoomLevel = 750,
+                    // Change map scale bounds
+                    MapViewMinScale = 100,
+                    MapViewMaxScale = 13000,
+                    MmpkDownloadDate = new DateTime(1900, 1, 1),
+                    HomeLocation = string.Empty,
+                    IsLocationServicesEnabled = false,
+                    IsRoutingEnabled = true,
+                    IsPreferElevatorsEnabled = false,
+                    InitialViewpointCoordinates = new[]
+                    {
+                        new SerializableKeyValuePair<string, double>("X", -13046209),
+                        new SerializableKeyValuePair<string, double>("Y", 4036456),
+                        new SerializableKeyValuePair<string, double>("WKID", 3857),
+                        new SerializableKeyValuePair<string, double>("ZoomLevel", 13000),
+                    }
                 };
-                appSettings.InitialViewpointCoordinates = initialViewpointCoordinates;
-
-                // Change at what zoom levels the room data becomes visible
-                appSettings.RoomsLayerMinimumZoomLevel = 750;
-
-                // Change map scales
-                appSettings.MapViewMinScale = 100;
-                appSettings.MapViewMaxScale = 13000;
-
-
-                appSettings.MmpkDownloadDate = new DateTime(1900, 1, 1);
-                appSettings.HomeLocation = "Set home location";
-                appSettings.IsLocationServicesEnabled = false;
-                appSettings.IsRoutingEnabled = false;
-                appSettings.IsPreferElevatorsEnabled = false;
 
                 var serializer = new XmlSerializer(appSettings.GetType());
-
 
                 // Create settings file on a separate thread
                 // this does not need to be awaited since the return is already set
@@ -329,9 +525,15 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting
                     serializer.Serialize(fileStream, CurrentSettings);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLogger.Instance.LogException(ex);
             }
         }
+
+        /// <summary>
+        /// Event notifies subscribers of property changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -40,7 +40,6 @@
     <WarningLevel>4</WarningLevel>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
@@ -59,7 +58,6 @@
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <PlatformTarget>x86</PlatformTarget>
-    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -74,7 +72,6 @@
     <MtouchDebug>true</MtouchDebug>
     <MtouchFastDev>true</MtouchFastDev>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
@@ -83,6 +80,9 @@
     <BuildIpa>true</BuildIpa>
     <MtouchExtraArgs>
     </MtouchExtraArgs>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <AppExtensionDebugBundleId />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -140,46 +140,7 @@
     <ImageAsset Include="Assets.xcassets\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Settings.imageset\iOS8_TabBar_Settings@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Home.imageset\iOS8_TabBar_Home@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\CurrentLocation.imageset\iOS8_TabBar_UseCurrentLocation@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
     <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\HomePin.imageset\Contents.json">
@@ -192,15 +153,6 @@
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\HomePin.imageset\home@3x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@1x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@2x.png">
-      <Visible>false</Visible>
-    </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Navigation.imageset\iOS8_Toolbar_RouteTo@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\StartCircle.imageset\Contents.json">
@@ -239,22 +191,112 @@
     <ImageAsset Include="Assets.xcassets\MapPin.imageset\iOS8_MapPin_End@3x.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\Contents.json">
+    <ImageAsset Include="Assets.xcassets\AccessoryButtonColor.colorset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@1x.png">
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%401x.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@2x.png">
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%403x.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\Walk.imageset\user_walk@3x.png">
+    <ImageAsset Include="Assets.xcassets\walking.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\walking.imageset\walking%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\home.imageset\home%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gear.imageset\gear%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on.imageset\gps-on%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\x.imageset\x%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%401x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%402x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\esri.imageset\esri-black%403x-1.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\information.imageset\information%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\arrow-up-down.imageset\arrow-up-down%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%401x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%402x.png" />
+    <ImageAsset Include="Assets.xcassets\gps-on-f.imageset\gps-on-f%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
-    <InterfaceDefinition Include="Main.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -264,31 +306,36 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
-    <Compile Include="Controllers\DownloadController.designer.cs">
-      <DependentUpon>DownloadController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\SettingsController.cs" />
-    <Compile Include="Controllers\SettingsController.designer.cs">
-      <DependentUpon>SettingsController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controllers\RouteController.cs" />
-    <Compile Include="Controllers\RouteController.designer.cs">
-      <DependentUpon>RouteController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\MapViewController.cs" />
-    <Compile Include="Controllers\MapViewController_.designer.cs">
-      <DependentUpon>MapViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\HomeLocationController.cs" />
-    <Compile Include="Controllers\HomeLocationController.designer.cs">
-      <DependentUpon>HomeLocationController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\NetworkReachability.cs" />
-    <Compile Include="Helpers\DownloadDelegate.cs" />
     <Compile Include="Models\AutosuggestionsTableSource.cs" />
     <Compile Include="Models\FloorsTableSource.cs" />
+    <Compile Include="Models\SettingsTableSource.cs" />
     <Compile Include="Models\TableRowSelectedEventArgs.cs" />
     <Compile Include="Models\RouteTableSource.cs" />
+    <Compile Include="Controllers\BottomSheetViewController.cs" />
+    <Compile Include="Views\SimpleStackedButtonContainer.cs" />
+    <Compile Include="Controllers\AttributionViewController.cs" />
+    <Compile Include="Helpers\LocalizationExtension.cs" />
+    <Compile Include="Helpers\ViewExtensions.cs" />
+    <Compile Include="Controllers\MapViewController.Views.cs">
+      <DependentUpon>MapViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FloorsTableView.cs" />
+    <Compile Include="Views\MapViewCards\LocationSearchCard.cs" />
+    <Compile Include="Views\MapViewCards\NotFoundCard.cs" />
+    <Compile Include="Views\MapViewCards\LocationInfoCard.cs" />
+    <Compile Include="Views\MapViewCards\RoutePlanningCard.cs" />
+    <Compile Include="Views\MapViewCards\RouteResultCard.cs" />
+    <Compile Include="ApplicationTheme.cs" />
+    <Compile Include="Views\Controls\CloseButton.cs" />
+    <Compile Include="Views\Controls\IntrinsicContentSizedStackView.cs" />
+    <Compile Include="Views\Controls\PseudoTextFieldButton.cs" />
+    <Compile Include="Views\Controls\SelfSizedTableView.cs" />
+    <Compile Include="Views\Controls\ShadowContainerView.cs" />
+    <Compile Include="Views\Controls\ActionButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <ITunesArtwork Include="iTunesArtwork" />
@@ -296,8 +343,15 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.iOS">
-      <Version>100.7.0</Version>
+      <Version>100.8.0</Version>
     </PackageReference>
+    <PackageReference Include="Esri.ArcGISRuntime.Toolkit">
+      <Version>100.8.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <BundleResource Include="Resources\base.lproj\Localizable.strings" />
   </ItemGroup>
   <Import Project="..\IndoorRouting\IndoorRouting.projitems" Label="Shared" Condition="Exists('..\IndoorRouting\IndoorRouting.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

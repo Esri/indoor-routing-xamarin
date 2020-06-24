@@ -1,895 +1,421 @@
-// <copyright file="MapViewController.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Esri.ArcGISRuntime.Data;
-    using Esri.ArcGISRuntime.Geometry;
-    using Esri.ArcGISRuntime.Location;
-    using Esri.ArcGISRuntime.Mapping;
-    using Esri.ArcGISRuntime.Symbology;
-    using Esri.ArcGISRuntime.Tasks.Geocoding;
-    using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
-    using Esri.ArcGISRuntime.UI;
-    using Esri.ArcGISRuntime.UI.Controls;
-    using Foundation;
-    using UIKit;
+// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.Models;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.ViewModels;
+using Esri.ArcGISRuntime.Symbology;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.UI;
+using Esri.ArcGISRuntime.UI.Controls;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
+{
     /// <summary>
-    /// Map view controller.
+    /// Displays the map view and surrounding UI.
+    /// Handles user interaction and updates the view in response to viewmodel changes.
     /// </summary>
-    public partial class MapViewController : UIViewController
+    public partial class MapViewController
     {
-        /// <summary>
         /// Flag used to determine if the view was single or double tapped
-        /// </summary>
         private bool _isViewDoubleTapped;
 
-        /// <summary>
-        /// The route.
-        /// </summary>
-        private RouteResult _route;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:IndoorRouting.iOS.MapViewController"/> class.
-        /// </summary>
-        /// <param name="handle">Controller Handle.</param>
-        private MapViewController(IntPtr handle) : base(handle)
-        {
-            this.ViewModel = new MapViewModel();
-        }
-
-        /// <summary>
-        /// Gets or sets the route.
-        /// </summary>
-        /// <value>The route.</value>
-        public RouteResult Route
-        {
-            get 
-            { 
-                return _route; 
-            }
-
-            set
-            {
-                _route = value;
-                _ = OnRouteChangedAsync();
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets from location feature.
-        /// </summary>
-        /// <value>From location feature.</value>
-        public Feature FromLocationFeature { get; set; }
-
-        /// <summary>
-        /// Gets or sets to location feature.
-        /// </summary>
-        /// <value>To locationfeature.</value>
-        public Feature ToLocationFeature { get; set; }
-
-        /// <summary>
         /// Gets or sets the map view model containing the common logic for dealing with the map
-        /// </summary>
-        private MapViewModel ViewModel { get; set; }
+        private readonly MapViewModel _viewModel;
 
-        /// <summary>
-        /// Overrides the controller behavior before view is about to appear
-        /// </summary>
-        /// <param name="animated">If set to <c>true</c> animated.</param>
-        public override void ViewWillAppear(bool animated)
+        // Graphics and symbols
+        private GraphicsOverlay _homeOverlay;
+        private GraphicsOverlay _identifiedFeatureOverlay;
+        private GraphicsOverlay _routeOverlay;
+        private PictureMarkerSymbol _routeStartSymbol;
+        private PictureMarkerSymbol _routeEndSymbol;
+
+        private async void ConfigureMapView()
         {
-            base.ViewWillAppear(animated);
-
-            // Hide the navigation bar on the main screen 
-            NavigationController.NavigationBarHidden = true;
-
-            // Show home button if user has home location enabled (not set as default value)
-            if (AppSettings.CurrentSettings.HomeLocation != MapViewModel.DefaultHomeLocationText)
-            {
-                this.HomeButton.Enabled = true;
-            }
-
-            // Show Current Location button if location services is enabled
-            this.CurrentLocationButton.Hidden = !AppSettings.CurrentSettings.IsLocationServicesEnabled;
-
-            if (AppSettings.CurrentSettings.IsLocationServicesEnabled == true)
-            {
-                this.MapView.LocationDisplay.IsEnabled = true;
-                this.MapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
-                this.MapView.LocationDisplay.InitialZoomScale = 150;
-
-                // TODO: Set floor when available in the API (Update 2?)
-            }
-            else
-            {
-                this.MapView.LocationDisplay.IsEnabled = false;
-            }
-
-            // If the routing is disabled, hide the directions button
-            if (AppSettings.CurrentSettings.IsRoutingEnabled == false)
-            {
-                this.DirectionsButton.Enabled = false;
-                this.DirectionsButton.TintColor = UIColor.White;
-
-			}
-            else
-            {
-				this.DirectionsButton.Enabled = true;
-                this.DirectionsButton.TintColor = UIColor.Blue;
-            }
-        }
-
-        // TODO: implement max size for floor picker 
-        ////public override void ViewWillTransitionToSize(CoreGraphics.CGSize toSize, UIKit.IUIViewControllerTransitionCoordinator coordinator)
-        ////{
-        ////    base.ViewWillTransitionToSize(toSize, coordinator);
-        ////        if (UIDevice.CurrentDevice.Orientation.IsLandscape())
-        ////    {         
-        ////    }
-        ////}
-
-        /// <summary>
-        /// Overrides default behavior when view has loaded. 
-        /// </summary>
-        public async override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-
-            this.ViewModel.PropertyChanged += this.ViewModelPropertyChanged;
-
             try
             {
-                await this.ViewModel.InitializeAsync();
+                // Configure location display
+                _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                _mapView.LocationDisplay.InitialZoomScale = 150;
+                _mapView.LocationDisplay.IsEnabled = AppSettings.CurrentSettings.IsLocationServicesEnabled;
             }
             catch (Exception ex)
             {
-                var genericError = "An error has occured and map was not loaded. Please restart the app";
-
-                this.InvokeOnMainThread(() =>
-                {
-                    var detailsController = UIAlertController.Create("Error Details", ex.Message, UIAlertControllerStyle.Alert);
-                    detailsController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-
-                    var alertController = UIAlertController.Create("Error", genericError, UIAlertControllerStyle.Alert);
-                    alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-                    alertController.AddAction(
-                        UIAlertAction.Create(
-                            "Details",
-                            UIAlertActionStyle.Default,
-                            (obj) => { this.PresentViewController(detailsController, true, null); }));
-                    this.PresentViewController(alertController, true, null);
-                });
+                ErrorLogger.Instance.LogException(ex);
+                ShowError("UnableToEnableLocationDisplayErrorTitle".Localize(), "UnableToEnabledLocationDisplayErrorMessage".Localize());
             }
 
-            // Remove mapview grid and set its background
-            this.MapView.BackgroundGrid.GridLineWidth = 0;
-            this.MapView.BackgroundGrid.Color = System.Drawing.Color.WhiteSmoke;
-
-            // Add a graphics overlay to hold the pins and route graphics
-            var pinsGraphicOverlay = new GraphicsOverlay();
-            pinsGraphicOverlay.Id = "PinsGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(pinsGraphicOverlay);
-
-            var labelsGraphicOverlay = new GraphicsOverlay();
-            labelsGraphicOverlay.Id = "LabelsGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(labelsGraphicOverlay);
-
-            var routeGraphicsOverlay = new GraphicsOverlay();
-            routeGraphicsOverlay.Id = "RouteGraphicsOverlay";
-            this.MapView.GraphicsOverlays.Add(routeGraphicsOverlay);
-
-            // Handle the user moving the map 
-            this.MapView.NavigationCompleted += this.MapView_NavigationCompleted;
-
-            // Handle the user tapping on the map
-            this.MapView.GeoViewTapped += this.MapView_GeoViewTapped;
-
-            // Handle the user double tapping on the map
-            this.MapView.GeoViewDoubleTapped += this.MapView_GeoViewDoubleTapped;
-
-            // Handle the user holding tap on the map
-            this.MapView.GeoViewHolding += this.MapView_GeoViewHolding;
-
-            this.MapView.LocationDisplay.LocationChanged += this.MapView_LocationChanged;
-
-            // Handle text changing in the search bar
-            this.LocationSearchBar.TextChanged += async (sender, e) =>
+            try
             {
-                // Call to populate autosuggestions 
-                await GetSuggestionsFromLocatorAsync();
-            };
+                // Configure identify overlay
+                _identifiedFeatureOverlay = new GraphicsOverlay();
 
-            this.LocationSearchBar.SearchButtonClicked += async (sender, e) =>
+                var pinImage = UIImage.FromBundle("MapPin");
+                var mapPin = await pinImage.ToRuntimeImageAsync();
+                var roomMarker = new PictureMarkerSymbol(mapPin) {OffsetY = pinImage.Size.Height * 0.65};
+
+                _identifiedFeatureOverlay.Renderer = new SimpleRenderer(roomMarker);
+
+                // Configure home location overlay
+                _homeOverlay = new GraphicsOverlay();
+                var homeImage = UIImage.FromBundle("HomePin");
+                var homePin = await homeImage.ToRuntimeImageAsync();
+                var homeMarker = new PictureMarkerSymbol(homePin) {OffsetY = homeImage.Size.Height * 0.65};
+
+                _homeOverlay.Renderer = new SimpleRenderer(homeMarker);
+
+                // configure route overlay
+                _routeOverlay = new GraphicsOverlay();
+
+                var routeSymbol = new SimpleLineSymbol
+                {
+                    Width = 5,
+                    Style = SimpleLineSymbolStyle.Solid,
+                    Color = System.Drawing.Color.FromArgb(127, 18, 121, 193)
+                };
+
+                // line symbol renderer will be used for every graphic without its own symbol
+                _routeOverlay.Renderer = new SimpleRenderer(routeSymbol);
+
+                // Keep route graphics at the ready
+                _routeStartSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("StartCircle").ToRuntimeImageAsync());
+                _routeEndSymbol = new PictureMarkerSymbol(await UIImage.FromBundle("EndCircle").ToRuntimeImageAsync());
+
+                // Add graphics overlays to the map
+                _mapView.GraphicsOverlays.Add(_identifiedFeatureOverlay);
+                _mapView.GraphicsOverlays.Add(_homeOverlay);
+                _mapView.GraphicsOverlays.Add(_routeOverlay);
+            }
+            catch (Exception ex)
             {
-                var searchText = ((UISearchBar)sender).Text;
+                ErrorLogger.Instance.LogException(ex);
 
-                // Dismiss keyboard
-                ((UISearchBar)sender).EndEditing(true);
-
-                // Dismiss autosuggestions table
-                AutosuggestionsTableView.Hidden = true;
-                await GetSearchedFeatureAsync(searchText);
-            };
-        }
-
-        /// <summary>
-        /// Prepares for segue.
-        /// </summary>
-        /// <param name="segue">Segue element.</param>
-        /// <param name="sender">Sender element.</param>
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
-        {
-            base.PrepareForSegue(segue, sender);
-
-            if (segue.Identifier == "RouteSegue")
-            {
-                var routeController = segue.DestinationViewController as RouteController;
-                routeController.EndLocation = this.MainLabel.Text;
+                // Show error and crash app since this is an invalid state.
+                ShowError("UnableToConfigureMapErrorTitle".Localize(), "ApplicationWillCloseDueToErrorMessage".Localize(), null, System.Threading.Thread.CurrentThread.Abort);
             }
         }
 
         /// <summary>
-        /// Unwinds to main view controller.
+        /// Handle any map-related viewmodel property changes
         /// </summary>
-        /// <param name="segue">Unwind Segue name.</param>
-        [Action("UnwindToMainViewController:")]
-        public void UnwindToMainViewController(UIStoryboardSegue segue)
-        {
-        }
-
-        /// <summary>
-        /// Fires when a new route is generated
-        /// </summary>
-        /// <returns>The new route</returns>
-        private async Task OnRouteChangedAsync()
-        {
-            if (this.Route != null)
-            {
-                // get the route from the results
-                var newRoute = this.Route.Routes.FirstOrDefault();
-
-                // create a picture marker symbol for start pin
-                var uiImageStartPin = UIImage.FromBundle("StartCircle");
-                var startPin = this.ImageToByteArray(uiImageStartPin);
-                var startMarker = new PictureMarkerSymbol(new RuntimeImage(startPin));
-
-                // create a picture marker symbol for end pin
-                var uiImageEndPin = UIImage.FromBundle("EndCircle");
-                var endPin = this.ImageToByteArray(uiImageEndPin);
-                var endMarker = new PictureMarkerSymbol(new RuntimeImage(endPin));
-
-                if (newRoute != null)
-                {
-                    StringBuilder walkTimeStringBuilder = new StringBuilder();
-
-                    // Add walk time and distance label
-                    if (newRoute.TotalTime.Hours > 0)
-                    {
-                        walkTimeStringBuilder.Append(string.Format("{0} h {1} m", newRoute.TotalTime.Hours, newRoute.TotalTime.Minutes));
-                    }
-                    else
-                    {
-                        walkTimeStringBuilder.Append(string.Format("{0} min", newRoute.TotalTime.Minutes + 1));
-                    }
-
-                    var tableSource = new List<Feature>() { this.FromLocationFeature, this.ToLocationFeature };
-                    this.ShowRouteCard(tableSource, walkTimeStringBuilder.ToString());
-
-                    // Create point graphics
-                    var startGraphic = new Graphic(newRoute.RouteGeometry.Parts.First().Points.First(), startMarker);
-                    var endGraphic = new Graphic(newRoute.RouteGeometry.Parts.Last().Points.Last(), endMarker);
-
-                    // create a graphic to represent the routee
-                    var routeSymbol = new SimpleLineSymbol();
-                    routeSymbol.Width = 5;
-                    routeSymbol.Style = SimpleLineSymbolStyle.Solid;
-                    routeSymbol.Color = System.Drawing.Color.FromArgb(127, 18, 121, 193);
-
-                    var routeGraphic = new Graphic(newRoute.RouteGeometry, routeSymbol);
-
-                    // Add graphics to overlay
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(routeGraphic);
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(startGraphic);
-                    this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Add(endGraphic);
-
-                    // Hide the pins graphics overlay
-                    this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = false;
-
-                    try
-                    {
-                        await this.MapView.SetViewpointGeometryAsync(newRoute.RouteGeometry, 30);
-                    }
-                    catch
-                    {
-                        // If panning to the new route fails, just move on
-                    }
-                }
-                else
-                {
-                    this.ShowBottomCard("Routing Error", "Please retry route", true);
-                }
-            }
-            else
-            {
-                this.ShowBottomCard("Routing Error", "Please retry route", true);
-            }
-        }
-
-        /// <summary>
-        /// Shows the route card.
-        /// </summary>
-        /// <param name="items">List of stops.</param>
-        /// <param name="walkTime">Walk time.</param>
-        private void ShowRouteCard(List<Feature> items, string walkTime)
-        {
-            this.InvokeOnMainThread(() =>
-            {
-                // Show the tableview and populate it
-                RouteTableView.Source = new RouteTableSource(items);
-                RouteTableView.ReloadData();
-
-                WalkTimeLabel.Text = walkTime;
-
-                UIView.Transition(
-                    RouteCard,
-                    0.2,
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews,
-                    () =>
-                    {
-                        RouteCard.Alpha = 1;
-                    },
-                    null);
-
-                var buttonConstraint = 35 + RouteCard.Frame.Height;
-                FloorPickerBottomConstraint.Constant = buttonConstraint;
-            });
-        }
-
-        /// <summary>
-        /// Shows the contact card and sets the fields on it depending of context.
-        /// </summary>
-        /// <param name="mainLabel">Main label.</param>
-        /// <param name="secondaryLabel">Secondary label.</param>
-        /// <param name="isRoute">If set to <c>true</c> is route.</param>
-        private void ShowBottomCard(string mainLabel, string secondaryLabel, bool isRoute)
-        {
-            this.InvokeOnMainThread(() =>
-            {
-                // If the label is for the route, show the DetailedRoute button and fill in the labels with time and floor info
-                // If the label is for the contact info, show the Directions button and fill the labels with the office info
-                if (isRoute)
-                {
-                    DirectionsButton.Hidden = true;
-                }
-                else
-                {
-                    DirectionsButton.Hidden = false;
-                }
-
-                MainLabel.Text = mainLabel;
-                SecondaryLabel.Text = secondaryLabel;
-
-                UIView.Transition(
-                    ContactCardView, 
-                    0.2, 
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
-                    () =>
-                    {
-                        ContactCardView.Alpha = 1;
-                    }, 
-                    null);
-
-                var buttonConstraint = 35 + ContactCardView.Frame.Height;
-                FloorPickerBottomConstraint.Constant = buttonConstraint;
-            });
-        }
-
-        /// <summary>
-        /// Hides the contact card.
-        /// </summary>
-        private void HideContactCard()
-        {
-            this.InvokeOnMainThread(() =>
-            {
-                UIView.Animate(
-                    0.2, 
-                    0, 
-                    UIViewAnimationOptions.CurveLinear | UIViewAnimationOptions.LayoutSubviews, 
-                    () =>
-                {
-                    ContactCardView.Alpha = 0;
-                    FloorPickerBottomConstraint.Constant = 35;
-                }, 
-                               null);
-            });
-        }
-
-        /// <summary>
-        /// Fires when properties change in the MapViewModel
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
-        private async void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        /// <param name="sender">The viewmodel</param>
+        /// <param name="e">Information about the property change</param>
+        private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "Map":
-                    if (this.ViewModel.Map != null)
+                case nameof(_viewModel.Map):
+                    if (_viewModel.Map != null)
                     {
-                        // Add the map to the MapView to be displayedd
-                        this.MapView.Map = this.ViewModel.Map;
+                        // Add the map to the MapView to be displayed
+                        _mapView.Map = _viewModel.Map;
+
+                        // Update attribution visibility in case it changed.
+                        SetAttributionForCurrentState();
                     }
 
                     break;
-                case "Viewpoint":
-                    if (this.ViewModel.Viewpoint != null)
+                case nameof(_viewModel.CurrentState):
+                    // Hide or show cards as needed for the new UI state
+                    UpdateUiForNewState();
+                    // Ensure relevant layers are visible
+                    if (_viewModel.CurrentState == UiState.LocationFound || _viewModel.CurrentState == UiState.PlanningRoute)
                     {
-                        await this.MapView.SetViewpointAsync(this.ViewModel.Viewpoint);
+                        _identifiedFeatureOverlay.IsVisible = true;
+                        _homeOverlay.IsVisible = true;
                     }
+                    break;
+                case nameof(_viewModel.CurrentRoom):
+                    // Clear any existing graphics when the selected/identified room changes
+                    _identifiedFeatureOverlay.Graphics.Clear();
+                    _homeOverlay.Graphics.Clear();
+                    // If the room is null, the view is now reset to a neutral state
+                    if (_viewModel.CurrentRoom is Room room)
+                    {
+                        // If the room is home, show the home graphic and zoom to it
+                        if (room.IsHome)
+                        {
+                            _homeOverlay.Graphics.Add(new Graphic(room.CenterPoint));
+                            if (!GeometryEngine.Contains(_mapView.VisibleArea, room.CenterPoint))
+                            {
+                                TrySetViewpoint(room.CenterPoint, 150);
+                            }
 
+                            // Turn off location display
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                        }
+                        // If the room is standing in for the user's current location, re-enable location display automatic panning
+                        else if (_viewModel.CurrentRoom.IsCurrentLocation)
+                        {
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+                        }
+                        // If the room is just a room, show the default graphic and zoom to the room geometry
+                        else
+                        {
+                            // Turn off location display
+                            _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+
+                            _identifiedFeatureOverlay.Graphics.Add(new Graphic(room.CenterPoint));
+                            if (!GeometryEngine.Contains(_mapView.VisibleArea, room.Geometry))
+                            {
+                                TrySetViewpoint(room.Geometry, 30);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                        _locationButton.SetImage(UIImage.FromBundle("gps-on"), UIControlState.Normal);
+                    }
+                    // need to explicitly request re-layout because identified room can change without UI state changing
+                    _bottomSheet.SetState(BottomSheetViewController.BottomSheetState.Partial);
+                    break;
+                case nameof(_viewModel.CurrentRoute):
+                    // Clear any existing route
+                    _routeOverlay.Graphics.Clear();
+
+                    // Show the route and configure other layers if the route isn't null
+                    if (_viewModel.CurrentRoute?.Routes?.FirstOrDefault() is Route route)
+                    {
+                        // Hide other graphics
+                        _identifiedFeatureOverlay.IsVisible = false;
+                        _homeOverlay.IsVisible = false;
+
+                        // Add the route stops and route geometry
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.First().Points.First(), _routeStartSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry.Parts.Last().Points.Last(), _routeEndSymbol));
+                        _routeOverlay.Graphics.Add(new Graphic(route.RouteGeometry));
+
+                        // Zoom to the route
+                        TrySetViewpoint(route.RouteGeometry, 30);
+                    }
                     break;
             }
         }
 
         /// <summary>
-        /// Handle user navigating around the map
+        /// Attempt to set the viewpoint to the given center and scale
         /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
-        private async void MapView_NavigationCompleted(object sender, EventArgs e)
+        /// <param name="centerPoint">Point to center the view on</param>
+        /// <param name="scale">Scale to zoom to</param>
+        private async void TrySetViewpoint(MapPoint centerPoint, double scale)
         {
-            // Display floors and level if user is zoomed in 
-            // If user is zoomed out, only show the base layer
-            if (this.MapView.MapScale <= AppSettings.CurrentSettings.RoomsLayerMinimumZoomLevel)
+            try
             {
-                await this.DisplayFloorLevelsAsync();
+                await _mapView.SetViewpointCenterAsync(centerPoint, scale);
             }
-            else
+            catch (Exception ex)
             {
-                this.FloorsTableView.Hidden = true;
-                this.ViewModel.SetFloorVisibility(false);
+                ErrorLogger.Instance.LogException(ex);
             }
         }
 
         /// <summary>
-        /// When view is double tapped, set flag so the tapped event doesn't fire
+        /// Attempt to set the viewpoint to the given geometry and padding.
         /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
-        private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e)
+        /// <param name="geometry">Geometry to zoom to, must not be a point</param>
+        /// <param name="padding">Padding around the target geometry</param>
+        private async void TrySetViewpoint(Geometry.Geometry geometry, double padding)
         {
-            this._isViewDoubleTapped = true;
+            try
+            {
+                await _mapView.SetViewpointGeometryAsync(geometry, padding);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
         }
 
         /// <summary>
-        /// When view is tapped, clear the map of selection, close keyboard and bottom sheet
+        /// Handle map visible area changes when navigation completes by updating the viewmodel.
+        /// Hides or shows the attribution view as needed.
         /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
+        private void MapView_NavigationCompleted(object sender, EventArgs e)
+        {
+            // Update the viewmodel
+            _viewModel.CurrentViewArea = _mapView.VisibleArea.Extent;
+
+            // Make sure attribution is shown properly for the current map state
+            SetAttributionForCurrentState();
+        }
+
+        /// <summary>
+        /// When view is double tapped, set flag to prevent accidental identify when double tapping to zoom
+        /// </summary>
+        private void MapView_GeoViewDoubleTapped(object sender, GeoViewInputEventArgs e) => _isViewDoubleTapped = true;
+
+        /// <summary>
+        /// When view is tapped, identify the room, or if a route is in progress, give the user the option to ignore
+        /// </summary>
         private async void MapView_GeoViewTapped(object sender, GeoViewInputEventArgs e)
         {
-            // Wait for double tap to fire
-            await Task.Delay(500);
+            try
+            {
+                // Wait for double tap to fire
+                await Task.Delay(500);
 
-            // If view has been double tapped, set tapped to handled and flag back to false
-            // If view has been tapped just once clear the map of selection, close keyboard and bottom sheet
-            if (this._isViewDoubleTapped == true)
-            {
-                e.Handled = true;
-                this._isViewDoubleTapped = false;
-            }
-            else
-            {
-                // If route card is visible, do not dismiss route
-                if (this.RouteCard.Alpha == 1)
+                // If view has been double tapped, set tapped to handled and flag back to false
+                if (_isViewDoubleTapped)
                 {
-                    // Create a new Alert Controller
-                    UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-
-                    // Add Actions
-                    actionSheetAlert.AddAction(UIAlertAction.Create("Clear Route", UIAlertActionStyle.Destructive, (action) => this.ClearRoute()));
-
-                    actionSheetAlert.AddAction(UIAlertAction.Create("Keep Route", UIAlertActionStyle.Default, null));
-
-                    // Required for iPad - You must specify a source for the Action Sheet since it is
-                    // displayed as a popover
-                    UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
-                    if (presentationPopover != null)
-                    {
-                        presentationPopover.SourceView = this.View;
-                        presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
-                    }
-
-                    // Display the alert
-                    this.PresentViewController(actionSheetAlert, true, null);
+                    e.Handled = true;
+                    _isViewDoubleTapped = false;
                 }
                 else
                 {
-                    // get the tap location in screen unit
-                    var tapScreenPoint = e.Position;
+                    // If route card is visible, do not dismiss route
+                    if (_viewModel.CurrentState == UiState.RouteFound)
+                    {
+                        // Create a new Alert Controller
+                        UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 
-                    var layer = this.MapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex];
-                    var pixelTolerance = 10;
-                    var returnPopupsOnly = false;
-                    var maxResults = 1;
+                        // Add Actions
+                        actionSheetAlert.AddAction(UIAlertAction.Create("ClearExistingRouteButtonText".Localize(), UIAlertActionStyle.Destructive,
+                            (action) => _viewModel.CloseRouteResult()));
 
-                    try
+                        actionSheetAlert.AddAction(UIAlertAction.Create("KeepExistingRouteButtonText".Localize(), UIAlertActionStyle.Default, null));
+
+                        // Required for iPad - You must specify a source for the Action Sheet since it is
+                        // displayed as a popover
+                        UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
+                        if (presentationPopover != null)
+                        {
+                            presentationPopover.SourceView = _bottomSheet.DisplayedContentView;
+                            presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Up;
+                        }
+
+                        // Display the alert
+                        PresentViewController(actionSheetAlert, true, null);
+                    }
+                    else
                     {
                         // Identify a layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max result
-                        IdentifyLayerResult idResults = await this.MapView.IdentifyLayerAsync(layer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+                        IdentifyLayerResult idResults = await _mapView.IdentifyLayerAsync(
+                            layer: _mapView.Map.OperationalLayers[AppSettings.CurrentSettings.RoomsLayerIndex],
+                            screenPoint: e.Position,
+                            tolerance: 10,
+                            returnPopupsOnly: false,
+                            maximumResults: 1);
 
-                        // create a picture marker symbol
-                        var uiImagePin = UIImage.FromBundle("MapPin");
-                        var mapPin = this.ImageToByteArray(uiImagePin);
-                        var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-                        roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
-
-                        var identifiedResult = idResults.GeoElements.First();
-
-                        // Create graphic
-                        var mapPinGraphic = new Graphic(identifiedResult.Geometry.Extent.GetCenter(), roomMarker);
-
-                        // Add pin to mapview
-                        var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
-                        graphicsOverlay.Graphics.Clear();
-                        graphicsOverlay.Graphics.Add(mapPinGraphic);
-
-                        // Get room attribute from the settings. First attribute should be set as the searcheable one
-                        var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                        var roomNumber = identifiedResult.Attributes[roomAttribute];
-
-                        if (roomNumber != null)
-                        {
-                            var employeeNameLabel = string.Empty;
-                            if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                            {
-
-                                var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                                var employeeName = identifiedResult.Attributes[employeeNameAttribute];
-                                employeeNameLabel = employeeName as string ?? string.Empty;
-                            }
-                            
-                            this.ShowBottomCard(roomNumber.ToString(), employeeNameLabel.ToString(), false);
-                        }
-                        else
-                        {
-                            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
-                            this.HideContactCard();
-                        }
-                    }
-                    catch
-                    {
-                        this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].Graphics.Clear();
-                        this.HideContactCard();
-                    }
-
-                    if (this.LocationSearchBar.IsFirstResponder == true)
-                    {
-                        this.LocationSearchBar.ResignFirstResponder();
+                        // Call on the viewmodel to handle the identify result
+                        _viewModel.IdentifyRoomFromLayerResult(idResults);
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Clears the route and hides route card.
-        /// </summary>
-        private void ClearRoute()
-        {
-            this.MapView.GraphicsOverlays["RouteGraphicsOverlay"].Graphics.Clear();
-            this.MapView.GraphicsOverlays["PinsGraphicsOverlay"].IsVisible = true;
-            this.RouteCard.Alpha = 0;
-        }
-
-        /// <summary>
-        /// Event handler for user tapping the blue Current Location button
-        /// </summary>
-        /// <param name="sender">Sender control.</param>
-        partial void CurrentLocationButton_TouchUpInside(UIButton sender)
-        {
-            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Off;
-            this.MapView.LocationDisplay.AutoPanMode = Esri.ArcGISRuntime.UI.LocationDisplayAutoPanMode.Recenter;
-            this.MapView.LocationDisplay.IsEnabled = true;
-
-            // this.ViewModel.Viewpoint = new Viewpoint(MapView.LocationDisplay.Location.Position, 150);
-        }
-
-        /// <summary>
-        /// When user holds tap on a room, the information about the room is displayed
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Eevent args.</param>
-        private void MapView_GeoViewHolding(object sender, GeoViewInputEventArgs e)
-        {
-            // Override default behavior
-            e.Handled = true;
-
-            // TODO: Make map full screen
-        }
-
-        /// <summary>
-        /// Set the current location as user moves around
-        /// </summary>
-        /// <param name="sender">Sender control.</param>
-        /// <param name="e">Event args.</param>
-        private void MapView_LocationChanged(object sender, Location e)
-        {
-            LocationViewModel.Instance.CurrentLocation = e.Position;
-        }
-
-        /// <summary>
-        /// Display the floor levels based on which building the current viewpoint is over
-        /// </summary>
-        /// <returns>The floor levels.</returns>
-        private async Task DisplayFloorLevelsAsync()
-        {
-            if (this.MapView.Map.LoadStatus == Esri.ArcGISRuntime.LoadStatus.Loaded)
+            catch (Exception ex)
             {
-                try
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Shows the settings UI.
+        /// </summary>
+        private async void SettingsButton_Clicked(object sender, EventArgs e)
+        {
+            UINavigationController navController = new UINavigationController(new SettingsController(_viewModel));
+
+            try
+            {
+                await PresentViewControllerAsync(navController, true);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+                ShowError("UnableToShowSettingsErrorTitle".Localize(), null, _settingsButton);
+            }
+        }
+
+        /// <summary>
+        /// Displays the map's attribution when the user taps.
+        /// </summary>
+        /// <remarks>This is needed because the attribution bar isn't shown when in compact width.</remarks>
+        private async void Attribution_Tapped(object sender, EventArgs e)
+        {
+            try
+            {
+                await PresentViewControllerAsync(new UINavigationController(new AttributionViewController(_mapView)), true);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.Instance.LogException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Tells the viewmodel to move to the user's home location.
+        /// </summary>
+        private void Home_TouchUpInside(object sender, EventArgs e) => _viewModel.MoveToHomeLocation();
+
+        /// <summary>
+        /// Tells the viewmodel to navigate to the user's current location.
+        /// </summary>
+        private void CurrentLocationButton_TouchUpInside(object sender, EventArgs e)
+        {
+            switch (_mapView.LocationDisplay.AutoPanMode)
+            {
+                case LocationDisplayAutoPanMode.Recenter:
+                    _mapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Off;
+                    break;
+                case LocationDisplayAutoPanMode.Off:
+                    _viewModel.MoveToCurrentLocation();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Updates the viewmodel with the current user location when it changes.
+        /// </summary>
+        private void MapView_LocationChanged(object sender, Location.Location e)  => _viewModel.CurrentUserLocation = e.Position;
+
+        /// <summary>
+        /// Displays an error message
+        /// </summary>
+        /// <param name="title">Title, which is shown most prominently</param>
+        /// <param name="message">Message, which is shown beneath the title</param>
+        /// <param name="sourceView">If not null, the message is shown as a popover originating from this view</param>
+        /// <param name="completion">Action to take after user acknowledges the error</param>
+        private void ShowError(string title, string message, UIView sourceView = null, Action completion = null)
+        {
+            UIAlertControllerStyle preferredStyle = sourceView == null ? UIAlertControllerStyle.Alert : UIAlertControllerStyle.ActionSheet;
+
+            // Create a new Alert Controller
+            UIAlertController actionSheetAlert = UIAlertController.Create(title, message, preferredStyle);
+
+            // Add Actions
+            actionSheetAlert.AddAction(UIAlertAction.Create("OkAlertActionButtonText".Localize(), UIAlertActionStyle.Default, (value) => completion()));
+
+            if (sourceView != null)
+            {
+                // Required for iPad - You must specify a source for the Action Sheet since it is displayed as a popover
+                UIPopoverPresentationController presentationPopover = actionSheetAlert.PopoverPresentationController;
+                if (presentationPopover != null)
                 {
-                    var floorsViewModel = new FloorSelectorViewModel();
-                    string[] tableItems = await floorsViewModel.GetFloorsInVisibleAreaAsync(this.MapView);
-
-                    this.InvokeOnMainThread(() =>
-                    {
-                        // Only show the floors tableview if the buildings in view have more than one floor
-                        if (tableItems.Count() > 1)
-                        {
-                            // Show the tableview and populate it
-                            FloorsTableView.Hidden = false;
-                            var tableSource = new FloorsTableSource(tableItems);
-                            tableSource.TableRowSelected += this.FloorsTableSource_TableRowSelected;
-                            FloorsTableView.Source = tableSource;
-                            FloorsTableView.ReloadData();
-
-                            // Set height constraint based on content inside table
-                            HeightConstraint.Constant = FloorsTableView.ContentSize.Height;
-
-                            if (string.IsNullOrEmpty(this.ViewModel.SelectedFloorLevel) || !tableItems.Contains(this.ViewModel.SelectedFloorLevel))
-                            {
-                                ViewModel.SelectedFloorLevel = MapViewModel.DefaultFloorLevel;
-                            }
-
-                            var selectedFloorNSIndex = GetTableViewRowIndex(ViewModel.SelectedFloorLevel, tableItems, 0);
-                            FloorsTableView.SelectRow(selectedFloorNSIndex, false, UITableViewScrollPosition.None);
-
-                            // Turn layers on. If there is no floor selected, first floor will be displayed by default
-                            this.ViewModel.SetFloorVisibility(true);
-                        }
-                        else if (tableItems.Count() == 1)
-                        {
-                            this.DismissFloorsTableView();
-                            ViewModel.SelectedFloorLevel = tableItems[0];
-
-                            // Turn layers on. If there is no floor selected, first floor will be displayed by default
-                            this.ViewModel.SetFloorVisibility(true);
-                        }
-                        else
-                        {
-                            this.DismissFloorsTableView();
-                        }
-                    });
-                }
-                catch
-                {
-                    this.DismissFloorsTableView();
+                    presentationPopover.SourceView = sourceView;
+                    presentationPopover.PermittedArrowDirections = UIPopoverArrowDirection.Any;
                 }
             }
-        }
 
-        /// <summary>
-        /// Gets the index of the table view row.
-        /// </summary>
-        /// <returns>The table view row index.</returns>
-        /// <param name="rowValue">Row value.</param>
-        /// <param name="tableSource">Table source.</param>
-        /// <param name="section">TableView Section.</param>
-        private NSIndexPath GetTableViewRowIndex(string rowValue, string[] tableSource, nint section)
-        {
-            var rowIndex = tableSource.Select((rowItem, index) => new { rowItem, index }).First(i => i.rowItem == rowValue).index;
-            return NSIndexPath.FromRowSection(rowIndex, section);
-        }
-
-        /// <summary>
-        /// Retrieves the suggestions from locator and displays them in a tableview below the textbox.
-        /// </summary>
-        /// <returns>The suggestions from locator</returns>
-        private async Task GetSuggestionsFromLocatorAsync()
-        {
-            var suggestions = await LocationViewModel.Instance.GetLocationSuggestionsAsync(this.LocationSearchBar.Text);
-            if (suggestions == null || suggestions.Count == 0)
-            {
-                this.AutosuggestionsTableView.Hidden = true;
-            }
-            else if (suggestions.Count > 0)
-            {
-                // Show the tableview with autosuggestions and populate it
-                this.AutosuggestionsTableView.Hidden = false;
-                var tableSource = new AutosuggestionsTableSource(suggestions);
-                tableSource.TableRowSelected += this.AutosuggestionsTableSource_TableRowSelected;
-                this.AutosuggestionsTableView.Source = tableSource;
-
-                this.AutosuggestionsTableView.ReloadData();
-
-                // Auto extend or shrink the tableview based on the content inside
-                var frame = this.AutosuggestionsTableView.Frame;
-                frame.Height = this.AutosuggestionsTableView.ContentSize.Height;
-                this.AutosuggestionsTableView.Frame = frame;
-            }
-        }
-
-        /// <summary>
-        /// Get the value selected in the Autosuggestions Table
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Event args.</param>
-        private async void AutosuggestionsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<SuggestResult> e)
-        {
-            var selectedItem = e.SelectedItem;
-            this.LocationSearchBar.Text = selectedItem.Label;
-            this.LocationSearchBar.ResignFirstResponder();
-            this.AutosuggestionsTableView.Hidden = true;
-            await this.GetSearchedFeatureAsync(selectedItem.Label);
-        }
-
-        /// <summary>
-        /// Zooms to geocode result of the searched feature
-        /// </summary>
-        /// <param name="searchText">Search text entered by user.</param>
-        /// <returns>The searched feature</returns>
-        private async Task GetSearchedFeatureAsync(string searchText)
-        {
-            var geocodeResult = await LocationViewModel.Instance.GetSearchedLocationAsync(searchText);
-            this.ViewModel.SelectedFloorLevel = await LocationViewModel.Instance.GetFloorLevelFromQueryAsync(searchText);
-
-            if (geocodeResult != null)
-            {
-                // create a picture marker symbol
-                var uiImagePin = UIImage.FromBundle("MapPin");
-                var mapPin = this.ImageToByteArray(uiImagePin);
-                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-                roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
-
-                // Create graphic
-                var mapPinGraphic = new Graphic(geocodeResult.DisplayLocation, roomMarker);
-
-                // Add pin to map
-                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
-                graphicsOverlay.Graphics.Clear();
-                graphicsOverlay.Graphics.Add(mapPinGraphic);
-                graphicsOverlay.IsVisible = true;
-
-                this.ViewModel.Viewpoint = new Viewpoint(geocodeResult.DisplayLocation, 150);
-
-                // Get the feature to populate the Contact Card
-                var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(searchText);
-
-                if (roomFeature != null)
-                {
-                    // Get room attribute from the settings. First attribute should be set as the searcheable one
-                    var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                    var roomNumber = roomFeature.Attributes[roomAttribute];
-                    var roomNumberLabel = roomNumber ?? string.Empty;
-
-                    var employeeNameLabel = string.Empty;
-                    if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                    {
-                        var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                        var employeeName = roomFeature.Attributes[employeeNameAttribute];
-                        employeeNameLabel = employeeName as string ?? string.Empty;
-                    }
-
-                    this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
-                }
-            }
-            else
-            {
-                this.ShowBottomCard(searchText, "Location not found", true);
-            }
-        }
-
-        /// <summary>
-        /// Convert images to byte array to be used as map pins.
-        /// </summary>
-        /// <returns>The to byte array.</returns>
-        /// <param name="image">Input Image.</param>
-        private byte[] ImageToByteArray(UIImage image)
-        {
-            using (NSData imageData = image.AsPNG())
-            {
-                var imageByteArray = new byte[imageData.Length];
-                System.Runtime.InteropServices.Marshal.Copy(imageData.Bytes, imageByteArray, 0, Convert.ToInt32(imageData.Length));
-                return imageByteArray;
-            }
-        }
-
-        /// <summary>
-        /// When called, clears all values and hide table view
-        /// </summary>
-        private void DismissFloorsTableView()
-        {
-            this.InvokeOnMainThread(() => this.FloorsTableView.Hidden = true);
-        }
-
-        /// <summary>
-        /// When a floor is selected by the user, set global variable to the selected floor and set definition query on the feature layers
-        /// </summary>
-        /// <param name="sender">Sender element.</param>
-        /// <param name="e">Event args.</param>
-        private void FloorsTableSource_TableRowSelected(object sender, TableRowSelectedEventArgs<string> e)
-        {
-            this.ViewModel.SelectedFloorLevel = e.SelectedItem;
-            this.ViewModel.SetFloorVisibility(true); 
-        }
-
-        /// <summary>
-        /// When user taps on the home button, zoom them to the home location
-        /// </summary>
-        /// <param name="sender">Home button</param>
-        async partial void Home_TouchUpInside(UIBarButtonItem sender)
-        {
-            var homeLocation = this.ViewModel.MoveToHomeLocation();
-
-            if (homeLocation != null)
-            {
-                // create a picture marker symbol
-                var uiImagePin = UIImage.FromBundle("HomePin");
-                var mapPin = this.ImageToByteArray(uiImagePin);
-                var roomMarker = new PictureMarkerSymbol(new RuntimeImage(mapPin));
-                roomMarker.OffsetY = uiImagePin.Size.Height * 0.65;
-
-                // Create graphic
-                var mapPinGraphic = new Graphic(homeLocation, roomMarker);
-
-                // Add pin to map
-                var graphicsOverlay = this.MapView.GraphicsOverlays["PinsGraphicsOverlay"];
-                graphicsOverlay.Graphics.Clear();
-                graphicsOverlay.Graphics.Add(mapPinGraphic);
-                graphicsOverlay.IsVisible = true;
-                this.HideContactCard();
-            }
-
-            // Get the feature to populate the Contact Card
-            var roomFeature = await LocationViewModel.Instance.GetRoomFeatureAsync(AppSettings.CurrentSettings.HomeLocation);
-
-            if (roomFeature != null)
-            {
-                // Get room attribute from the settings. First attribute should be set as the searcheable one
-                var roomAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[0];
-                var roomNumber = roomFeature.Attributes[roomAttribute];
-                var roomNumberLabel = roomNumber ?? string.Empty;
-
-                var employeeNameLabel = string.Empty;
-                if (AppSettings.CurrentSettings.ContactCardDisplayFields.Count > 1)
-                {
-                    var employeeNameAttribute = AppSettings.CurrentSettings.ContactCardDisplayFields[1];
-                    var employeeName = roomFeature.Attributes[employeeNameAttribute];
-                    employeeNameLabel = employeeName as string ?? string.Empty;
-                }
-                this.ShowBottomCard(roomNumberLabel.ToString(), employeeNameLabel.ToString(), false);
-            }
+            // Display the alert
+            PresentViewController(actionSheetAlert, true, null);
         }
     }
 }

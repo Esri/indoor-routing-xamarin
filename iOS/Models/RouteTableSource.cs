@@ -1,61 +1,46 @@
-﻿// <copyright file="RouteTableSource.cs" company="Esri, Inc">
-//      Copyright 2017 Esri.
-//
-//      Licensed under the Apache License, Version 2.0 (the "License");
-//      you may not use this file except in compliance with the License.
-//      You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//      Unless required by applicable law or agreed to in writing, software
-//      distributed under the License is distributed on an "AS IS" BASIS,
-//      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//      See the License for the specific language governing permissions and
-//      limitations under the License.
-// </copyright>
-// <author>Mara Stoica</author>
-namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Esri.ArcGISRuntime.Data;
-    using Foundation;
-    using UIKit;
+﻿// Copyright 2020 Esri.
 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Helpers;
+using Foundation;
+using UIKit;
+
+namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models
+{
     /// <summary>
-    /// Route table source.
+    /// Table data source for the route stops view
     /// </summary>
     public class RouteTableSource : UITableViewSource
     {
-        /// <summary>
-        /// The items in the table.
-        /// </summary>
-        private readonly IEnumerable<Feature> items;
+        // Identifies for start and end cell, since they have different appearances
+        private const string StartCellIdentifier = "startCellID";
+        private const string EndCellIdentifier = "endCellID";
 
         /// <summary>
-        /// The cell identifier for the start cell.
+        /// The route stops; currently only supports one origin and one destination.
         /// </summary>
-        private readonly string startCellIdentifier;
+        private readonly IEnumerable<Feature> _items;
 
         /// <summary>
-        /// The end cell identifier for the end cell.
-        /// </summary>
-        private readonly string endCellIdentifier;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.RouteTableSource"/> class.
+        /// Initializes a new instance of the <see cref="T:Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Models.RouteTableSource"/> class.
         /// </summary>
         /// <param name="items">Table Items.</param>
-        internal RouteTableSource(List<Feature> items)
-        {
-            if (items != null)
-            {
-                this.items = items;
-                this.startCellIdentifier = "startCellID";
-                this.endCellIdentifier = "endCellID";
-            }
-        }
+        internal RouteTableSource(List<Feature> items) => _items = items;
 
         /// <summary>
         /// Called by the TableView to determine how many cells to create for that particular section.
@@ -63,10 +48,7 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         /// <returns>The rows in section.</returns>
         /// <param name="tableview">Containing Tableview.</param>
         /// <param name="section">Specific Section.</param>
-        public override nint RowsInSection(UITableView tableview, nint section)
-        {
-            return this.items?.Count() ?? 0;
-        }
+        public override nint RowsInSection(UITableView tableview, nint section) => _items?.Count() ?? 0;
 
         /// <summary>
         /// Called by the TableView to get the actual UITableViewCell to render for the particular row
@@ -77,35 +59,45 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             // Used to create the 2 route card cells
-            // Zero base index, even cell is the start location odd cell is the end location
-            var cellIdentifier = indexPath.Row % 2 == 1 ? this.endCellIdentifier : this.startCellIdentifier;
+            var cellIdentifier = indexPath.Row == 0 ? StartCellIdentifier : EndCellIdentifier;
             var cell = tableView.DequeueReusableCell(cellIdentifier);
+
+            if (cell == null)
+            {
+                cell = new UITableViewCell(UITableViewCellStyle.Subtitle, cellIdentifier);
+                string imageName = indexPath.Row == 0 ? "StartCircle" : "EndCircle";
+                cell.ImageView.Image = UIImage.FromBundle(imageName);
+                cell.BackgroundColor = tableView.BackgroundColor;
+            }
 
             try
             {
-                if (this.items.ElementAt(indexPath.Row) != null)
+                if (_items.ElementAt(indexPath.Row) != null)
                 {
-                    var item = this.items.ElementAt(indexPath.Row);
+                    var item = _items.ElementAt(indexPath.Row);
                     cell.TextLabel.Text = item.Attributes[AppSettings.CurrentSettings.LocatorFields[0]].ToString();
-                    cell.DetailTextLabel.Text = string.Format("Floor {0}", item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]);
+                    cell.DetailTextLabel.Text = $"{"FloorLabel".Localize()} {item.Attributes[AppSettings.CurrentSettings.RoomsLayerFloorColumnName]}";
 
                     return cell;
                 }
+                // Null entry is a stand-in for using the device's current location
                 else if (AppSettings.CurrentSettings.IsLocationServicesEnabled)
                 {
-                    cell.TextLabel.Text = "Current Location";
+                    cell.TextLabel.Text = AppSettings.LocalizedCurrentLocationString;
+                    cell.DetailTextLabel.Text = string.Empty;
                     return cell;
                 }
                 else
                 {
-                    cell.TextLabel.Text = "Unknown Location";
+                    cell.TextLabel.Text = "UnknownLocationLabel".Localize();
+                    cell.DetailTextLabel.Text = string.Empty;
                     return cell;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                cell.TextLabel.Text = "Unknown Location";
-                return cell;
+                ErrorLogger.Instance.LogException(ex);
+                throw;
             }
         }
     } 
