@@ -1,5 +1,11 @@
 # Release notes
 
+## Release 2.0.1
+
+Changes:
+
+* Removes custom code-sign empty Entitlements.plist
+
 ## Release 2.0
 
 Changes:
