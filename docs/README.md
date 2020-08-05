@@ -4,6 +4,32 @@ This doc describes Indoor Routing, including how you can customize it to work fo
 
 > **Looking for ArcGIS Indoors?** ArcGIS Indoors is Esri's solution for indoor mapping, location tracking, and wayfinding; no code required. [Learn more about ArcGIS Indoors](https://www.esri.com/en-us/arcgis/products/arcgis-indoors).
 
+<!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [Description](#description)   
+- [Preparing the data](#preparing-the-data)   
+   - [Base data](#base-data)   
+   - [Feature data](#feature-data)   
+   - [Network data](#network-data)   
+   - [Locators](#locators)   
+- [App architecture](#app-architecture)   
+- [The app in action](#the-app-in-action)   
+   - [App settings](#app-settings)   
+   - [Mobile map package download](#mobile-map-package-download)   
+   - [Loading the map](#loading-the-map)   
+   - [Navigating the map](#navigating-the-map)   
+   - [Search functionality](#search-functionality)   
+   - [Querying data](#querying-data)   
+   - [Setting a home location](#setting-a-home-location)   
+   - [Routing](#routing)   
+   - [Using location services](#using-location-services)   
+- [Adaptive layout](#adaptive-layout)   
+- [Customize app appearance](#customize-app-appearance)   
+- [Update assets](#update-assets)   
+
+<!-- /MDTOC -->
+---
+
 ## Description
 
 This app enables you to find routes on a campus using custom building data, an indoor network, and locators. Indoor Routing includes a package with data for Esri's Redlands campus.
@@ -429,7 +455,7 @@ public static class ApplicationTheme
         HandlebarLength = 48;
         HandlebarCornerRadius = 2;
         CornerRadius = 8;
-        
+
 
         // Accessory button is a light/dark responsive color defined in the asset catalog
         AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
@@ -459,7 +485,7 @@ public static class ApplicationTheme
             PrimaryLabelColor = UIColor.Black;
             SecondaryLabelColor = UIColor.DarkGray;
         }
-        
+
     }
 }
 ```
