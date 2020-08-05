@@ -45,7 +45,7 @@ This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned
 **Fork** the [Indoor Routing Xamarin](https://github.com/Esri/indoor-routing-xamarin/fork) repo.
 
 ### Clone the repo
-Once you have forked the repo, you can make a clone
+Once you have forked the repo, you can make a clone.
 
 #### Command line Git
 1. [Clone the Indoor Routing repo](https://help.github.com/articles/fork-a-repo#step-2-clone-your-fork)
@@ -60,10 +60,10 @@ If you make changes in the fork and would like to [sync](https://help.github.com
 
 If there are changes made in the Original repository, you can sync the fork to keep it updated with upstream repository.
 
-1. In the terminal, change the current working directory to your local project
-2. Type ```git fetch upstream``` to fetch the commits from the upstream repository
+1. In the terminal, change the current working directory to your local project.
+2. Type ```git fetch upstream``` to fetch the commits from the upstream repository.
 3. ```git checkout master``` to checkout your fork's local master branch.
-4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
+4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
 * [ArcGIS Runtime SDK for .NET 100.8 or higher](https://developers.arcgis.com/net/latest/)
