@@ -7,6 +7,7 @@ This repo provides an example app called [Indoor Routing for iOS](https://develo
 <!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
 
 - [Features](#features)   
+- [Detailed Documentation](#detailed-documentation)   
 - [Development Instructions](#development-instructions)   
    - [Fork the repo](#fork-the-repo)   
    - [Clone the repo](#clone-the-repo)   
@@ -31,6 +32,10 @@ This repo provides an example app called [Indoor Routing for iOS](https://develo
  * Identify
  * Using GraphicsOverlays
  * Offline mode using Mobile Map Packages
+
+## Detailed Documentation
+
+Read the [docs](./docs/README.md) for a detailed explanation of the application, including its architecture and how it leverages the ArcGIS platform, as well as how you can begin using the app right away.
 
 ## Development Instructions
 This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned and imported into Xamarin Studio or Visual Studio.
