@@ -2,6 +2,25 @@
 
 This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/)
 
+**Contents**
+
+<!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [Features](#features)   
+- [Development Instructions](#development-instructions)   
+   - [Fork the repo](#fork-the-repo)   
+   - [Clone the repo](#clone-the-repo)   
+      - [Command line Git](#command-line-git)   
+   - [Configuring a Remote for a Fork](#configuring-a-remote-for-a-fork)   
+- [Requirements](#requirements)   
+- [Resources](#resources)   
+- [Issues](#issues)   
+- [Contributing](#contributing)   
+- [Licensing](#licensing)   
+
+<!-- /MDTOC -->
+---
+
 ## Features
  * Geocoding
  * Locators with Autosuggestions
