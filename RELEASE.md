@@ -1,5 +1,12 @@
 # Release notes
 
+## 2.0.2
+
+Changes:
+
+* Adds doc table of contents to root README.md and docs/index.md
+* Renames docs/index.md to [docs/README.md](/docs/README.md)
+
 ## Release 2.0.1
 
 Changes:
@@ -36,4 +43,4 @@ Features:
 * Identify
 * Using GraphicsOverlays
 * Offline mode using Mobile Map Packages
-* Comprehensive [app documentation](/docs/index.md) from the ArcGIS for Developers site.
+* Comprehensive [app documentation](/docs/README.md) from the ArcGIS for Developers site.
