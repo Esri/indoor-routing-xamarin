@@ -1,8 +1,8 @@
-# Indoor Routing for Xamarin documentation
-
 This doc describes Indoor Routing, including how you can customize it to work for your particular needs.
 
 > **Looking for ArcGIS Indoors?** ArcGIS Indoors is Esri's solution for indoor mapping, location tracking, and wayfinding; no code required. [Learn more about ArcGIS Indoors](https://www.esri.com/en-us/arcgis/products/arcgis-indoors).
+
+# Indoor Routing for Xamarin documentation
 
 <!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
 
