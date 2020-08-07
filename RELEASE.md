@@ -1,6 +1,6 @@
 # Release notes
 
-## 2.0.2
+## Release 2.0.2
 
 Changes:
 
