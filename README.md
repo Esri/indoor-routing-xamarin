@@ -2,6 +2,27 @@
 
 This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/)
 
+**Contents**
+
+<!-- MDTOC maxdepth:6 firsth1:0 numbering:0 flatten:0 bullets:1 updateOnSave:1 -->
+
+- [Features](#features)   
+- [Detailed Documentation](#detailed-documentation)   
+- [Development Instructions](#development-instructions)   
+   - [Fork the repo](#fork-the-repo)   
+   - [Clone the repo](#clone-the-repo)   
+      - [Command line Git](#command-line-git)   
+   - [Configuring a Remote for a Fork](#configuring-a-remote-for-a-fork)   
+- [Requirements](#requirements)   
+- [Resources](#resources)   
+- [Issues](#issues)   
+- [Contributing](#contributing)   
+- [MDTOC](#mdtoc)   
+- [Licensing](#licensing)   
+
+<!-- /MDTOC -->
+---
+
 ## Features
  * Geocoding
  * Locators with Autosuggestions
@@ -13,6 +34,10 @@ This repo provides an example app called [Indoor Routing for iOS](https://develo
  * Using GraphicsOverlays
  * Offline mode using Mobile Map Packages
 
+## Detailed Documentation
+
+Read the [docs](./docs/README.md) for a detailed explanation of the application, including its architecture and how it leverages the ArcGIS platform, as well as how you can begin using the app right away.
+
 ## Development Instructions
 This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned and imported into Xamarin Studio or Visual Studio.
 
@@ -20,7 +45,7 @@ This Indoor Routing repo is a Xamarin Studio Project that can be directly cloned
 **Fork** the [Indoor Routing Xamarin](https://github.com/Esri/indoor-routing-xamarin/fork) repo.
 
 ### Clone the repo
-Once you have forked the repo, you can make a clone
+Once you have forked the repo, you can make a clone.
 
 #### Command line Git
 1. [Clone the Indoor Routing repo](https://help.github.com/articles/fork-a-repo#step-2-clone-your-fork)
@@ -35,10 +60,10 @@ If you make changes in the fork and would like to [sync](https://help.github.com
 
 If there are changes made in the Original repository, you can sync the fork to keep it updated with upstream repository.
 
-1. In the terminal, change the current working directory to your local project
-2. Type ```git fetch upstream``` to fetch the commits from the upstream repository
+1. In the terminal, change the current working directory to your local project.
+2. Type ```git fetch upstream``` to fetch the commits from the upstream repository.
 3. ```git checkout master``` to checkout your fork's local master branch.
-4. ```git merge upstream/master``` to sync your local `master' branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
+4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
 * [ArcGIS Runtime SDK for .NET 100.8 or higher](https://developers.arcgis.com/net/latest/)
@@ -64,6 +89,10 @@ Anyone and everyone is welcome to [contribute](CONTRIBUTING.md). We do accept pu
 2. Report issues
 3. Contribute code
 4. Improve documentation
+
+## MDTOC
+
+Generating table of contents for documents in this repository was performed using the [MDTOC package for Atom](https://atom.io/packages/atom-mdtoc).
 
 ## Licensing
 Copyright 2017-2020 Esri
