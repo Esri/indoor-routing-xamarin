@@ -1,5 +1,11 @@
 # Release notes
 
+## Release 2.0.3
+
+Changes:
+
+* Updated to ArcGIS Runtime 100.9
+
 ## Release 2.0.2
 
 Changes:
