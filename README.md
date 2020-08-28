@@ -66,9 +66,9 @@ If there are changes made in the Original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
-* [ArcGIS Runtime SDK for .NET 100.8 or higher](https://developers.arcgis.com/net/latest/)
+* [ArcGIS Runtime SDK for .NET 100.9 or higher](https://developers.arcgis.com/net/latest/)
 * [XCode 11 or higher](https://developer.apple.com/xcode/downloads/)
-    * App supports iOS 12 and above, but requires the iOS 13 SDK to build
+    * App supports iOS 12 and above, but requires the iOS 13 SDK to build. Because ArcGIS Runtime uses [Metal](https://developer.apple.com/metal/), you will not be able to test the app on iOS 12 simulator.
 * [Visual Studio for Mac - latest](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 
 ## Resources
