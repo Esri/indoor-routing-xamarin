@@ -146,8 +146,8 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS.Controllers
 
             NSLayoutConstraint.ActivateConstraints(new[]
             {
-                DisplayedContentView.LeadingAnchor.ConstraintEqualTo(_blurView.LeadingAnchor),
-                DisplayedContentView.TrailingAnchor.ConstraintEqualTo(_blurView.TrailingAnchor),
+                DisplayedContentView.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor),
+                DisplayedContentView.TrailingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.TrailingAnchor),
                 _blurView.TopAnchor.ConstraintGreaterThanOrEqualTo(View.Superview.SafeAreaLayoutGuide.TopAnchor)
             });
 

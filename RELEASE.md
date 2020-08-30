@@ -1,5 +1,12 @@
 # Release notes
 
+## Release 2.0.3
+
+Changes:
+
+* Updated to ArcGIS Runtime 100.9
+* Fixes layout issue affecting some iPhones with notches and a compact width in landscape mode
+
 ## Release 2.0.2
 
 Changes:
