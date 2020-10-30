@@ -1,5 +1,11 @@
 # Release notes
 
+## Release 2.0.4
+
+Changes:
+
+* Updates doc and many code comments to avoid all use of `http:`.
+
 ## Release 2.0.3
 
 Changes:
