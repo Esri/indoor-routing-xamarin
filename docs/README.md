@@ -419,7 +419,7 @@ iPad (2019):
 
 ## Customize app appearance
 
-To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way. Note that some values differ between iOS 12 and later versions, due to limitations in support for dark mode APIs.
+To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way.
 
 ```cs
 public static class ApplicationTheme
@@ -456,7 +456,6 @@ public static class ApplicationTheme
         HandlebarCornerRadius = 2;
         CornerRadius = 8;
 
-
         // Accessory button is a light/dark responsive color defined in the asset catalog
         AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
         ActionBackgroundColor = AccessoryButtonColor;
@@ -467,25 +466,12 @@ public static class ApplicationTheme
         ActionButtonHeight = 44;
         HeaderFont = UIFont.PreferredTitle1;
 
-        if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
-        {
-            BackgroundColor = UIColor.SystemBackgroundColor;
-            ForegroundColor = UIColor.LabelColor;
-            SeparatorColor = UIColor.SystemGray2Color;
-            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
-            PrimaryLabelColor = UIColor.LabelColor;
-            SecondaryLabelColor = UIColor.SecondaryLabelColor;
-        }
-        else
-        {
-            BackgroundColor = UIColor.White;
-            ForegroundColor = UIColor.Black;
-            SeparatorColor = UIColor.LightGray;
-            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent);
-            PrimaryLabelColor = UIColor.Black;
-            SecondaryLabelColor = UIColor.DarkGray;
-        }
-
+        BackgroundColor = UIColor.SystemBackgroundColor;
+        ForegroundColor = UIColor.LabelColor;
+        SeparatorColor = UIColor.SystemGray2Color;
+        PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
+        PrimaryLabelColor = UIColor.LabelColor;
+        SecondaryLabelColor = UIColor.SecondaryLabelColor;
     }
 }
 ```

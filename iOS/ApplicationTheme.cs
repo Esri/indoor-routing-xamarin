@@ -54,7 +54,6 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             HandlebarCornerRadius = 2;
             CornerRadius = 8;
             
-
             // Accessory button is a light/dark responsive color defined in the asset catalog
             AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
             ActionBackgroundColor = AccessoryButtonColor;
@@ -65,25 +64,12 @@ namespace Esri.ArcGISRuntime.OpenSourceApps.IndoorRouting.iOS
             ActionButtonHeight = 44;
             HeaderFont = UIFont.PreferredTitle1;
 
-            if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
-            {
-                BackgroundColor = UIColor.SystemBackgroundColor;
-                ForegroundColor = UIColor.LabelColor;
-                SeparatorColor = UIColor.SystemGray2Color;
-                PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
-                PrimaryLabelColor = UIColor.LabelColor;
-                SecondaryLabelColor = UIColor.SecondaryLabelColor;
-            }
-            else
-            {
-                BackgroundColor = UIColor.White;
-                ForegroundColor = UIColor.Black;
-                SeparatorColor = UIColor.LightGray;
-                PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent);
-                PrimaryLabelColor = UIColor.Black;
-                SecondaryLabelColor = UIColor.DarkGray;
-            }
-            
+            BackgroundColor = UIColor.SystemBackgroundColor;
+            ForegroundColor = UIColor.LabelColor;
+            SeparatorColor = UIColor.SystemGray2Color;
+            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
+            PrimaryLabelColor = UIColor.LabelColor;
+            SecondaryLabelColor = UIColor.SecondaryLabelColor;
         }
     }
 }
