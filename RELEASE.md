@@ -4,7 +4,7 @@
 
 Changes:
 
-* Removes support for iOS 12, and updates doc to reflect that.
+* Removes support for iOS 12.
 
 ## Release 2.0.4
 
