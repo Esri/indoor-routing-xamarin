@@ -67,7 +67,7 @@ If there are changes made in the Original repository, you can sync the fork to k
 
 ## Requirements
 * [ArcGIS Runtime SDK for .NET 100.9 or higher](https://developers.arcgis.com/net/latest/)
-* [XCode 12 or higher](https://developer.apple.com/xcode/downloads/) and the iOS 13 SDK.
+* [Xcode](https://developer.apple.com/xcode/downloads/) and the iOS 13 SDK. The latest version of Xcode is preferred
 * [Visual Studio for Mac - latest](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 
 ## Resources
