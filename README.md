@@ -1,6 +1,6 @@
 # Indoor Routing Xamarin
 
-This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/?utm_source=github&utm_medium=web&utm_campaign=example_apps_indoor_xamarin_ios) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/example-apps/indoor-routing-xamarin/)
+This repo provides an example app called [Indoor Routing for iOS](https://developers.arcgis.com/documentation/app-templates-and-builders/open-source-apps/indoor-routing/) devices built in Xamarin with the [ArcGIS Runtime SDK for .NET](https://developers.arcgis.com/net/).  With some customization, you can change the app to use your indoor data and locators. Screenshots of the app and more detailed documentation can be found on the [Developers Site](https://developers.arcgis.com/documentation/app-templates-and-builders/open-source-apps/indoor-routing/)
 
 **Contents**
 
@@ -66,7 +66,7 @@ If there are changes made in the Original repository, you can sync the fork to k
 4. ```git merge upstream/master``` to sync your local `master` branch with `upstream/master`. **Note**: Your local changes will be retained and your fork's master branch will be in sync with the upstream repository.
 
 ## Requirements
-* [ArcGIS Runtime SDK for .NET 100.10 or higher](https://developers.arcgis.com/net/latest/)
+* [ArcGIS Runtime SDK for .NET 100.10 or higher](https://developers.arcgis.com/net/)
 * [Xcode](https://developer.apple.com/xcode/downloads/) and the iOS 13 SDK. Note, the latest version of Xcode is [required](https://docs.microsoft.com/en-us/xamarin/ios/get-started/installation/#required-components) by Xamarin.iOS.
 * [Visual Studio for Mac - latest](https://visualstudio.microsoft.com/vs/mac/) or [Visual Studio 2017 or higher](https://visualstudio.microsoft.com/vs/whatsnew/)
 
@@ -102,7 +102,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 A copy of the license is available in the repository's [LICENSE](LICENSE) file.
 
-For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/net/latest/ios/guide/license-your-app.htm).
+For information about licensing your deployed app, see [License your app](https://developers.arcgis.com/net/license-and-deployment/license/).
 
 [](Esri Tags: ArcGIS Xamarin iOS Mobile)
 [](Esri Language: C#)​
