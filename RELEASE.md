@@ -1,5 +1,12 @@
 # Release notes
 
+## Release 2.0.5
+
+Changes:
+
+* Deprecates support for iOS 12.
+* Updated to ArcGIS Runtime 100.10.
+
 ## Release 2.0.4
 
 Changes:

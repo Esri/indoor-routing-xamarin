@@ -190,7 +190,7 @@ The Initial Viewpoint is the initial extent that the map is loaded to when the a
 
 ### Navigating the map
 
-There are three ways to move around the map: pan, zoom and floor change. The floor picker is displayed only when the map is zoomed in past a certain extent. This extent is also defined in the settings and can be easily changed. When the floor picker is activated, the app applies [definition expressions](https://developers.arcgis.com/net/latest/ios/api-reference/) on the rooms and walls layers to only display the selected floor.
+There are three ways to move around the map: pan, zoom and floor change. The floor picker is displayed only when the map is zoomed in past a certain extent. This extent is also defined in the settings and can be easily changed. When the floor picker is activated, the app applies definition expressions on the rooms and walls layers to only display the selected floor.
 
 ![Manual Zoom-in](./images/manualzoomin.png)
 
@@ -244,9 +244,9 @@ internal async Task<GeocodeResult> GetSearchedLocationAsync(string searchString)
 ```
 
 Several matches are returned, with corresponding accuracy scores. This app makes the assumption that the first match is the best, but it could be changed so users see more than one of the returned matches.
-[Read more about locators](https://developers.arcgis.com/net/latest/wpf/guide/search-for-places-geocoding-.htm).
+[Read more about locators](https://developers.arcgis.com/documentation/mapping-apis-and-location-services/search/geocoding/).
 
-The resulting location is then added to the map inside a [graphics overlay](https://developers.arcgis.com/net/latest/wpf/guide/add-graphics-overlays-to-your-app.htm)
+The resulting location is then added to the map inside a [graphics overlay](https://developers.arcgis.com/documentation/mapping-apis-and-location-services/maps/graphics/)
 
 ![Search Using Search Bar](./images/searchusingsearchbar.png)
 
@@ -307,7 +307,7 @@ The app offers the option to set a Home Location. This location is used to pre-p
 
 ### Routing
 
-Once search is complete and a feature is selected on the map, the route icon appears on the bottom card. Tapping that navigates the app to the routing page, where user is prompted to add a Start and End location. The End location is always pre-populated with the feature selected on the map. The Start location is only pre-populated if Location Services is enabled or if the user has a Home Location set. When the user hits Route Me, the app navigates back to the map and the route is generated using the TransportationNetwork that was packaged in the mmpk. Read more about [routing and how to create routes using transportation networks](https://developers.arcgis.com/net/latest/ios/guide/find-a-route.htm).
+Once search is complete and a feature is selected on the map, the route icon appears on the bottom card. Tapping that navigates the app to the routing page, where user is prompted to add a Start and End location. The End location is always pre-populated with the feature selected on the map. The Start location is only pre-populated if Location Services is enabled or if the user has a Home Location set. When the user hits Route Me, the app navigates back to the map and the route is generated using the TransportationNetwork that was packaged in the mmpk. Read more about [routing and how to create routes using transportation networks](https://developers.arcgis.com/documentation/mapping-apis-and-location-services/routing/routing/).
 
 ```csharp
 var routeTask = await RouteTask.CreateAsync(this.Map.TransportationNetworks[0]);
@@ -419,7 +419,7 @@ iPad (2019):
 
 ## Customize app appearance
 
-To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way. Note that some values differ between iOS 12 and later versions, due to limitations in support for dark mode APIs.
+To make it easier to update the visual appearance of the app, many values related to the UI are configured in a static `ApplicationTheme` class. You can edit values in that class to update the entire app in a uniform way.
 
 ```cs
 public static class ApplicationTheme
@@ -456,7 +456,6 @@ public static class ApplicationTheme
         HandlebarCornerRadius = 2;
         CornerRadius = 8;
 
-
         // Accessory button is a light/dark responsive color defined in the asset catalog
         AccessoryButtonColor = UIColor.FromName("AccessoryButtonColor");
         ActionBackgroundColor = AccessoryButtonColor;
@@ -467,25 +466,12 @@ public static class ApplicationTheme
         ActionButtonHeight = 44;
         HeaderFont = UIFont.PreferredTitle1;
 
-        if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
-        {
-            BackgroundColor = UIColor.SystemBackgroundColor;
-            ForegroundColor = UIColor.LabelColor;
-            SeparatorColor = UIColor.SystemGray2Color;
-            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
-            PrimaryLabelColor = UIColor.LabelColor;
-            SecondaryLabelColor = UIColor.SecondaryLabelColor;
-        }
-        else
-        {
-            BackgroundColor = UIColor.White;
-            ForegroundColor = UIColor.Black;
-            SeparatorColor = UIColor.LightGray;
-            PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.Prominent);
-            PrimaryLabelColor = UIColor.Black;
-            SecondaryLabelColor = UIColor.DarkGray;
-        }
-
+        BackgroundColor = UIColor.SystemBackgroundColor;
+        ForegroundColor = UIColor.LabelColor;
+        SeparatorColor = UIColor.SystemGray2Color;
+        PanelBackgroundMaterial = UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemMaterial);
+        PrimaryLabelColor = UIColor.LabelColor;
+        SecondaryLabelColor = UIColor.SecondaryLabelColor;
     }
 }
 ```
